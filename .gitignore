@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment
+.env
+.env.*
+
+# Official data and large artifacts
+data_and_sample_submission/
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.ckpt
+*.tar
+*.tar.gz
+*.zip
+*.npz
+*.npy
+
+# Experiment and runtime outputs
+experiments/*
+outputs/*
+logs/
+wandb/
+mlruns/
+
+# Keep directory placeholders
+!experiments/.gitkeep
+!outputs/.gitkeep
+!outputs/logs/
+!outputs/logs/.gitkeep
+!outputs/predictions/
+!outputs/predictions/.gitkeep
+!outputs/checkpoints/
+!outputs/checkpoints/.gitkeep
+!outputs/submission/
+!outputs/submission/.gitkeep
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

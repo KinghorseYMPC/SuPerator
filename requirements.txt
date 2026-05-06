@@ -1,0 +1,8 @@
+numpy
+pandas
+h5py
+pyyaml
+pytest
+
+# Install torch according to the target CUDA/CPU environment in later stages.
+# torch
