@@ -22,11 +22,16 @@ def test_root_skill_is_removed_or_index_only() -> None:
 
 def test_agent_skill_files_exist() -> None:
     for relative_path in [
+        ".agents/skills/README.md",
+        ".agents/skill_registry.yaml",
+        ".agents/external_skill_intake_log.md",
         ".agents/skills/project-onboarding/SKILL.md",
         ".agents/skills/safe-code-change/SKILL.md",
         ".agents/skills/debug-and-fix/SKILL.md",
         ".agents/skills/testing-checklist/SKILL.md",
         ".agents/skills/git-workflow/SKILL.md",
+        ".agents/skills/skill-maintenance/SKILL.md",
+        ".agents/skills/external-skill-intake/SKILL.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 

@@ -6,7 +6,7 @@ SuPerator builds a research Agent for PDE neural operators. The goal is not only
 
 ## Current Stage
 
-A1.5 / A: agent skill system consolidation. A0 and A1 are complete; after this stage the project should move to A2 for the Task 1 baseline.
+A1.6 / A: skill self-evolution and external skill intake mechanism. A0, A1, and A1.5 are complete; after this stage the project should move to A2 for the Task 1 baseline.
 
 ## Agent Skill System
 
@@ -21,6 +21,10 @@ At the start of any Codex session, read in this order:
 Code changes must follow `.agents/skills/safe-code-change/SKILL.md`.
 Debugging must follow `.agents/skills/debug-and-fix/SKILL.md`.
 Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
+
+Codex may maintain `.agents/skills/` when the user explicitly asks or when a project phase changes. Skill maintenance must follow `.agents/skills/skill-maintenance/SKILL.md`.
+
+External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`. External skills must not directly overwrite local skills; every intake needs candidate logging, license review, project adaptation, tests, and a commit. Do not execute scripts from external repositories. Do not vendor external repositories into this project. Do not directly copy unknown-source or unknown-license content into this project.
 
 ## Codex Working Principles
 
@@ -46,6 +50,7 @@ Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/s
 - A0: project takeover and data inventory.
 - A1: dummy submission.
 - A1.5: agent skill system consolidation.
+- A1.6: skill self-evolution and external skill intake mechanism.
 - A2: Task 1 baseline.
 - B: Task 1 improvement.
 - C: scientific Agent closed loop.

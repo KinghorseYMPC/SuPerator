@@ -1,0 +1,43 @@
+skills:
+  - name: project-onboarding
+    path: .agents/skills/project-onboarding/SKILL.md
+    purpose: Project onboarding and state recovery
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: safe-code-change
+    path: .agents/skills/safe-code-change/SKILL.md
+    purpose: Safe minimal code changes
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: debug-and-fix
+    path: .agents/skills/debug-and-fix/SKILL.md
+    purpose: Debugging and regression fixing
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: testing-checklist
+    path: .agents/skills/testing-checklist/SKILL.md
+    purpose: Stage-specific testing checklist
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: git-workflow
+    path: .agents/skills/git-workflow/SKILL.md
+    purpose: Git workflow and commit hygiene
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: skill-maintenance
+    path: .agents/skills/skill-maintenance/SKILL.md
+    purpose: Maintain and evolve project skills
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
+  - name: external-skill-intake
+    path: .agents/skills/external-skill-intake/SKILL.md
+    purpose: Safely evaluate and adapt external skills
+    status: active
+    source: local
+    last_reviewed: 2026-05-07
