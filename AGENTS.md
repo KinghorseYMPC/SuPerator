@@ -6,7 +6,21 @@ SuPerator builds a research Agent for PDE neural operators. The goal is not only
 
 ## Current Stage
 
-A0 / A: project takeover, rule reading, data inventory, and engineering baseline.
+A1.5 / A: agent skill system consolidation. A0 and A1 are complete; after this stage the project should move to A2 for the Task 1 baseline.
+
+## Agent Skill System
+
+Project skills are unified under `.agents/skills/`. The root `SKILL.md` is no longer used.
+
+At the start of any Codex session, read in this order:
+
+1. `AGENTS.md`
+2. `.agents/skills/project-onboarding/SKILL.md`
+3. The skill file relevant to the current task
+
+Code changes must follow `.agents/skills/safe-code-change/SKILL.md`.
+Debugging must follow `.agents/skills/debug-and-fix/SKILL.md`.
+Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
 
 ## Codex Working Principles
 
@@ -31,6 +45,7 @@ A0 / A: project takeover, rule reading, data inventory, and engineering baseline
 
 - A0: project takeover and data inventory.
 - A1: dummy submission.
+- A1.5: agent skill system consolidation.
 - A2: Task 1 baseline.
 - B: Task 1 improvement.
 - C: scientific Agent closed loop.

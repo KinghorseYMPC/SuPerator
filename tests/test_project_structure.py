@@ -9,7 +9,24 @@ def test_required_root_files_exist() -> None:
         "guideline.md",
         "AGENTS.md",
         "README.md",
-        "SKILL.md",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_root_skill_is_removed_or_index_only() -> None:
+    root_skill = ROOT / "SKILL.md"
+    if root_skill.exists():
+        assert root_skill.stat().st_size < 512
+        assert ".agents/skills/" in root_skill.read_text(encoding="utf-8")
+
+
+def test_agent_skill_files_exist() -> None:
+    for relative_path in [
+        ".agents/skills/project-onboarding/SKILL.md",
+        ".agents/skills/safe-code-change/SKILL.md",
+        ".agents/skills/debug-and-fix/SKILL.md",
+        ".agents/skills/testing-checklist/SKILL.md",
+        ".agents/skills/git-workflow/SKILL.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 

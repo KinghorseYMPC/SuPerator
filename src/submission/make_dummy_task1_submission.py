@@ -22,7 +22,7 @@ DEFAULT_CONFIG = ROOT / "configs" / "task1_dummy.yaml"
 REQUIRED_CODE_ITEMS = [
     "AGENTS.md",
     "README.md",
-    "SKILL.md",
+    ".agents",
     "requirements.txt",
     "scripts",
     "src",
