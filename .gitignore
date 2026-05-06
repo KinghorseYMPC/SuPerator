@@ -33,6 +33,10 @@ data_and_sample_submission/
 # Experiment and runtime outputs
 experiments/*
 outputs/*
+outputs/logs/*
+outputs/predictions/*
+outputs/checkpoints/*
+outputs/submission/*
 logs/
 wandb/
 mlruns/

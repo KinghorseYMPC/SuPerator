@@ -1,0 +1,10 @@
+project_name: SuPerator
+task: task1
+test_path: data_and_sample_submission/train_val_test_init/task1_test.hdf5
+sample_submission_dir: data_and_sample_submission/sample_submission
+output_dir: outputs/submission
+submission_id: SuPerator
+problem_id: PDE_Burgers
+code_path: code
+expected_shape: [1000, 200, 256]
+initial_steps: 10
