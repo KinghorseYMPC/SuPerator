@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import shutil
+import stat
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -21,23 +23,30 @@ LOGGER = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = ROOT / "configs" / "task1_dummy.yaml"
 REQUIRED_CODE_ITEMS = [
-    "AGENTS.md",
-    "README.md",
-    ".agents",
     "requirements.txt",
     "scripts",
     "src",
     "configs",
 ]
-EXCLUDED_COPY_DIRS = {
-    ".git",
-    "__pycache__",
-    ".pytest_cache",
-    "data_and_sample_submission",
-    "task_log_sample",
-    "outputs",
-    "experiments",
-}
+OPTIONAL_CODE_ITEMS = [
+    "pyproject.toml",
+]
+EXCLUDED_COPY_DIRS = {".git", "__pycache__", ".pytest_cache"}
+EXCLUDED_COPY_PATTERNS = (
+    "*.h5",
+    "*.hdf5",
+    "*.zip",
+    "*.pt",
+    "*.pth",
+    "*.ckpt",
+    "*.log",
+    "*.pyc",
+)
+
+
+def _remove_readonly(func, path, _exc_info) -> None:
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 
 def _write_jsonl_log(log_path: Path, records: list[dict]) -> None:
@@ -188,11 +197,33 @@ def choose_output_dataset_key(sample_submission_dir: Path) -> str:
 
 def copy_code_bundle(destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
-    for item_name in REQUIRED_CODE_ITEMS:
+    for forbidden_name in [
+        ".agents",
+        "docs",
+        "task_log_sample",
+        "data_and_sample_submission",
+        "outputs",
+        "experiments",
+        "AGENTS.md",
+        "README.md",
+        "guideline.md",
+    ]:
+        forbidden_path = destination / forbidden_name
+        if not forbidden_path.exists():
+            continue
+        try:
+            if forbidden_path.is_dir():
+                shutil.rmtree(forbidden_path, onexc=_remove_readonly)
+            else:
+                forbidden_path.unlink()
+        except OSError as exc:
+            LOGGER.warning("Could not remove stale forbidden code bundle item %s: %s", forbidden_path, exc)
+    for item_name in REQUIRED_CODE_ITEMS + OPTIONAL_CODE_ITEMS:
         source = ROOT / item_name
         target = destination / item_name
         if not source.exists():
-            LOGGER.warning("Code bundle source missing: %s", source)
+            if item_name in REQUIRED_CODE_ITEMS:
+                LOGGER.warning("Code bundle source missing: %s", source)
             continue
         if source.is_dir():
             shutil.copytree(
@@ -200,19 +231,32 @@ def copy_code_bundle(destination: Path) -> None:
                 target,
                 ignore=shutil.ignore_patterns(
                     *EXCLUDED_COPY_DIRS,
-                    "*.h5",
-                    "*.hdf5",
-                    "*.zip",
-                    "*.pt",
-                    "*.pth",
-                    "*.ckpt",
-                    "*.log",
-                    "*.pyc",
+                    *EXCLUDED_COPY_PATTERNS,
                 ),
                 dirs_exist_ok=True,
             )
         else:
             shutil.copy2(source, target)
+    (destination / "README_submission.md").write_text(
+        "\n".join(
+            [
+                "# Submission Code",
+                "",
+                "This directory contains the runnable source, scripts, configs, and dependency metadata bundled with the submission.",
+                "",
+                "Typical validation commands from the repository root:",
+                "",
+                "```bash",
+                "python scripts/validate_task_logs.py",
+                "python scripts/validate_submission.py",
+                "```",
+                "",
+                "No project governance skills, wiki pages, official data, runtime outputs, checkpoints, logs, or human-preloaded strategy documents are included in this code bundle.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
 
 def write_persistence_prediction(

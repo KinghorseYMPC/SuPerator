@@ -14,6 +14,17 @@ from src.data.hdf5_utils import find_main_array_key
 from src.submission.validate_task_logs import validate_task_log
 
 ROOT = Path(__file__).resolve().parents[2]
+PROHIBITED_CODE_BUNDLE_ITEMS = {
+    ".agents",
+    "docs",
+    "task_log_sample",
+    "data_and_sample_submission",
+    "outputs",
+    "experiments",
+    "AGENTS.md",
+    "README.md",
+    "guideline.md",
+}
 
 
 def resolve_path(path_value: str | Path) -> Path:
@@ -41,10 +52,42 @@ def _read_numeric_csv_value(frame: pd.DataFrame, column: str) -> float:
     return value
 
 
+def validate_code_bundle(code_dir: str | Path, strict: bool = True) -> dict:
+    """Check that submission code/ excludes project governance and large artifact roots."""
+
+    directory = resolve_path(code_dir)
+    _require(directory.is_dir(), f"Missing code/ directory: {directory}")
+    _require(any(directory.iterdir()), f"code/ directory is empty: {directory}")
+
+    warnings: list[str] = []
+    errors: list[str] = []
+    present_items: list[str] = []
+    for item_name in sorted(PROHIBITED_CODE_BUNDLE_ITEMS):
+        candidate = directory / item_name
+        if candidate.exists():
+            present_items.append(item_name)
+            message = f"code/ must not contain {item_name}"
+            if strict:
+                errors.append(message)
+            else:
+                warnings.append(message)
+
+    _require(not errors, "Forbidden code bundle content: " + "; ".join(errors))
+    return {
+        "passed": not errors,
+        "code_dir": str(directory),
+        "strict": strict,
+        "forbidden_items_present": present_items,
+        "warnings": warnings,
+        "errors": errors,
+    }
+
+
 def validate_task_submission(
     submission_dir: str | Path,
     task_id: int,
     test_path: str | Path,
+    strict: bool = True,
 ) -> dict:
     """Validate one task inside a submission directory."""
 
@@ -61,8 +104,7 @@ def validate_task_submission(
     sample_log_path = ROOT / "task_log_sample" / f"{task_prefix}_logs.log"
 
     _require(submission_json_path.is_file(), f"Missing submission.json: {submission_json_path}")
-    _require(code_dir.is_dir(), f"Missing code/ directory: {code_dir}")
-    _require(any(code_dir.iterdir()), f"code/ directory is empty: {code_dir}")
+    code_validation = validate_code_bundle(code_dir, strict=strict)
     _require(pred_path.is_file(), f"Missing prediction file: {pred_path}")
     _require(time_path.is_file(), f"Missing time CSV: {time_path}")
     _require(log_path.is_file(), f"Missing log file: {log_path}")
@@ -140,6 +182,7 @@ def validate_task_submission(
             "warnings": log_validation["warnings"],
             "errors": log_validation["errors"],
         },
+        "code_bundle_validation": code_validation,
     }
     print("Submission validation passed:")
     for key, value in summary.items():
@@ -155,8 +198,10 @@ def main(argv: list[str] | None = None) -> dict:
         "--test-path",
         default="data_and_sample_submission/train_val_test_init/task1_test.hdf5",
     )
+    parser.add_argument("--strict", dest="strict", action="store_true", default=True)
+    parser.add_argument("--no-strict", dest="strict", action="store_false")
     args = parser.parse_args(argv)
-    return validate_task_submission(args.submission_dir, args.task_id, args.test_path)
+    return validate_task_submission(args.submission_dir, args.task_id, args.test_path, strict=args.strict)
 
 
 if __name__ == "__main__":

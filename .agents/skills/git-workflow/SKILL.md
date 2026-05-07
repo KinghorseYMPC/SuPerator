@@ -21,7 +21,7 @@
 - add agent skills structure
 - update project governance docs
 - add submission validator tests
-- add task1 baseline dataset loader
+- add dataset loader
 - add fno1d smoke test
 - fix hdf5 key detection
 

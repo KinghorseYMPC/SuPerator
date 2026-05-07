@@ -19,7 +19,7 @@ skills:
     last_reviewed: 2026-05-07
   - name: testing-checklist
     path: .agents/skills/testing-checklist/SKILL.md
-    purpose: Stage-specific testing checklist including A3.5 log compliance validation
+    purpose: Generic testing checklist and submission validation commands
     status: active
     source: local
     last_reviewed: 2026-05-07
@@ -47,9 +47,9 @@ skills:
     status: active
     source: local
     last_reviewed: 2026-05-07
-  - name: task2-isolation
-    path: .agents/skills/task2-isolation/SKILL.md
-    purpose: Enforce Task 2 data, checkpoint, config, and inference-input isolation
+  - name: data-checkpoint-isolation
+    path: .agents/skills/data-checkpoint-isolation/SKILL.md
+    purpose: Enforce data, checkpoint, config, output, and inference-input isolation
     status: active
     source: local
     last_reviewed: 2026-05-07

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-用于确保 SuPerator 生成的 task1_logs.log 和 task2_logs.log 符合比赛最新格式规范，避免因日志格式不合规导致评分为 0。
+用于确保 SuPerator 生成的 task log 符合当前 JSONL 格式规范，避免因日志格式不合规导致提交无效。
 
 ## When to use
 
-- 生成 task1_logs.log 或 task2_logs.log；
+- 生成 task log；
 - 修改 submission 生成逻辑；
 - 修改 Agent 实验日志逻辑；
 - 打包 submission 前；
@@ -30,13 +30,7 @@
 - 不得缺失样例要求的关键 section 或字段；
 - submission 前必须运行 task log validator。
 
-Additional A3+ rules:
-
-- Trained submissions must use the JSONL task log writer in
-  `src/agent/task_log_writer.py`.
-- Do not fall back to the old Markdown-style task log for trained submissions.
-
-Additional A3.5 provenance and format rules:
+Additional provenance and format rules:
 
 - Every log line must be valid JSON.
 - Every log line must contain `timestamp` and `elapsed_seconds`.
@@ -49,6 +43,7 @@ Additional A3.5 provenance and format rules:
 - Do not claim a development summary log is a complete LLM API response capture.
 - Submitted `code/` must be traceable to the recorded Agent LLM operations.
 - Before submission, run both `python scripts/validate_task_logs.py` and `python scripts/validate_submission.py`.
+- Do not add model, training, task-priority, or score-optimization strategy to this skill.
 
 ## Procedure
 

@@ -8,7 +8,7 @@
 
 - 新阶段开始前；
 - 某类错误重复出现 2 次以上；
-- 新增重要工作流，例如 SLURM、FNO 训练、PDEBench 数据处理、实验分析、submission 打包；
+- 新增重要工作流，例如 SLURM、generic training hygiene、generic dataset handling、实验分析、submission 打包；
 - 用户明确要求更新 skill；
 - 从外部来源吸收了有价值的工作流程；
 - 某个 skill 已经过时或与实际项目不一致。
@@ -39,6 +39,7 @@
 - Do not add commands that delete data or rewrite history.
 - Do not include unverified external snippets.
 - Do not add large files.
+- Do not add competition task strategy, model-choice advice, training routes, score optimization ideas, or human-preloaded execution plans to skills.
 
 ## Required final report
 

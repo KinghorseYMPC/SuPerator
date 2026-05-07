@@ -36,6 +36,11 @@ def test_dummy_submission_generation_validation_and_package() -> None:
     assert (SUBMISSION_DIR / "task1_logs.log").exists()
     assert (SUBMISSION_DIR / "code").is_dir()
     assert any((SUBMISSION_DIR / "code").iterdir())
+    assert not (SUBMISSION_DIR / "code" / ".agents").exists()
+    assert not (SUBMISSION_DIR / "code" / "docs").exists()
+    assert not (SUBMISSION_DIR / "code" / "AGENTS.md").exists()
+    assert not (SUBMISSION_DIR / "code" / "README.md").exists()
+    assert (SUBMISSION_DIR / "code" / "README_submission.md").exists()
 
     validate_task_submission(SUBMISSION_DIR, 1, TEST_PATH)
     log_result = validate_task_log(
@@ -54,3 +59,7 @@ def test_dummy_submission_generation_validation_and_package() -> None:
     assert "submission/task1_time.csv" in names
     assert "submission/task1_logs.log" in names
     assert any(name.startswith("submission/code/") for name in names)
+    assert not any(name.startswith("submission/code/.agents/") for name in names)
+    assert not any(name.startswith("submission/code/docs/") for name in names)
+    assert "submission/code/AGENTS.md" not in names
+    assert "submission/code/README.md" not in names

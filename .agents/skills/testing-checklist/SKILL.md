@@ -4,14 +4,14 @@
 
 定义 SuPerator 项目在不同阶段的测试命令和验收标准。
 
-## A0 tests
+## Project structure tests
 
 ```bash
 python scripts/inspect_project.py
 pytest -q
 ```
 
-## A1 tests
+## Submission smoke tests
 
 ```bash
 python scripts/make_dummy_task1_submission.py
@@ -23,80 +23,37 @@ pytest -q
 
 - submission.json 存在；
 - code/ 非空；
-- task1_pred.hdf5 存在；
-- task1_pred.hdf5 dataset 可识别；
+- task prediction HDF5 exists;
+- task prediction dataset 可识别；
 - shape 为 (N, 200, 256)；
 - dtype 为 float32 或可接受浮点类型；
 - 无 NaN / Inf；
 - 前 10 步与 test input 最大误差 <= 1e-3；
-- task1_time.csv 包含 train_time 和 inference_time；
-- task1_logs.log 非空；
+- task time CSV 包含 train_time 和 inference_time；
+- task JSONL log 非空；
 - zip 内部顶层是 submission/。
 
-## A2 tests
+## Task log validation tests
 
 ```bash
-python scripts/inspect_task1_hdf5.py
-python scripts/smoke_fno1d_forward.py
-python scripts/one_batch_train_task1.py
-python scripts/evaluate_persistence_task1.py
-pytest -q
-python scripts/validate_submission.py
-```
-
-如果 torch 不存在，torch 相关 smoke 可以跳过，但必须明确报告。
-非 torch 测试必须继续通过。
-submission validator 必须继续通过。
-
-## A2.5 tests
-
-```bash
-python scripts/inspect_task_log_sample.py
 python scripts/make_dummy_task1_submission.py
 python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 pytest -q
 ```
 
-A2.5 验收重点：
-
-- `task_log_sample/` 本地存在；
-- `docs/task_log_format_analysis.md` 和 `docs/competition_updates.md` 已更新；
-- `task1_logs.log` 使用官方样例要求的 JSON Lines 格式；
-- `src/submission/validate_task_logs.py` 对 submission log 是硬约束；
-- dummy submission 仍通过 shape、time.csv、code/、submission.json、前 10 步一致性和 log 格式校验。
-
-## A3 tests
+## Full local validation
 
 ```bash
-python scripts/train_task1_minimal.py
-python scripts/make_task1_trained_submission.py
+python scripts/make_dummy_task1_submission.py
 python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 pytest -q
 ```
-
-A3 acceptance focuses on the minimal Task 1 training loop: local train/dev split
-from `task1_val.hdf5`, small FNO1D one-step training, dev rollout proxy metric,
-best checkpoint, trained submission artifacts, JSONL task log validation, and
-submission validation. If torch is unavailable, torch-specific tests may skip,
-but non-torch tests must still pass.
-
-## A3.5 tests
-
-```bash
-python scripts/validate_task_logs.py
-python scripts/validate_submission.py
-pytest -q
-```
-
-A3.5 acceptance focuses on latest competition rule hardening: strict JSONL log
-validation, timezone and 12-hour span checks, provenance warnings for
-development summary logs, Task 2 rule documentation, and unchanged Task 1
-submission validation.
 
 ## Rule
 
-如果改动涉及提交文件生成，必须运行 A1 tests。
-如果改动涉及 task logs 或 submission 打包，必须使用 `task-log-compliance` 并运行 A2.5 tests。
-如果改动涉及模型或训练，必须至少运行 model forward 和 one-batch training test。
+如果改动涉及提交文件生成，必须运行 submission smoke tests。
+如果改动涉及 task logs 或 submission 打包，必须使用 `task-log-compliance` 并运行 task log validation tests。
+如果改动涉及模型或训练，必须运行对应的最小模型、数据和训练测试；torch 不存在时可跳过 torch-only 测试，但必须报告。
+不要把任务执行策略、模型选择建议或得分优化路线写入本 checklist。

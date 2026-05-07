@@ -6,7 +6,7 @@ SuPerator builds a research Agent for PDE neural operators. The goal is not only
 
 ## Current Stage
 
-A1.6 / A: skill self-evolution and external skill intake mechanism. A0, A1, and A1.5 are complete; after this stage the project should move to A2 for the Task 1 baseline.
+A3.6: preloaded context compliance boundaries. A0, A1, A1.5, A1.6, A2, A2.5, A3, and A3.5 are complete.
 
 ## Agent Skill System
 
@@ -21,11 +21,24 @@ At the start of any Codex session, read in this order:
 Code changes must follow `.agents/skills/safe-code-change/SKILL.md`.
 Debugging must follow `.agents/skills/debug-and-fix/SKILL.md`.
 Submission log work must follow `.agents/skills/task-log-compliance/SKILL.md`.
+Data and checkpoint isolation work must follow `.agents/skills/data-checkpoint-isolation/SKILL.md`.
 Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
 
 Codex may maintain `.agents/skills/` when the user explicitly asks or when a project phase changes. Skill maintenance must follow `.agents/skills/skill-maintenance/SKILL.md`.
 
 External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`. External skills must not directly overwrite local skills; every intake needs candidate logging, license review, project adaptation, tests, and a commit. Do not execute scripts from external repositories. Do not vendor external repositories into this project. Do not directly copy unknown-source or unknown-license content into this project.
+
+## Preloaded Context Boundary
+
+Project skills must contain generic working procedures only. They must not contain competition task information, task priority, model choices, training plans, scoring optimization ideas, or human-preloaded execution routes.
+
+Competition clarifications may record official rules, file formats, timing limits, data restrictions, checkpoint restrictions, and log requirements. Store these neutral constraints in `docs/competition_clarifications.md`.
+
+Wiki content, if present, must stay broad: PDE background, neural operator background, Burgers equation background, and general tooling knowledge. It must not contain competition-specific execution plans, tuning advice, model-selection strategy, or Agent action routes.
+
+After an Agent starts reading competition tasks and executing work, there must be no human intervention in that run. Agent-created wiki or notes are part of the Agent context and must follow the same boundary.
+
+Final submission `code/` bundles should contain runnable code, configs, scripts, and minimal neutral run instructions. They should not include human-preloaded strategy documents such as `.agents/`, strategy-oriented `docs/`, `AGENTS.md`, `README.md`, or `guideline.md`.
 
 ## Codex Working Principles
 
@@ -39,12 +52,7 @@ External skill intake from GitHub or other public sources must follow `.agents/s
 
 ## Competition Hard Constraints
 
-- Submit at least one task.
-- Each submitted task must include `task{N}_pred.hdf5`, `task{N}_time.csv`, and `task{N}_logs.log`.
-- `task{N}_pred.hdf5` must have shape `(N, 200, 256)`.
-- The first 10 time steps must match the input initial condition.
-- `inference_time` must be controlled carefully and should stay within 2 minutes.
-- `code/` in the submission package must not be empty.
+See `docs/competition_clarifications.md` for neutral rule and format clarifications. Do not add task execution strategy to this section.
 
 ## Stage Roadmap
 
@@ -52,7 +60,10 @@ External skill intake from GitHub or other public sources must follow `.agents/s
 - A1: dummy submission.
 - A1.5: agent skill system consolidation.
 - A1.6: skill self-evolution and external skill intake mechanism.
-- A2: Task 1 baseline.
+- A2: baseline foundations.
 - A2.5: task log compliance with the latest competition JSONL format.
-- B: Task 1 improvement.
+- A3: minimal training loop.
+- A3.5: stricter JSONL log compliance.
+- A3.6: preloaded context compliance boundaries.
+- B: later improvement work.
 - C: scientific Agent closed loop.

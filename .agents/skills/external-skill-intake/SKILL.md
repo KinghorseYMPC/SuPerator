@@ -8,7 +8,7 @@
 
 - 用户要求寻找外部优质 skill；
 - 当前项目遇到缺乏经验的工程环节；
-- 需要建立新工作流，例如 SLURM、PyTorch profiling、PDEBench 数据处理、FNO 训练、HDF5 大文件处理；
+- 需要建立新工作流，例如 SLURM、PyTorch profiling、generic dataset handling、generic model training hygiene、HDF5 大文件处理；
 - 本地 skill 无法覆盖某类重复问题。
 
 ## Allowed sources
@@ -30,8 +30,8 @@
 - PyTorch training workflow skill
 - SLURM debugging checklist
 - HDF5 large file workflow
-- PDEBench neural operator training
-- FNO implementation guide
+- neural operator background
+- generic model implementation guide
 
 ## Intake workflow
 
@@ -57,6 +57,7 @@
 - Do not include large copied examples.
 - Record attribution in `.agents/external_skill_intake_log.md`.
 - If a source uses a restrictive license, record it and reject direct reuse.
+- Do not import competition-specific task strategy, task priority, model-selection advice, scoring optimization ideas, or human-preloaded execution routes into local skills.
 
 ## Security rules
 

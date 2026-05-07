@@ -6,7 +6,9 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from src.models.fno1d import FNO1D
+from src.submission.make_dummy_task1_submission import copy_code_bundle  # noqa: E402
 from src.submission.make_task1_trained_submission import write_trained_prediction  # noqa: E402
+from src.submission.validate_submission import validate_code_bundle  # noqa: E402
 
 
 def test_write_trained_prediction_preserves_initial_steps(tmp_path) -> None:
@@ -35,3 +37,26 @@ def test_write_trained_prediction_preserves_initial_steps(tmp_path) -> None:
         pred = h5_file["tensor"][...]
     assert pred.dtype == np.float32
     assert np.max(np.abs(pred[:, :4, :] - initial)) == 0.0
+
+
+def test_trained_submission_reuses_minimal_code_bundle(tmp_path) -> None:
+    code_dir = tmp_path / "code"
+    copy_code_bundle(code_dir)
+
+    assert (code_dir / "src").is_dir()
+    assert (code_dir / "scripts").is_dir()
+    assert (code_dir / "configs").is_dir()
+    for item_name in [
+        ".agents",
+        "docs",
+        "AGENTS.md",
+        "README.md",
+        "guideline.md",
+        "task_log_sample",
+        "outputs",
+        "experiments",
+        "data_and_sample_submission",
+    ]:
+        assert not (code_dir / item_name).exists(), item_name
+    result = validate_code_bundle(code_dir, strict=True)
+    assert result["passed"]

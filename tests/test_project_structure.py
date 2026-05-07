@@ -35,9 +35,20 @@ def test_agent_skill_files_exist() -> None:
         ".agents/skills/skill-maintenance/SKILL.md",
         ".agents/skills/external-skill-intake/SKILL.md",
         ".agents/skills/task-log-compliance/SKILL.md",
-        ".agents/skills/task2-isolation/SKILL.md",
+        ".agents/skills/data-checkpoint-isolation/SKILL.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_a36_preloaded_context_boundary_files_exist() -> None:
+    for relative_path in [
+        "docs/preloaded_context_policy.md",
+        "docs/competition_clarifications.md",
+        "docs/wiki/README.md",
+        ".agents/skills/data-checkpoint-isolation/SKILL.md",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+    assert not (ROOT / ".agents/skills/task2-isolation/SKILL.md").exists()
 
 
 def test_a25_task_log_compliance_files_exist() -> None:
@@ -50,6 +61,7 @@ def test_a25_task_log_compliance_files_exist() -> None:
         "docs/task_log_format_analysis.md",
         "docs/log_compliance_strategy.md",
         "docs/task2_rules_and_constraints.md",
+        "docs/competition_clarifications.md",
         "src/submission/validate_task_logs.py",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
