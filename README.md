@@ -119,3 +119,20 @@ python scripts/validate_submission.py
 ```
 
 All submission-related work must follow `.agents/skills/task-log-compliance/SKILL.md`.
+
+## A3 minimal Task 1 training loop
+
+A3 adds the first trained Task 1 closed loop. It uses
+`configs/task1_a3_min_train.yaml`, splits the local `task1_val.hdf5` trajectories
+into train/dev samples, trains a small one-step FNO1D, evaluates an
+autoregressive dev rollout proxy metric, saves the best checkpoint under
+`outputs/checkpoints/`, records the experiment registry under `experiments/`,
+and generates a trained Task 1 submission with a JSONL `task1_logs.log`.
+
+Run:
+
+```bash
+python scripts/train_task1_minimal.py
+python scripts/make_task1_trained_submission.py
+python scripts/validate_submission.py
+```

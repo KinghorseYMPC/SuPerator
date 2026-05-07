@@ -30,6 +30,12 @@
 - 不得缺失样例要求的关键 section 或字段；
 - submission 前必须运行 task log validator。
 
+Additional A3+ rules:
+
+- Trained submissions must use the JSONL task log writer in
+  `src/agent/task_log_writer.py`.
+- Do not fall back to the old Markdown-style task log for trained submissions.
+
 ## Procedure
 
 1. 读取 task_log_sample 中对应 task 的样例日志；

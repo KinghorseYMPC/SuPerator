@@ -66,6 +66,22 @@ A2.5 验收重点：
 - `src/submission/validate_task_logs.py` 对 submission log 是硬约束；
 - dummy submission 仍通过 shape、time.csv、code/、submission.json、前 10 步一致性和 log 格式校验。
 
+## A3 tests
+
+```bash
+python scripts/train_task1_minimal.py
+python scripts/make_task1_trained_submission.py
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
+
+A3 acceptance focuses on the minimal Task 1 training loop: local train/dev split
+from `task1_val.hdf5`, small FNO1D one-step training, dev rollout proxy metric,
+best checkpoint, trained submission artifacts, JSONL task log validation, and
+submission validation. If torch is unavailable, torch-specific tests may skip,
+but non-torch tests must still pass.
+
 ## Rule
 
 如果改动涉及提交文件生成，必须运行 A1 tests。

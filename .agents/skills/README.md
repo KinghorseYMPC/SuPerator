@@ -25,6 +25,24 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - All submission-related work must follow `task-log-compliance`.
 - Commit skill updates separately with a clear English message.
 
+## A3 Task 1 Minimal Training Loop
+
+A3 introduces the first trained Task 1 closed loop. The workflow uses
+`configs/task1_a3_min_train.yaml`, trains a small one-step FNO1D on an 80/20
+split of `task1_val.hdf5`, writes an experiment registry entry, generates a
+trained Task 1 submission from the best checkpoint, and validates the JSONL
+task log plus submission package.
+
+Primary commands:
+
+```bash
+python scripts/train_task1_minimal.py
+python scripts/make_task1_trained_submission.py
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
+
 ## External Skill Intake Rules
 
 - Do not copy external skills without review.
