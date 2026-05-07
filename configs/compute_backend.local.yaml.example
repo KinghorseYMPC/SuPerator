@@ -5,14 +5,20 @@ local:
   source_of_truth: true
 
 slurm:
-  enabled: false
+  enabled: true
   host: "<SLURM_HOST>"
   user: "<SLURM_USER>"
-  remote_project_dir: "<REMOTE_PROJECT_DIR>"
-  conda_env: "<CONDA_ENV>"
-  partition: "<PARTITION>"
-  account: "<ACCOUNT_OR_EMPTY>"
-  gpus: 1
+  remote_project_dir: "/nishome/<SLURM_USER>/superator"
+  env_type: "venv"  # one of: conda, venv, direct_python
+  conda_env: ""
+  env_path: "/nishome/<SLURM_USER>/envs/base"
+  activate_script: "/nishome/<SLURM_USER>/envs/base/bin/activate"
+  python_bin: "/nishome/<SLURM_USER>/envs/base/bin/python"
+  pip_bin: "/nishome/<SLURM_USER>/envs/base/bin/pip"
+  partition: "GPU"
+  account: ""
+  gpus: 2
+  gres: "gpu:4090:2"
   cpus_per_task: 4
   memory: "32G"
   time_limit: "00:30:00"

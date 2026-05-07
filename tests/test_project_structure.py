@@ -86,7 +86,10 @@ def test_a41_slurm_connection_preparation_files_exist() -> None:
         "scripts/slurm/debug_environment.sbatch.template",
         "docs/slurm_connection_preparation.md",
         "scripts/create_remote_package_plan.py",
+        "scripts/render_slurm_jobs.py",
         "src/experiment/remote_package_plan.py",
+        "src/experiment/backend_config.py",
+        "docs/slurm_debug_runbook.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 

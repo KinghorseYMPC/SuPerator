@@ -116,3 +116,13 @@ def test_readme_allows_rule_format_language() -> None:
     assert "competition_clarifications" in readme
     assert "JSON Lines" in readme
     assert "submission" in readme.lower()
+
+
+def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:
+    readme = read_text("README.md")
+
+    assert "env_type" in readme
+    assert "conda" in readme
+    assert "venv" in readme
+    assert "direct_python" in readme
+    assert "does not assume `conda` exists" in readme

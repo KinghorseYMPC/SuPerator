@@ -60,6 +60,12 @@ def test_sensitive_filename_detection() -> None:
     ]
 
 
+def test_compute_backend_local_yaml_is_prohibited_tracked_file() -> None:
+    assert pre_push_audit.find_prohibited_paths(["configs/compute_backend.local.yaml"]) == [
+        "configs/compute_backend.local.yaml"
+    ]
+
+
 def test_key_extension_detection() -> None:
     paths = [
         "deploy/private.pem",

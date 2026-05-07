@@ -8,17 +8,24 @@ Before any future use, manually copy a template from `scripts/slurm/*.template` 
 
 - `<JOB_NAME>`
 - `<PARTITION>`
-- `<GPUS>`
+- `<GRES_DIRECTIVE>`
+- `<ACCOUNT_DIRECTIVE>`
 - `<CPUS_PER_TASK>`
 - `<MEMORY>`
 - `<TIME_LIMIT>`
-- `<CONDA_ENV>`
+- `<ENV_SETUP>`
+- `<PYTHON_CMD>`
 - `<PROJECT_DIR>`
 - `<CONFIG_PATH>`
 
 Do not commit the filled script if it contains account names, hostnames, usernames, private paths, or other sensitive local details.
 
-For environment-only checks, use `scripts/slurm/debug_environment.sbatch.template`. It checks the remote shell and Python environment and does not train.
+Use `python scripts/render_slurm_jobs.py --job debug_environment` to render an
+ignored debug sbatch file from the private local backend config. For
+environment-only checks, use `scripts/slurm/debug_environment.sbatch.template`.
+It checks the remote shell and Python environment and does not train. The
+template supports `conda`, `venv`, and `direct_python` through rendered
+`<ENV_SETUP>` and `<PYTHON_CMD>` placeholders; do not assume `conda` exists.
 
 ## Future Manual Flow
 

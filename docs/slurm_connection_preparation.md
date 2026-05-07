@@ -1,9 +1,10 @@
 # SLURM Connection Preparation
 
-This project has not connected to a SLURM cluster in the current stage. A4.1 is
+This project has not connected to a SLURM cluster in the current stage. A4.2 is
 for local preparation only: private configuration templates, local manifests,
-package plans, and dry-run checks. Do not run SSH, scp, rsync, sbatch, squeue,
-or sinfo unless the user explicitly starts a future remote connection step.
+package plans, local job rendering, and dry-run checks. Do not run SSH, scp,
+rsync, sbatch, srun, squeue, or sinfo unless the user explicitly starts a future
+remote connection step.
 
 ## Private Local Configuration
 
@@ -24,10 +25,16 @@ Then fill only the local ignored file with private values:
 - `host`
 - `user`
 - `remote_project_dir`
-- `conda_env`
+- `env_type`
+- `conda_env`, `activate_script`, or `python_bin` depending on `env_type`
 - `partition`
+- `gres`
 - `gpus`
 - `time_limit`
+
+Supported `env_type` values are `conda`, `venv`, and `direct_python`. The
+current SLURM preparation should use `venv` or `direct_python` when the server
+does not provide `conda`.
 
 The committed examples contain placeholders only. The private local file is
 ignored by git and must not be staged or committed.
@@ -39,7 +46,8 @@ ignored by git and must not be staged or committed.
 3. Confirm `git status --short` does not track the private local file.
 4. Run `python scripts/create_remote_manifest.py --backend slurm`.
 5. Run `python scripts/create_remote_package_plan.py --backend slurm`.
-6. In a future remote stage, manually test SSH only after the user explicitly asks.
+6. Run `python scripts/render_slurm_jobs.py --job debug_environment`.
+7. In a future remote stage, manually test SSH only after the user explicitly asks.
 
 ## Secret And Artifact Checks
 
@@ -59,10 +67,10 @@ Confirm these are absent from tracked or staged changes:
 
 ## Future Template Filling
 
-For future SLURM use, copy a template from `scripts/slurm/*.template` into an
-ignored working directory such as `slurm_job_files/`, then replace placeholders
-there. Do not commit filled job files if they contain usernames, accounts,
-hostnames, private paths, or other local secrets.
+For future SLURM use, render a template from `scripts/slurm/*.template` into an
+ignored working directory such as `slurm_job_files/`. Do not commit filled job
+files if they contain usernames, accounts, hostnames, private paths, or other
+local secrets.
 
 The debug template checks only environment information. It does not train a
 model.

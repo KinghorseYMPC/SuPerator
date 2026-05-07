@@ -7,10 +7,16 @@ slurm:
   host: "<SLURM_HOST>"
   user: "<SLURM_USER>"
   remote_project_dir: "<REMOTE_PROJECT_DIR>"
+  env_type: "venv"  # one of: conda, venv, direct_python
   conda_env: "<CONDA_ENV>"
+  env_path: "<ENV_PATH>"
+  activate_script: "<ENV_PATH>/bin/activate"
+  python_bin: "<ENV_PATH>/bin/python"
+  pip_bin: "<ENV_PATH>/bin/pip"
   partition: "<PARTITION>"
   account: "<ACCOUNT_OR_EMPTY>"
   gpus: 1
+  gres: "gpu:1"
   cpus_per_task: 4
   memory: "32G"
   time_limit: "00:30:00"

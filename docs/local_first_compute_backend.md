@@ -10,6 +10,7 @@ SuPerator keeps the main project repository on the local laptop. Remote platform
 - The private GitHub repository is a code backup and synchronization target.
 - SLURM and Kaggle run temporary compute jobs only.
 - Remote systems must not hold the only copy of code, configs, experiment records, or submission materials.
+- Do not assume a remote backend has `conda`; select the environment mode explicitly in the ignored backend config.
 
 ## Compute Backend Roles
 
@@ -74,9 +75,10 @@ Before any remote run, create local planning artifacts:
 ```bash
 python scripts/create_remote_manifest.py --backend slurm
 python scripts/create_remote_package_plan.py --backend slurm
+python scripts/render_slurm_jobs.py --job debug_environment
 ```
 
-These commands do not connect to remote systems or copy files.
+These commands do not connect to remote systems, copy files, submit jobs, or query queues.
 
 ## Compliance
 

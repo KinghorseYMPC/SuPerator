@@ -23,12 +23,18 @@ def test_build_write_load_validate_remote_package_plan(tmp_path: Path) -> None:
     assert loaded["local_source_of_truth"] is True
     assert "src/" in loaded["include_paths"]
     assert "scripts/" in loaded["include_paths"]
+    assert "scripts/slurm/*.template" in loaded["include_paths"]
     assert "configs/" in loaded["include_paths"]
     assert "requirements.txt" in loaded["include_paths"]
     assert ".agents/" in loaded["exclude_paths"]
     assert "docs/" in loaded["exclude_paths"]
     assert "outputs/" in loaded["exclude_paths"]
     assert "experiments/" in loaded["exclude_paths"]
+    assert "slurm_job_files/" in loaded["exclude_paths"]
+    assert "slurm_logs/" in loaded["exclude_paths"]
+    assert "configs/compute_backend.local.yaml" in loaded["exclude_paths"]
+    assert "configs/compute_backend.local.yaml" in loaded["expected_remote_files"]
+    assert "slurm_job_files/debug_environment.sbatch" in loaded["expected_remote_files"]
 
     prohibited = {path.rstrip("/") for path in loaded["prohibited_files"]}
     include = {path.rstrip("/") for path in loaded["include_paths"]}

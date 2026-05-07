@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Template only. Replace placeholders manually before use.
+# Template only. Render locally before future remote use; do not commit filled job files.
 #SBATCH --job-name=<JOB_NAME>
 #SBATCH --partition=<PARTITION>
-#SBATCH --gres=gpu:<GPUS>
+<GRES_DIRECTIVE>
+<ACCOUNT_DIRECTIVE>
 #SBATCH --cpus-per-task=<CPUS_PER_TASK>
 #SBATCH --mem=<MEMORY>
 #SBATCH --time=<TIME_LIMIT>
@@ -19,8 +20,7 @@ echo "CONFIG_PATH=<CONFIG_PATH>"
 
 cd "<PROJECT_DIR>"
 
-source "$(conda info --base)/etc/profile.d/conda.sh"
-conda activate "<CONDA_ENV>"
+<ENV_SETUP>
 
-python scripts/check_compute_environment.py
-python scripts/train_task1_minimal.py --config "<CONFIG_PATH>"
+<PYTHON_CMD> scripts/check_compute_environment.py
+<PYTHON_CMD> scripts/train_task1_minimal.py --config "<CONFIG_PATH>"

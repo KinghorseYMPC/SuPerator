@@ -17,6 +17,7 @@ from src.experiment.remote_manifest import BACKENDS, ROOT, _run_git, resolve_pat
 DEFAULT_INCLUDE_PATHS = [
     "src/",
     "scripts/",
+    "scripts/slurm/*.template",
     "configs/",
     "requirements.txt",
 ]
@@ -102,6 +103,11 @@ PROHIBITED_SUFFIXES = {
     ".key",
 }
 
+ALLOWED_EXPECTED_REMOTE_FILES = {
+    "configs/compute_backend.local.yaml",
+    "slurm_job_files/debug_environment.sbatch",
+}
+
 
 def _repo_path(path: str | Path) -> str:
     value = Path(path)
@@ -175,6 +181,8 @@ def build_remote_package_plan(
             "src/",
             "scripts/",
             "configs/task1_a3_min_train.yaml",
+            "configs/compute_backend.local.yaml",
+            "slurm_job_files/debug_environment.sbatch",
             "requirements.txt",
             "remote run manifest json",
             "filled private backend config on remote if needed",
@@ -254,7 +262,7 @@ def validate_remote_package_plan(plan: dict[str, Any]) -> None:
             if not isinstance(raw_path, str):
                 raise ValueError(f"{field} entries must be strings")
             normalized = raw_path.rstrip("/")
-            if normalized in prohibited_normalized:
+            if normalized in prohibited_normalized and normalized not in ALLOWED_EXPECTED_REMOTE_FILES:
                 raise ValueError(f"{field} includes prohibited path: {raw_path}")
             if _is_sensitive_name(raw_path):
                 raise ValueError(f"{field} includes a credential-like filename: {raw_path}")
