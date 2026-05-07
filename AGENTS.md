@@ -2,71 +2,114 @@
 
 ## Project Goal
 
-SuPerator builds a research Agent for PDE neural operators. The goal is not only to train a single model, but to establish an agentic scientific workflow for understanding PDE tasks, proposing hypotheses, running experiments, evaluating results, and producing valid submissions.
+SuPerator builds an AI4S PDE neural operator research agent engineering workflow. The goal is to keep Agent work auditable across rule reading, data inspection, experiment recording, artifact generation, validation, and repository hygiene.
+
+This file is the coding-agent governance entry point. Keep it concise, current, and free of task execution strategy.
 
 ## Current Stage
 
-A3.7: external auto-research skill intake. A0, A1, A1.5, A1.6, A2, A2.5, A3, A3.5, and A3.6 are complete.
+A3.8: prepare the repository for publication to a private GitHub repository.
 
-## Agent Skill System
+Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, and generic external automated research resource intake.
 
-Project skills are unified under `.agents/skills/`. The root `SKILL.md` is no longer used.
+## Required Reading Order
 
-At the start of any Codex session, read in this order:
+At the start of a Codex or Agent session, read in this order:
 
 1. `AGENTS.md`
 2. `.agents/skills/project-onboarding/SKILL.md`
 3. The skill file relevant to the current task
 
-Code changes must follow `.agents/skills/safe-code-change/SKILL.md`.
-Debugging must follow `.agents/skills/debug-and-fix/SKILL.md`.
-Submission log work must follow `.agents/skills/task-log-compliance/SKILL.md`.
-Data and checkpoint isolation work must follow `.agents/skills/data-checkpoint-isolation/SKILL.md`.
-Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
+For code changes, also read `.agents/skills/safe-code-change/SKILL.md`.
+For debugging, read `.agents/skills/debug-and-fix/SKILL.md`.
+For log work, read `.agents/skills/task-log-compliance/SKILL.md`.
+For data or checkpoint isolation, read `.agents/skills/data-checkpoint-isolation/SKILL.md`.
+Before commit, read `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
 
-Codex may maintain `.agents/skills/` when the user explicitly asks or when a project phase changes. Skill maintenance must follow `.agents/skills/skill-maintenance/SKILL.md`.
+## Compliance Boundary
 
-External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`. External skills must not directly overwrite local skills; every intake needs candidate logging, license review, project adaptation, tests, and a commit. Do not execute scripts from external repositories. Do not vendor external repositories into this project. Do not directly copy unknown-source or unknown-license content into this project.
+Project skills and governance docs may contain generic procedures only. They must not contain competition task priority, task-specific execution plans, model-selection advice, dataset-specific training plans, scoring optimization routes, or human-preloaded Agent action routes.
 
-External automated research resources may be used only to improve generic Agent capabilities such as research loops, experiment recording, source review, testing, and git hygiene. Do not turn external lists, tools, papers, or repositories into competition task strategy, model-selection advice, dataset-specific training plans, score optimization routes, or human-preloaded execution routes. Record accepted and rejected external sources in `.agents/external_skill_intake_log.md`.
+Competition clarifications may record neutral constraints only: official rules, file formats, timing limits, data restrictions, checkpoint restrictions, log requirements, and submission bundle requirements. Store those constraints in `docs/competition_clarifications.md`.
 
-## Preloaded Context Boundary
+Wiki content, if present, must stay broad: PDE background, neural operator background, Burgers equation background, and general tooling knowledge. It must not contain competition-specific execution plans or tuning advice.
 
-Project skills must contain generic working procedures only. They must not contain competition task information, task priority, model choices, training plans, scoring optimization ideas, or human-preloaded execution routes.
+After an Agent starts reading competition tasks and executing work, there must be no human intervention in that run. Agent-created notes, configs, logs, and reports become part of the Agent context and must follow the same boundary.
 
-Competition clarifications may record official rules, file formats, timing limits, data restrictions, checkpoint restrictions, and log requirements. Store these neutral constraints in `docs/competition_clarifications.md`.
+## Skill Usage Rules
 
-Wiki content, if present, must stay broad: PDE background, neural operator background, Burgers equation background, and general tooling knowledge. It must not contain competition-specific execution plans, tuning advice, model-selection strategy, or Agent action routes.
+Project skills live under `.agents/skills/`. The root `SKILL.md` is not used.
 
-After an Agent starts reading competition tasks and executing work, there must be no human intervention in that run. Agent-created wiki or notes are part of the Agent context and must follow the same boundary.
+- Use the smallest relevant skill set for the current task.
+- Keep skill changes generic and procedural.
+- Update `.agents/skills/README.md` and `.agents/skill_registry.yaml` when adding, renaming, retiring, or moving a skill.
+- Run relevant tests after skill or workflow changes.
+- Do not place task execution strategy in skills.
 
-Final submission `code/` bundles should contain runnable code, configs, scripts, and minimal neutral run instructions. They should not include human-preloaded strategy documents such as `.agents/`, strategy-oriented `docs/`, `AGENTS.md`, `README.md`, or `guideline.md`.
+## External Intake Rules
 
-## Codex Working Principles
+External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`.
+
+- Do not execute external repository scripts.
+- Do not vendor external repositories into this project.
+- Do not directly copy unknown-source or unknown-license content.
+- Review license and scope before adaptation.
+- Record accepted and rejected sources in `.agents/external_skill_intake_log.md`.
+- Rewrite accepted ideas into project-specific generic procedures.
+- Use external automated research resources only to improve generic Agent capabilities such as research loops, experiment recording, source review, testing, and git hygiene.
+
+## Log Compliance Rules
+
+Task log files must be JSON Lines:
+
+- Every non-blank line is one valid JSON object.
+- Every record includes `timestamp`.
+- `timestamp` is timezone-aware ISO 8601.
+- Every record includes non-negative `elapsed_seconds`.
+- Every record includes non-empty `response` or `tool_calls` content under strict local validation.
+- The first-to-last timestamp span for one task log is at most 12 hours.
+- Do not forge LLM call logs.
+
+Local development summary logs may support structural checks. Final provenance should prefer a complete API proxy LLM log or another complete LLM call export when available.
+
+## Submission Code Bundle Rules
+
+Final submission `code/` bundles should contain runnable code, configs, scripts, and minimal neutral run instructions. They should not contain:
+
+- `.agents/`
+- strategy-oriented `docs/`
+- `AGENTS.md`
+- `README.md`
+- `guideline.md`
+- `task_log_sample/`
+- `outputs/`
+- `experiments/`
+- `data_and_sample_submission/`
+- datasets, checkpoints, predictions, zip packages, runtime logs, or external caches
+
+## Git, Test, And Large File Hygiene
 
 - Commit in small, stable steps.
-- Read competition rules before writing code.
+- Read relevant rules before changing submission behavior.
 - Do not modify official raw data.
-- Manage all paths through configuration or relative paths.
-- Every experiment must have a config, logs, metrics, and a conclusion.
-- Run relevant tests after each meaningful change when feasible.
-- Do not commit large files, datasets, checkpoints, predictions, or runtime logs.
+- Manage paths through configs or relative paths.
+- Run relevant tests after meaningful changes when feasible.
+- Do not commit large files, datasets, checkpoints, predictions, runtime logs, zip packages, external caches, credentials, `.env` files, tokens, keys, or secrets.
+- Before commit, check `git status`, run required validation, stage intentionally, inspect `git diff --cached --stat`, and confirm prohibited paths are absent.
+- Before push, run `python scripts/pre_push_audit.py`.
 
-## Competition Hard Constraints
+## Core Commands
 
-See `docs/competition_clarifications.md` for neutral rule and format clarifications. Do not add task execution strategy to this section.
+```bash
+python scripts/pre_push_audit.py
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
 
-## Stage Roadmap
+If `validate_submission.py` reports that the local submission artifact is missing, generate a dummy submission first:
 
-- A0: project takeover and data inventory.
-- A1: dummy submission.
-- A1.5: agent skill system consolidation.
-- A1.6: skill self-evolution and external skill intake mechanism.
-- A2: baseline foundations.
-- A2.5: task log compliance with the latest competition JSONL format.
-- A3: minimal training loop.
-- A3.5: stricter JSONL log compliance.
-- A3.6: preloaded context compliance boundaries.
-- A3.7: external automated research resource intake for generic Agent workflow skills.
-- B: later improvement work.
-- C: scientific Agent closed loop.
+```bash
+python scripts/make_dummy_task1_submission.py
+python scripts/validate_submission.py
+```

@@ -36,6 +36,7 @@ task_log_sample/
 *.tar
 *.tar.gz
 *.zip
+*.log
 *.npz
 *.npy
 
@@ -49,18 +50,6 @@ outputs/submission/*
 logs/
 wandb/
 mlruns/
-
-# Keep directory placeholders
-!experiments/.gitkeep
-!outputs/.gitkeep
-!outputs/logs/
-!outputs/logs/.gitkeep
-!outputs/predictions/
-!outputs/predictions/.gitkeep
-!outputs/checkpoints/
-!outputs/checkpoints/.gitkeep
-!outputs/submission/
-!outputs/submission/.gitkeep
 
 # OS/editor noise
 .DS_Store

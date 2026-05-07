@@ -1,0 +1,58 @@
+from pathlib import Path
+
+from scripts import pre_push_audit
+
+
+def test_prohibited_path_detection() -> None:
+    paths = [
+        "src/submission/validate_submission.py",
+        "data_and_sample_submission/train.hdf5",
+        "outputs/submission/submission.zip",
+        "experiments/run.json",
+        ".external_research/cache/index.md",
+    ]
+
+    assert pre_push_audit.find_prohibited_paths(paths) == [
+        ".external_research/cache/index.md",
+        "data_and_sample_submission/train.hdf5",
+        "experiments/run.json",
+        "outputs/submission/submission.zip",
+    ]
+
+
+def test_prohibited_extension_detection() -> None:
+    paths = [
+        "src/model.py",
+        "checkpoints/model.PT",
+        "outputs/task1_logs.log",
+        "archive/submission.zip",
+        "docs/readme.md",
+    ]
+
+    assert pre_push_audit.find_prohibited_extensions(paths) == [
+        "archive/submission.zip",
+        "checkpoints/model.PT",
+        "outputs/task1_logs.log",
+    ]
+
+
+def test_large_tracked_file_detection(tmp_path: Path) -> None:
+    small = tmp_path / "small.txt"
+    large = tmp_path / "large.bin"
+    small.write_bytes(b"small")
+    large.write_bytes(b"x" * 12)
+
+    result = pre_push_audit.find_large_tracked_files(
+        ["small.txt", "large.bin"],
+        root=tmp_path,
+        threshold_bytes=10,
+    )
+
+    assert result == [("large.bin", 12)]
+
+
+def test_required_files_present_in_repository() -> None:
+    missing = pre_push_audit.missing_required_files(pre_push_audit.ROOT)
+
+    assert missing == []
+    assert pre_push_audit.check_submission_validator(pre_push_audit.ROOT)[0] is True
