@@ -82,6 +82,19 @@ best checkpoint, trained submission artifacts, JSONL task log validation, and
 submission validation. If torch is unavailable, torch-specific tests may skip,
 but non-torch tests must still pass.
 
+## A3.5 tests
+
+```bash
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
+
+A3.5 acceptance focuses on latest competition rule hardening: strict JSONL log
+validation, timezone and 12-hour span checks, provenance warnings for
+development summary logs, Task 2 rule documentation, and unchanged Task 1
+submission validation.
+
 ## Rule
 
 如果改动涉及提交文件生成，必须运行 A1 tests。

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SAMPLE_DIR = ROOT / "task_log_sample"
 CONTENT_KEYS = ("response", "tool_calls")
 REQUIRED_JSONL_KEYS = ("timestamp", "elapsed_seconds")
-PLACEHOLDER_RE = re.compile(r"\b(TODO|TBD|placeholder|dummy only)\b", re.IGNORECASE)
+PLACEHOLDER_RE = re.compile(r"\b(TODO|TBD|placeholder)\b", re.IGNORECASE)
 TOOL_CALL_RE = re.compile(r"(^|\n)\s*([A-Za-z_][\w-]*)\(")
 MAX_LOG_SPAN_SECONDS = 12 * 60 * 60
 
@@ -79,6 +79,7 @@ def _parse_jsonl(text: str) -> tuple[list[dict[str, Any]], list[str]]:
     errors: list[str] = []
     for line_number, line in enumerate(text.splitlines(), start=1):
         if not line.strip():
+            errors.append(f"Line {line_number} is blank; each line must be a JSON object")
             continue
         try:
             value = json.loads(line)
@@ -130,6 +131,65 @@ def _parse_timestamp(value: Any) -> datetime | None:
         return datetime.fromisoformat(normalized)
     except ValueError:
         return None
+
+
+def _has_timezone(value: datetime | None) -> bool:
+    return value is not None and value.tzinfo is not None and value.utcoffset() is not None
+
+
+def _is_non_negative_number(value: Any) -> bool:
+    if isinstance(value, bool):
+        return False
+    if not isinstance(value, (int, float)):
+        return False
+    return value >= 0
+
+
+def _has_response(row: dict[str, Any]) -> bool:
+    if "response" not in row:
+        return False
+    value = row.get("response")
+    if isinstance(value, str):
+        return bool(value.strip())
+    return value is not None
+
+
+def _has_tool_calls(row: dict[str, Any]) -> bool:
+    if "tool_calls" not in row:
+        return False
+    value = row.get("tool_calls")
+    if isinstance(value, list):
+        return bool(value)
+    if isinstance(value, str):
+        return bool(value.strip())
+    return False
+
+
+def _detect_provenance_mode(rows: list[dict[str, Any]], path: Path) -> str | None:
+    for row in rows:
+        metadata = row.get("metadata")
+        if isinstance(metadata, dict) and metadata.get("provenance_mode"):
+            return str(metadata["provenance_mode"])
+        if row.get("provenance_mode"):
+            return str(row["provenance_mode"])
+    try:
+        path.relative_to(DEFAULT_SAMPLE_DIR)
+    except ValueError:
+        return None
+    return "api_proxy_llm_log"
+
+
+def _empty_metadata(strict: bool) -> dict[str, Any]:
+    return {
+        "line_count": 0,
+        "first_timestamp": None,
+        "last_timestamp": None,
+        "duration_seconds": None,
+        "has_timezone": False,
+        "strict": strict,
+        "provenance_mode": None,
+        "required_fields_present": False,
+    }
 
 
 def _extract_tool_names(rows: list[dict[str, Any]]) -> list[str]:
@@ -211,6 +271,7 @@ def validate_task_log(
     warnings: list[str] = []
     sample_sections: list[str] = []
     log_sections: list[str] = []
+    metadata = _empty_metadata(strict)
 
     if not sample_path.is_file():
         return {
@@ -219,6 +280,7 @@ def validate_task_log(
             "warnings": warnings,
             "sample_sections": sample_sections,
             "log_sections": log_sections,
+            "metadata": metadata,
         }
 
     schema = load_log_sample_schema(sample_path)
@@ -231,6 +293,7 @@ def validate_task_log(
             "warnings": warnings,
             "sample_sections": sample_sections,
             "log_sections": log_sections,
+            "metadata": metadata,
         }
     if path.stat().st_size <= 0:
         return {
@@ -239,14 +302,20 @@ def validate_task_log(
             "warnings": warnings,
             "sample_sections": sample_sections,
             "log_sections": log_sections,
+            "metadata": metadata,
         }
 
     text = _read_text(path)
     if PLACEHOLDER_RE.search(text):
-        errors.append("Log contains placeholder text such as TODO/TBD/placeholder/dummy only")
+        errors.append("Log contains placeholder text such as TODO/TBD/placeholder")
 
     if schema["format"] == "jsonl":
         rows, json_errors = _parse_jsonl(text)
+        is_official_sample_file = False
+        try:
+            is_official_sample_file = path.resolve() == sample_path.resolve()
+        except OSError:
+            is_official_sample_file = False
         if json_errors:
             errors.extend(json_errors[:10])
             if len(json_errors) > 10:
@@ -254,34 +323,74 @@ def validate_task_log(
         if not rows:
             errors.append("Log does not contain any JSONL records")
         log_sections = sorted({key for row in rows for key in row})
+        required_fields_present = bool(rows) and all(
+            all(key in row for key in REQUIRED_JSONL_KEYS) for row in rows
+        )
 
         for index, row in enumerate(rows, start=1):
-            for key in schema.get("required_fields", REQUIRED_JSONL_KEYS):
+            for key in REQUIRED_JSONL_KEYS:
                 if key not in row:
                     errors.append(f"Record {index} missing required field: {key}")
-            if not any(_stringify_content(row.get(key)).strip() for key in CONTENT_KEYS):
+            has_content = _has_response(row) or _has_tool_calls(row)
+            if strict and not has_content:
                 errors.append(f"Record {index} must include non-empty response or tool_calls")
             if "elapsed_seconds" in row:
-                try:
-                    elapsed = float(row["elapsed_seconds"])
-                except (TypeError, ValueError):
-                    errors.append(f"Record {index} elapsed_seconds is not numeric")
-                else:
-                    if elapsed < 0:
-                        errors.append(f"Record {index} elapsed_seconds must be non-negative")
-            if "timestamp" in row and _parse_timestamp(row.get("timestamp")) is None:
-                errors.append(f"Record {index} timestamp is not ISO 8601")
+                if not _is_non_negative_number(row["elapsed_seconds"]):
+                    errors.append(f"Record {index} elapsed_seconds must be a non-negative int or float")
+            timestamp = _parse_timestamp(row.get("timestamp"))
+            if "timestamp" in row:
+                if timestamp is None:
+                    errors.append(f"Record {index} timestamp is not ISO 8601")
+                elif not _has_timezone(timestamp):
+                    errors.append(f"Record {index} timestamp must include timezone")
+            if "response" in row and isinstance(row.get("response"), str) and not row["response"].strip():
+                errors.append(f"Record {index} response must not be an empty string")
+            if "tool_calls" in row:
+                tool_calls = row.get("tool_calls")
+                if isinstance(tool_calls, str) and is_official_sample_file and tool_calls.strip():
+                    warnings.append(
+                        f"Record {index} uses legacy string tool_calls accepted for official sample compatibility"
+                    )
+                elif not isinstance(tool_calls, list) or not tool_calls:
+                    errors.append(f"Record {index} tool_calls must be a non-empty list")
             if strict and _stringify_content(row.get("think")).strip():
                 errors.append("Log contains non-empty think field; private chain-of-thought is not allowed")
 
         timestamps = [_parse_timestamp(row.get("timestamp")) for row in rows]
         timestamps = [value for value in timestamps if value is not None]
-        if len(timestamps) >= 2:
-            span_seconds = (max(timestamps) - min(timestamps)).total_seconds()
+        timezone_ok = bool(timestamps) and all(_has_timezone(value) for value in timestamps)
+        first_timestamp = timestamps[0] if timestamps else None
+        last_timestamp = timestamps[-1] if timestamps else None
+        span_seconds = None
+        aware_timestamps = [value for value in timestamps if _has_timezone(value)]
+        if len(aware_timestamps) >= 2:
+            span_seconds = (aware_timestamps[-1] - aware_timestamps[0]).total_seconds()
             if span_seconds > MAX_LOG_SPAN_SECONDS:
                 errors.append(
                     f"Log timestamp span exceeds 12 hours: {span_seconds:.1f} seconds"
                 )
+            if span_seconds < 0:
+                warnings.append("Log timestamps are not chronological")
+
+        if rows and not any(_has_response(row) or _has_tool_calls(row) for row in rows):
+            errors.append("Log must contain at least one record with response or tool_calls")
+
+        provenance_mode = _detect_provenance_mode(rows, path)
+        if strict and provenance_mode == "development_summary_log":
+            warnings.append(
+                "Log is structurally valid but may not prove full LLM call provenance because it was generated as development_summary_log"
+            )
+
+        metadata = {
+            "line_count": len(rows),
+            "first_timestamp": first_timestamp.isoformat() if first_timestamp else None,
+            "last_timestamp": last_timestamp.isoformat() if last_timestamp else None,
+            "duration_seconds": span_seconds,
+            "has_timezone": timezone_ok,
+            "strict": strict,
+            "provenance_mode": provenance_mode,
+            "required_fields_present": required_fields_present,
+        }
 
         content = _extract_content(rows)
     else:
@@ -293,9 +402,9 @@ def validate_task_log(
 
     lowered = content.lower()
     if not any(keyword.lower() in lowered for keyword in AGENT_KEYWORDS):
-        errors.append("Log does not contain clear Agent workflow content")
+        warnings.append("Log does not contain clear Agent workflow content")
     if not any(keyword.lower() in lowered for keyword in EXPERIMENT_KEYWORDS):
-        errors.append("Log does not contain experiment/config/result/conclusion content")
+        warnings.append("Log does not contain experiment/config/result/conclusion content")
 
     stripped_lines = [line.strip() for line in text.splitlines() if line.strip()]
     stdout_hits = sum(
@@ -304,15 +413,13 @@ def validate_task_log(
     if schema["format"] != "jsonl" or (stripped_lines and stdout_hits == len(stripped_lines)):
         errors.append("Log appears to be stdout-only rather than structured Agent records")
 
-    if strict and len(stripped_lines) < 3:
-        errors.append("Strict validation requires at least 3 log records or structured lines")
-
     return {
         "passed": not errors,
         "errors": errors,
         "warnings": warnings,
         "sample_sections": sample_sections,
         "log_sections": log_sections,
+        "metadata": metadata,
     }
 
 

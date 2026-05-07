@@ -59,10 +59,16 @@ def write_dummy_task1_log(
     """Write an auditable JSONL task log for the A1/A2.5 dummy run."""
 
     start = datetime.now(timezone.utc).replace(microsecond=0)
+    base_metadata = {
+        "stage": "A3.5",
+        "task": "task1",
+        "provenance_mode": "development_summary_log",
+    }
     records = [
         {
             "timestamp": start.isoformat(),
             "elapsed_seconds": 0.5,
+            "metadata": {**base_metadata, "phase": "rules"},
             "response": (
                 "SuPerator A2.5 task1 log compliance run. Agent workflow summary: "
                 "read project rules, inspect official task_log_sample schema, and generate "
@@ -72,15 +78,25 @@ def write_dummy_task1_log(
         {
             "timestamp": (start + timedelta(seconds=1)).isoformat(),
             "elapsed_seconds": 0.4,
-            "tool_calls": (
-                'read({"filePath":"AGENTS.md"})\n'
-                'read({"filePath":"docs/task_log_format_analysis.md"})\n'
-                'read({"filePath":"task_log_sample/task1_logs.log"})'
-            ),
+            "metadata": {**base_metadata, "phase": "rules"},
+            "tool_calls": [
+                {"name": "read", "arguments": {"filePath": "AGENTS.md"}, "result": {}},
+                {
+                    "name": "read",
+                    "arguments": {"filePath": "docs/task_log_format_analysis.md"},
+                    "result": {},
+                },
+                {
+                    "name": "read",
+                    "arguments": {"filePath": "task_log_sample/task1_logs.log"},
+                    "result": {},
+                },
+            ],
         },
         {
             "timestamp": (start + timedelta(seconds=2)).isoformat(),
             "elapsed_seconds": 0.7,
+            "metadata": {**base_metadata, "phase": "experiment"},
             "response": (
                 "Experiment/config: A1/A2.5 dummy submission, no model training. "
                 "Baseline is persistence: copy the first 10 input time steps and fill "
@@ -91,14 +107,22 @@ def write_dummy_task1_log(
         {
             "timestamp": (start + timedelta(seconds=3)).isoformat(),
             "elapsed_seconds": 0.6,
-            "tool_calls": (
-                'python({"script":"scripts/make_dummy_task1_submission.py",'
-                '"purpose":"generate task1_pred.hdf5, task1_time.csv, task1_logs.log, and code bundle"})'
-            ),
+            "metadata": {**base_metadata, "phase": "generation"},
+            "tool_calls": [
+                {
+                    "name": "python",
+                    "arguments": {
+                        "script": "scripts/make_dummy_task1_submission.py",
+                        "purpose": "generate task1_pred.hdf5, task1_time.csv, task1_logs.log, and code bundle",
+                    },
+                    "result": {},
+                }
+            ],
         },
         {
             "timestamp": (start + timedelta(seconds=4)).isoformat(),
             "elapsed_seconds": 0.8,
+            "metadata": {**base_metadata, "phase": "result"},
             "response": (
                 "Result: generated Task 1 prediction with "
                 f"input key {test_key}, input shape {test_shape}, input dtype {test_dtype}, "
@@ -111,6 +135,7 @@ def write_dummy_task1_log(
         {
             "timestamp": (start + timedelta(seconds=5)).isoformat(),
             "elapsed_seconds": 0.5,
+            "metadata": {**base_metadata, "phase": "conclusion"},
             "response": (
                 "Conclusion: this dummy run validates engineering structure, timing CSV, "
                 "prediction shape, initial-condition preservation, code bundle presence, "

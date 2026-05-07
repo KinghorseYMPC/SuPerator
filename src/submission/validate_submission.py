@@ -119,6 +119,7 @@ def validate_task_submission(
         log_validation["passed"],
         "Task log format validation failed: " + "; ".join(log_validation["errors"]),
     )
+    log_metadata = log_validation.get("metadata", {})
 
     summary = {
         "submission_dir": str(directory),
@@ -130,7 +131,15 @@ def validate_task_submission(
         "max_initial_error": max_initial_error,
         "train_time": train_time,
         "inference_time": inference_time,
-        "log_validation": log_validation,
+        "log_validation": {
+            "passed": log_validation["passed"],
+            "metadata": {
+                "line_count": log_metadata.get("line_count"),
+                "duration_seconds": log_metadata.get("duration_seconds"),
+            },
+            "warnings": log_validation["warnings"],
+            "errors": log_validation["errors"],
+        },
     }
     print("Submission validation passed:")
     for key, value in summary.items():

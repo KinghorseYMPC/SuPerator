@@ -175,3 +175,8 @@ PI-DeepONet: https://github.com/PredictiveIntelligenceLab/Physics-informed-DeepO
 本地新材料路径：`task_log_sample/`。
 
 项目应对：新增 task log format analysis、log validator，更新 dummy submission log generation、submission validation 和 Agent skills。后续所有训练、实验和 submission 均必须生成规范 task logs。
+### 2026-05-07: Task 2 and stricter JSONL log rules
+
+Task 2 has been added as a multi-physics Burgers prediction task. Task 2 training data provides `Nu`, but Task 2 test data does not provide `Nu`; inference must use only the initial condition. Task 2 must be trained from scratch, must not use Task 1 data or checkpoints, must not use pretrained models, must not use numerical solvers to generate extra data, and may only use official data. Task 2 training time is not scored, but the full training run must remain within 12 hours and inference must remain under 2 minutes.
+
+Task logs are now hard compliance artifacts. Each `task{N}_logs.log` line must be valid JSON with timezone-aware `timestamp` and non-negative `elapsed_seconds`, and must include the LLM `response` or `tool_calls`. The first-to-last timestamp span must not exceed 12 hours. The submitted `code/` directory must be traceable to the recorded Agent LLM calls. Local development summary logs are useful for engineering validation, but final submission should prefer a true API proxy LLM log captured through `task_log_sample/openai-log/proxy.py` or an equivalent complete LLM call export. Do not forge LLM logs.

@@ -22,7 +22,11 @@ class TaskLogWriter:
 
     def _base_record(self, metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         elapsed = max(0.0, time.perf_counter() - self._start_perf)
-        base_metadata = {"stage": "A3", "task": f"task{self.task_id}"}
+        base_metadata = {
+            "stage": "A3.5",
+            "task": f"task{self.task_id}",
+            "provenance_mode": "development_summary_log",
+        }
         if metadata:
             base_metadata.update(metadata)
         return {
@@ -42,6 +46,8 @@ class TaskLogWriter:
     ) -> None:
         """Write one auditable Agent response summary."""
 
+        if not message.strip():
+            raise ValueError("response message must not be empty")
         record = self._base_record(metadata)
         record["response"] = message
         self._write(record)
@@ -55,6 +61,8 @@ class TaskLogWriter:
     ) -> None:
         """Write one tool call record."""
 
+        if not tool_name.strip():
+            raise ValueError("tool_name must not be empty")
         record = self._base_record(metadata)
         record["tool_calls"] = [
             {
@@ -100,10 +108,12 @@ def write_a3_task1_log(
     proxy_score = _metric_value(metrics, "score_total_proxy")
     with TaskLogWriter(output_path, task_id=1) as writer:
         writer.write_response(
-            "Agent read the competition update and task_log_sample requirements. "
-            "The submission log is JSON Lines with timestamp, elapsed_seconds, and "
-            "response or tool_calls fields; no Markdown headings or private chain-of-thought "
-            "are written.",
+            "This log is a development summary log for the A3 Task 1 trained-submission "
+            "engineering loop. It is structurally aligned with the JSONL requirements "
+            "by writing timestamp, elapsed_seconds, and response or tool_calls fields, "
+            "but it is not a complete LLM API response capture. Final competition "
+            "submission should prefer api_proxy_llm_log captured from actual LLM API "
+            "calls through the official proxy.",
             {"experiment_id": experiment_id, "phase": "rules"},
         )
         writer.write_tool_call(

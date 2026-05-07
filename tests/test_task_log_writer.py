@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -56,5 +57,11 @@ def test_task_log_writer_basic_records(tmp_path) -> None:
 
     lines = log_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
-    assert '"timestamp"' in lines[0]
-    assert '"elapsed_seconds"' in lines[0]
+    records = [json.loads(line) for line in lines]
+    for record in records:
+        assert "timestamp" in record
+        assert "+" in record["timestamp"]
+        assert "elapsed_seconds" in record
+        assert record["elapsed_seconds"] >= 0
+        assert "response" in record or "tool_calls" in record
+        assert record["metadata"]["provenance_mode"] == "development_summary_log"

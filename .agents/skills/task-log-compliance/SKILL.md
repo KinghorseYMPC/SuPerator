@@ -36,6 +36,20 @@ Additional A3+ rules:
   `src/agent/task_log_writer.py`.
 - Do not fall back to the old Markdown-style task log for trained submissions.
 
+Additional A3.5 provenance and format rules:
+
+- Every log line must be valid JSON.
+- Every log line must contain `timestamp` and `elapsed_seconds`.
+- `timestamp` must include timezone.
+- The first-to-last log timestamp span must not exceed 12 hours.
+- Every submitted log line should contain `response` or `tool_calls`; strict validation enforces this.
+- `development_summary_log` is only for local engineering closure and structural validation.
+- Final competition submission should prefer `api_proxy_llm_log` captured from actual LLM API calls through `task_log_sample/openai-log/proxy.py` or an equivalent complete export.
+- Do not forge LLM call logs.
+- Do not claim a development summary log is a complete LLM API response capture.
+- Submitted `code/` must be traceable to the recorded Agent LLM operations.
+- Before submission, run both `python scripts/validate_task_logs.py` and `python scripts/validate_submission.py`.
+
 ## Procedure
 
 1. 读取 task_log_sample 中对应 task 的样例日志；

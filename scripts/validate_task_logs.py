@@ -39,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- sample_log_path: {sample_log_path}")
     print(f"- errors: {json.dumps(result['errors'], ensure_ascii=False)}")
     print(f"- warnings: {json.dumps(result['warnings'], ensure_ascii=False)}")
+    print(f"- metadata: {json.dumps(result.get('metadata', {}), ensure_ascii=False)}")
     print(f"- sample sections: {json.dumps(result['sample_sections'], ensure_ascii=False)}")
     print(f"- log sections: {json.dumps(result['log_sections'], ensure_ascii=False)}")
     return 0 if result["passed"] else 1

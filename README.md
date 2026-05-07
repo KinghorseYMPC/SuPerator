@@ -136,3 +136,12 @@ python scripts/train_task1_minimal.py
 python scripts/make_task1_trained_submission.py
 python scripts/validate_submission.py
 ```
+
+## A3.5 competition rule hardening
+
+A3.5 records the latest Task 2 and log compliance updates. See
+`docs/log_compliance_strategy.md` for the distinction between
+`development_summary_log` and `api_proxy_llm_log`, and
+`docs/task2_rules_and_constraints.md` for Task 2 restrictions. Task 2 remains
+unimplemented until isolation checks are added. The corresponding project skill
+is `.agents/skills/task2-isolation/SKILL.md`.
