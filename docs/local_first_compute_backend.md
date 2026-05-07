@@ -76,9 +76,15 @@ Before any remote run, create local planning artifacts:
 python scripts/create_remote_manifest.py --backend slurm
 python scripts/create_remote_package_plan.py --backend slurm
 python scripts/render_slurm_jobs.py --job debug_environment
+python scripts/render_slurm_jobs.py --job train_task1_minimal --train-config configs/task1_a4_remote_min_train.yaml
 ```
 
 These commands do not connect to remote systems, copy files, submit jobs, or query queues.
+
+For a minimal remote training run, the rendered job file remains in ignored
+`slurm_job_files/` and is submitted manually by the user on the SLURM backend.
+Returned logs, checkpoints, metrics, and experiment directories must come back
+to ignored local paths before any local analysis or submission work.
 
 ## Compliance
 

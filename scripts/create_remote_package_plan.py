@@ -19,7 +19,7 @@ from src.experiment.remote_package_plan import (  # noqa: E402
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/task1_a3_min_train.yaml")
+    parser.add_argument("--config", default="configs/task1_a4_remote_min_train.yaml")
     parser.add_argument("--backend-config", default=None)
     parser.add_argument("--backend", default="slurm", choices=["local", "slurm", "kaggle"])
     parser.add_argument("--output", default="outputs/remote_manifests/remote_package_plan_slurm.json")

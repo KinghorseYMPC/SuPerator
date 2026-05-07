@@ -1,9 +1,11 @@
-"""Run the A3 minimal Task 1 training loop."""
+"""Run the minimal Task 1 training loop."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
+import traceback
 from pathlib import Path
 
 
@@ -23,12 +25,16 @@ def main(argv: list[str] | None = None) -> int:
         config = load_config(args.config)
         result = train_minimal_task1(config)
     except ImportError as exc:
-        print(f"torch unavailable for A3 minimal training: {exc}")
-        return 0
+        print(f"ERROR: minimal Task 1 training dependency unavailable: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:
+        print(f"ERROR: minimal Task 1 training failed for config {args.config}: {exc}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        return 1
 
     metrics = result["metrics"]
     rollout_metrics = metrics["dev_rollout_metrics"]
-    print("A3 Task 1 minimal training completed:")
+    print("Task 1 minimal training completed:")
     print(f"- device: {result['device']}")
     print(f"- epochs: {result['epochs']}")
     print(f"- train_loss: {metrics['last_train_loss']}")
@@ -36,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- dev_rollout_proxy_metric: {rollout_metrics['score_total_proxy']}")
     print(f"- checkpoint_path: {result['checkpoint_path']}")
     print(f"- train_time: {result['train_time']}")
+    print("TRAIN_RESULT_JSON:")
+    print(json.dumps(result, ensure_ascii=False, sort_keys=True))
     return 0
 
 

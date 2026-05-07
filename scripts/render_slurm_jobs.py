@@ -83,7 +83,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--backend-config", default="configs/compute_backend.local.yaml")
     parser.add_argument("--job", choices=sorted(JOB_TEMPLATES), required=True)
     parser.add_argument("--output-dir", default="slurm_job_files")
-    parser.add_argument("--config", default="configs/task1_a3_min_train.yaml")
+    parser.add_argument(
+        "--config",
+        default=None,
+        help="Legacy config path option. For train_task1_minimal, prefer --train-config.",
+    )
+    parser.add_argument(
+        "--train-config",
+        default="configs/task1_a4_remote_min_train.yaml",
+        help="Config path used when rendering the train_task1_minimal job.",
+    )
     args = parser.parse_args(argv)
 
     backend_config = load_backend_config(args.backend_config)
@@ -92,10 +101,14 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("backend config must contain a 'slurm' mapping")
     _validate_slurm_config(slurm_config)
 
+    config_path = args.config or (
+        args.train_config if args.job == "train_task1_minimal" else "configs/task1_a3_min_train.yaml"
+    )
+
     context = build_sbatch_context(
         slurm_config=slurm_config,
         job_name=args.job,
-        config_path=args.config,
+        config_path=config_path,
     )
     output_dir = Path(args.output_dir)
     output_path = output_dir / f"{args.job}.sbatch"

@@ -94,6 +94,15 @@ def test_a41_slurm_connection_preparation_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a44_remote_min_train_files_exist() -> None:
+    for relative_path in [
+        "configs/task1_a4_remote_min_train.yaml",
+        "docs/slurm_min_train_runbook.md",
+        "scripts/parse_slurm_min_train_result.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

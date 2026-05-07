@@ -8,9 +8,9 @@ This file is the coding-agent governance entry point. Keep it concise, current, 
 
 ## Current Stage
 
-A4.2: SLURM environment adaptation, venv/direct Python job rendering, debug job generation, and remote package planning.
+A4.4: local preparation for the first manual SLURM minimal GPU training run, including train job rendering, return-artifact instructions, result parsing, and remote package planning.
 
-Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, generic external automated research resource intake, private GitHub publication preparation, and local-first compute backend preparation.
+Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, generic external automated research resource intake, private GitHub publication preparation, local-first compute backend preparation, SLURM venv/direct Python rendering, and debug job validation.
 
 ## Required Reading Order
 
@@ -46,7 +46,7 @@ Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames, remo
 
 Private backend configuration belongs only in ignored local files such as `configs/compute_backend.local.yaml`. Commit placeholder examples only. Do not commit filled backend configs, account names, hostnames, usernames, private paths, tokens, keys, or Kaggle credentials. Do not assume `conda` exists on SLURM; backend configs must declare `env_type` as `conda`, `venv`, or `direct_python`.
 
-Do not execute remote commands such as SSH, scp, rsync, sbatch, squeue, sinfo, or Kaggle API commands unless the user explicitly requests that remote stage. Before any remote run, generate both a local remote manifest and a remote package plan, then validate returned artifacts locally after they come back.
+Do not execute remote commands such as SSH, scp, rsync, sbatch, srun, squeue, sinfo, or Kaggle API commands unless the user explicitly requests that remote stage. Remote minimal training is still submitted manually by the user. Before any remote run, generate both a local remote manifest and a remote package plan, then validate returned artifacts locally after they come back.
 
 ## Skill Usage Rules
 

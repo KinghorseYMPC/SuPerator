@@ -9,6 +9,7 @@ Use this skill to keep clear responsibility boundaries between the local source 
 - Preparing a SLURM job.
 - Preparing a Kaggle run.
 - Recovering remote training artifacts.
+- Preparing a locally rendered minimal remote training job for manual user submission.
 - Checking whether remote outputs should enter the local registry.
 - Before packaging a submission.
 
@@ -51,6 +52,8 @@ Use this skill to keep clear responsibility boundaries between the local source 
 ## Guardrails
 
 - The remote backend is not the source of truth.
+- Remote minimal training jobs are submitted manually by the user; local automation only renders plans and job files.
+- Returned training artifacts must be copied back to ignored local paths before local parsing, validation, registry review, or submission work.
 - Do not commit remote large files.
 - Do not commit credentials.
 - Do not place task-specific strategy in this skill.

@@ -35,11 +35,21 @@ def test_build_write_load_validate_remote_package_plan(tmp_path: Path) -> None:
     assert "configs/compute_backend.local.yaml" in loaded["exclude_paths"]
     assert "configs/compute_backend.local.yaml" in loaded["expected_remote_files"]
     assert "slurm_job_files/debug_environment.sbatch" in loaded["expected_remote_files"]
+    assert "slurm_job_files/train_task1_minimal.sbatch" in loaded["expected_remote_files"]
+    assert loaded["required_remote_data"] == [
+        "data_and_sample_submission/train_val_test_init/task1_val.hdf5"
+    ]
 
     prohibited = {path.rstrip("/") for path in loaded["prohibited_files"]}
     include = {path.rstrip("/") for path in loaded["include_paths"]}
     assert prohibited.isdisjoint(include)
-    assert "checkpoint files" in loaded["expected_return_artifacts"]
+    assert loaded["expected_return_artifacts"] == [
+        "slurm_logs/*.out",
+        "slurm_logs/*.err",
+        "outputs/checkpoints/*.pt",
+        "experiments/experiment_registry.jsonl",
+        "experiments/exp_a4_remote_min_fno1d/",
+    ]
 
     validate_remote_package_plan(loaded)
     json.loads(output.read_text(encoding="utf-8"))

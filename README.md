@@ -4,7 +4,7 @@ SuPerator is an AI4S PDE neural operator research agent engineering project. It 
 
 ## Current Status
 
-The project has completed the local foundations through A4.2:
+The project has completed the local foundations through A4.4:
 
 - Project initialization, data inventory, and smoke tests.
 - Dummy submission generation and validation.
@@ -14,9 +14,9 @@ The project has completed the local foundations through A4.2:
 - Preloaded context boundaries for skills, wiki pages, and submission bundles.
 - Read-only external automated research resource intake for generic Agent workflow improvements.
 - Local-first compute backend preparation for temporary SLURM or Kaggle GPU runs.
-- SLURM connection preparation templates, private config conventions, local venv/direct Python job rendering, and remote package planning dry-runs.
+- SLURM connection preparation templates, private config conventions, local venv/direct Python job rendering, remote package planning dry-runs, debug job validation, and local preparation for a manually submitted remote minimal training job.
 
-Current stage: A4.2, SLURM environment adaptation and local job rendering. The private GitHub repository is a backup and synchronization target; the local laptop repository remains the source of truth.
+Current stage: A4.4, local preparation for the first manual SLURM minimal GPU training run. The private GitHub repository is a backup and synchronization target; the local laptop repository remains the source of truth.
 
 ## Compliance Boundary
 
@@ -74,7 +74,7 @@ Official data and local task log samples, when available, should be placed in th
 
 The local laptop repository is the source of truth for code, git history, registry records, validation, submission packaging, and final artifact audit. The private GitHub repository is used for backup and synchronization.
 
-SLURM and Kaggle are optional GPU compute backends only. A4.2 still performs local preparation only; the project does not execute SSH, file sync, queue, or sbatch commands unless the user explicitly requests a future remote stage. Remote systems should receive only temporary code, config, and data copies, and returned checkpoints, metrics, notebooks, stdout, and stderr should be copied back to ignored local output or experiment directories before local validation.
+SLURM and Kaggle are optional GPU compute backends only. A4.4 still keeps submission manual: the project does not execute SSH, file sync, queue, or sbatch commands unless the user explicitly requests a future remote stage. Remote systems should receive only temporary code, config, and data copies, and returned checkpoints, metrics, notebooks, stdout, and stderr should be copied back to ignored local output or experiment directories before local validation.
 
 SLURM configs must declare `env_type` as `conda`, `venv`, or `direct_python`. The current prepared SLURM flow supports venv/direct Python environments and does not assume `conda` exists.
 
@@ -105,7 +105,14 @@ python scripts/check_compute_environment.py
 python scripts/create_remote_manifest.py --backend slurm
 python scripts/create_remote_package_plan.py --backend slurm
 python scripts/render_slurm_jobs.py --job debug_environment
+python scripts/render_slurm_jobs.py --job train_task1_minimal --train-config configs/task1_a4_remote_min_train.yaml
 python scripts/pre_push_audit.py
+```
+
+For the minimal training job, render locally into ignored `slurm_job_files/`, submit manually on the SLURM backend, then return artifacts to ignored local `slurm_logs/`, `outputs/`, and `experiments/` paths. The returned stdout/stderr and registry can be summarized locally with:
+
+```bash
+python scripts/parse_slurm_min_train_result.py --stdout slurm_logs/train_task1_minimal-<JOBID>.out --stderr slurm_logs/train_task1_minimal-<JOBID>.err --registry experiments/experiment_registry.jsonl
 ```
 
 Do not commit SSH keys, Kaggle credentials, cluster usernames, remote hostnames, private backend configs, remote outputs, checkpoints, predictions, logs, or generated bundles.

@@ -44,12 +44,11 @@ DEFAULT_EXCLUDE_PATHS = [
 ]
 
 EXPECTED_RETURN_ARTIFACTS = [
-    "manifest json",
-    "metrics json or csv",
-    "stdout",
-    "stderr",
-    "checkpoint files",
-    "optional prediction files",
+    "slurm_logs/*.out",
+    "slurm_logs/*.err",
+    "outputs/checkpoints/*.pt",
+    "experiments/experiment_registry.jsonl",
+    "experiments/exp_a4_remote_min_fno1d/",
 ]
 
 PROHIBITED_FILES = [
@@ -106,6 +105,7 @@ PROHIBITED_SUFFIXES = {
 ALLOWED_EXPECTED_REMOTE_FILES = {
     "configs/compute_backend.local.yaml",
     "slurm_job_files/debug_environment.sbatch",
+    "slurm_job_files/train_task1_minimal.sbatch",
 }
 
 
@@ -162,6 +162,7 @@ def build_remote_package_plan(
         "scripts/create_remote_package_plan.py",
         "scripts/slurm/debug_environment.sbatch.template",
         "scripts/slurm/train_task1_minimal.sbatch.template",
+        "scripts/parse_slurm_min_train_result.py",
     ]
     if backend_config_path is not None:
         required_local_files.append(_repo_path(backend_config_path))
@@ -180,12 +181,16 @@ def build_remote_package_plan(
         "expected_remote_files": [
             "src/",
             "scripts/",
-            "configs/task1_a3_min_train.yaml",
+            "configs/task1_a4_remote_min_train.yaml",
             "configs/compute_backend.local.yaml",
             "slurm_job_files/debug_environment.sbatch",
+            "slurm_job_files/train_task1_minimal.sbatch",
             "requirements.txt",
             "remote run manifest json",
             "filled private backend config on remote if needed",
+        ],
+        "required_remote_data": [
+            "data_and_sample_submission/train_val_test_init/task1_val.hdf5",
         ],
         "expected_return_artifacts": list(EXPECTED_RETURN_ARTIFACTS),
         "prohibited_files": list(PROHIBITED_FILES),

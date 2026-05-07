@@ -16,7 +16,7 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - `research-agent-loop`: generic observe, hypothesize, test, evaluate, and record loop for auditable research iteration.
 - `experiment-recording`: generic experiment record structure covering hypotheses, configs, diffs, metrics, failures, and conclusions.
 - `external-research-review`: safe read-only review workflow for external automated research repositories and lists.
-- `local-first-compute`: local source-of-truth workflow for temporary SLURM or Kaggle compute backends, private backend config boundaries, explicit SLURM env types, remote package plans, and artifact return checks.
+- `local-first-compute`: local source-of-truth workflow for temporary SLURM or Kaggle compute backends, private backend config boundaries, explicit SLURM env types, manual remote minimal training submission boundaries, remote package plans, and artifact return checks.
 
 ## Skill Update Rules
 
