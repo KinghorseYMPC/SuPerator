@@ -47,9 +47,15 @@ outputs/logs/*
 outputs/predictions/*
 outputs/checkpoints/*
 outputs/submission/*
+outputs/remote_manifests/
+remote_runs/
+slurm_logs/
+kaggle_outputs/
 logs/
 wandb/
 mlruns/
+*.out
+*.err
 
 # OS/editor noise
 .DS_Store

@@ -39,6 +39,7 @@ def test_agent_skill_files_exist() -> None:
         ".agents/skills/research-agent-loop/SKILL.md",
         ".agents/skills/experiment-recording/SKILL.md",
         ".agents/skills/external-research-review/SKILL.md",
+        ".agents/skills/local-first-compute/SKILL.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
@@ -59,6 +60,23 @@ def test_a37_external_auto_research_intake_files_exist() -> None:
         "external-research-review",
     ]:
         assert f"name: {skill_name}" in registry
+
+
+def test_a40_local_first_compute_files_exist() -> None:
+    for relative_path in [
+        "docs/local_first_compute_backend.md",
+        "docs/slurm_usage_template.md",
+        "docs/kaggle_usage_template.md",
+        ".agents/skills/local-first-compute/SKILL.md",
+        "scripts/check_compute_environment.py",
+        "scripts/create_remote_manifest.py",
+        "scripts/slurm/train_task1_minimal.sbatch.template",
+        "src/experiment/remote_manifest.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+    registry = (ROOT / ".agents/skill_registry.yaml").read_text(encoding="utf-8")
+    assert "name: local-first-compute" in registry
 
 
 def test_a36_preloaded_context_boundary_files_exist() -> None:

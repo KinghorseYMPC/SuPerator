@@ -22,6 +22,9 @@ PROHIBITED_TRACKED_DIRS = (
     "task_log_sample/",
     "outputs/",
     "experiments/",
+    "remote_runs/",
+    "slurm_logs/",
+    "kaggle_outputs/",
     ".external_research/",
 )
 
@@ -33,6 +36,8 @@ PROHIBITED_EXTENSIONS = {
     ".ckpt",
     ".zip",
     ".log",
+    ".out",
+    ".err",
 }
 
 REQUIRED_FILES = (

@@ -10,7 +10,29 @@ FORBIDDEN_STRATEGY_PHRASES = [
     "使用 FNO 提升",
     "rollout loss",
     "time-weighted loss",
+    "increase leaderboard",
+    "best model for Task",
+    "optimize competition score",
     "评分规则优化",
+]
+
+FORBIDDEN_CREDENTIAL_PATTERNS = [
+    "BEGIN " + "OPENSSH PRIVATE KEY",
+    "BEGIN " + "RSA PRIVATE KEY",
+    "kaggle" + ".json",
+    "KAGGLE_" + "KEY=",
+    "KAGGLE_" + "USERNAME=",
+    "ssh-" + "rsa ",
+    "gh" + "p_",
+    "github" + "_pat_",
+]
+
+FORBIDDEN_REMOTE_HOST_PATTERNS = [
+    "HostName ",
+    "@login.",
+    "@cluster.",
+    "@slurm.",
+    "ssh ",
 ]
 
 
@@ -48,6 +70,12 @@ def test_gitignore_contains_key_patterns() -> None:
         "*.ckpt",
         "*.zip",
         "*.log",
+        "outputs/remote_manifests/",
+        "remote_runs/",
+        "slurm_logs/",
+        "kaggle_outputs/",
+        "*.out",
+        "*.err",
     ]:
         assert pattern in gitignore
 
@@ -57,6 +85,15 @@ def test_readme_and_agents_do_not_include_strategy_phrases() -> None:
 
     for phrase in FORBIDDEN_STRATEGY_PHRASES:
         assert phrase not in combined
+
+
+def test_readme_and_agents_do_not_include_credentials_or_remote_hosts() -> None:
+    combined = read_text("README.md") + "\n" + read_text("AGENTS.md")
+
+    for pattern in FORBIDDEN_CREDENTIAL_PATTERNS:
+        assert pattern not in combined
+    for pattern in FORBIDDEN_REMOTE_HOST_PATTERNS:
+        assert pattern not in combined
 
 
 def test_readme_allows_rule_format_language() -> None:

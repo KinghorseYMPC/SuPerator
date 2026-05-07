@@ -8,9 +8,9 @@ This file is the coding-agent governance entry point. Keep it concise, current, 
 
 ## Current Stage
 
-A3.8: prepare the repository for publication to a private GitHub repository.
+A4.0: local-first compute backend preparation.
 
-Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, and generic external automated research resource intake.
+Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, generic external automated research resource intake, private GitHub publication preparation, and local-first compute backend preparation.
 
 ## Required Reading Order
 
@@ -35,6 +35,14 @@ Competition clarifications may record neutral constraints only: official rules, 
 Wiki content, if present, must stay broad: PDE background, neural operator background, Burgers equation background, and general tooling knowledge. It must not contain competition-specific execution plans or tuning advice.
 
 After an Agent starts reading competition tasks and executing work, there must be no human intervention in that run. Agent-created notes, configs, logs, and reports become part of the Agent context and must follow the same boundary.
+
+## Local-First Compute Policy
+
+The local laptop git repository is the source of truth. The private GitHub repository is a backup and synchronization target. SLURM and Kaggle are temporary GPU compute backends only and must not become the main project directory or the only copy of code, configs, experiment records, or submission materials.
+
+Remote runs require a local manifest before execution and local validation after artifacts return. Returned checkpoints, metrics, stdout, stderr, notebooks, predictions, and remote output directories stay in ignored local output or experiment paths unless a small metadata record is intentionally added to the local registry.
+
+Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames, remote hostnames, remote artifacts, generated remote run directories, checkpoints, predictions, logs, or filled private job scripts. Keep remote paths as placeholders or environment variables in committed templates.
 
 ## Skill Usage Rules
 

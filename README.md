@@ -4,7 +4,7 @@ SuPerator is an AI4S PDE neural operator research agent engineering project. It 
 
 ## Current Status
 
-The project has completed the local foundations through A3.7:
+The project has completed the local foundations through A4.0:
 
 - Project initialization, data inventory, and smoke tests.
 - Dummy submission generation and validation.
@@ -13,8 +13,9 @@ The project has completed the local foundations through A3.7:
 - Minimal training loop scaffolding and submission packaging checks.
 - Preloaded context boundaries for skills, wiki pages, and submission bundles.
 - Read-only external automated research resource intake for generic Agent workflow improvements.
+- Local-first compute backend preparation for temporary SLURM or Kaggle GPU runs.
 
-Current stage: A3.8, repository governance cleanup and pre-push audit before publishing to a private GitHub repository.
+Current stage: A4.0, local-first compute backend preparation. The private GitHub repository is a backup and synchronization target; the local laptop repository remains the source of truth.
 
 ## Compliance Boundary
 
@@ -67,6 +68,28 @@ python -m pip install -r requirements.txt
 Install `torch` separately for the target CUDA or CPU environment. The project intentionally does not pin a `torch` build in `requirements.txt`.
 
 Official data and local task log samples, when available, should be placed in the ignored directories expected by the configs and validators.
+
+## Compute Backends
+
+The local laptop repository is the source of truth for code, git history, registry records, validation, submission packaging, and final artifact audit. The private GitHub repository is used for backup and synchronization.
+
+SLURM and Kaggle are optional GPU compute backends only. The project has not assumed an active SLURM connection. Remote systems should receive only temporary code, config, and data copies, and returned checkpoints, metrics, notebooks, stdout, and stderr should be copied back to ignored local output or experiment directories before local validation.
+
+Relevant documents:
+
+- `docs/local_first_compute_backend.md`
+- `docs/slurm_usage_template.md`
+- `docs/kaggle_usage_template.md`
+
+Common local commands:
+
+```bash
+python scripts/check_compute_environment.py
+python scripts/create_remote_manifest.py --backend slurm
+python scripts/pre_push_audit.py
+```
+
+Do not commit SSH keys, Kaggle credentials, cluster usernames, remote hostnames, remote outputs, checkpoints, predictions, logs, or generated bundles.
 
 ## Basic Checks
 
