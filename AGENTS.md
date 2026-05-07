@@ -6,7 +6,7 @@ SuPerator builds a research Agent for PDE neural operators. The goal is not only
 
 ## Current Stage
 
-A3.6: preloaded context compliance boundaries. A0, A1, A1.5, A1.6, A2, A2.5, A3, and A3.5 are complete.
+A3.7: external auto-research skill intake. A0, A1, A1.5, A1.6, A2, A2.5, A3, A3.5, and A3.6 are complete.
 
 ## Agent Skill System
 
@@ -27,6 +27,8 @@ Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/s
 Codex may maintain `.agents/skills/` when the user explicitly asks or when a project phase changes. Skill maintenance must follow `.agents/skills/skill-maintenance/SKILL.md`.
 
 External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`. External skills must not directly overwrite local skills; every intake needs candidate logging, license review, project adaptation, tests, and a commit. Do not execute scripts from external repositories. Do not vendor external repositories into this project. Do not directly copy unknown-source or unknown-license content into this project.
+
+External automated research resources may be used only to improve generic Agent capabilities such as research loops, experiment recording, source review, testing, and git hygiene. Do not turn external lists, tools, papers, or repositories into competition task strategy, model-selection advice, dataset-specific training plans, score optimization routes, or human-preloaded execution routes. Record accepted and rejected external sources in `.agents/external_skill_intake_log.md`.
 
 ## Preloaded Context Boundary
 
@@ -65,5 +67,6 @@ See `docs/competition_clarifications.md` for neutral rule and format clarificati
 - A3: minimal training loop.
 - A3.5: stricter JSONL log compliance.
 - A3.6: preloaded context compliance boundaries.
+- A3.7: external automated research resource intake for generic Agent workflow skills.
 - B: later improvement work.
 - C: scientific Agent closed loop.

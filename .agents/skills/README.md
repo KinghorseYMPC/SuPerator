@@ -13,6 +13,9 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - `external-skill-intake`: safely evaluate, summarize, rewrite, and adapt external skills or public workflows.
 - `task-log-compliance`: validate JSONL Agent task logs against the current rule clarification before submission.
 - `data-checkpoint-isolation`: enforce data, checkpoint, config, output, and inference-input isolation for restricted workflows.
+- `research-agent-loop`: generic observe, hypothesize, test, evaluate, and record loop for auditable research iteration.
+- `experiment-recording`: generic experiment record structure covering hypotheses, configs, diffs, metrics, failures, and conclusions.
+- `external-research-review`: safe read-only review workflow for external automated research repositories and lists.
 
 ## Skill Update Rules
 
@@ -53,6 +56,7 @@ preload task-specific execution plans.
 - Record candidate source, URL or identifier, license, topic, decision, reason, and affected local skill.
 - Extract general ideas, then rewrite them into SuPerator-specific procedures.
 - Prefer official documentation and clearly licensed repositories.
+- External automated research resources may improve only generic Agent capabilities, never task execution strategy.
 
 ## Registry Requirement
 

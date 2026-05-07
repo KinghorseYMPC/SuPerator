@@ -53,3 +53,21 @@ skills:
     status: active
     source: local
     last_reviewed: 2026-05-07
+  - name: research-agent-loop
+    path: .agents/skills/research-agent-loop/SKILL.md
+    purpose: Generic auditable scientific research iteration loop
+    status: active
+    source: adapted-from-external-review
+    last_reviewed: 2026-05-07
+  - name: experiment-recording
+    path: .agents/skills/experiment-recording/SKILL.md
+    purpose: Generic experiment recording structure for hypotheses, configs, metrics, failures, and conclusions
+    status: active
+    source: adapted-from-external-review
+    last_reviewed: 2026-05-07
+  - name: external-research-review
+    path: .agents/skills/external-research-review/SKILL.md
+    purpose: Safe read-only review workflow for external automated research resources
+    status: active
+    source: adapted-from-external-review
+    last_reviewed: 2026-05-07

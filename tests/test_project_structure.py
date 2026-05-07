@@ -36,8 +36,29 @@ def test_agent_skill_files_exist() -> None:
         ".agents/skills/external-skill-intake/SKILL.md",
         ".agents/skills/task-log-compliance/SKILL.md",
         ".agents/skills/data-checkpoint-isolation/SKILL.md",
+        ".agents/skills/research-agent-loop/SKILL.md",
+        ".agents/skills/experiment-recording/SKILL.md",
+        ".agents/skills/external-research-review/SKILL.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_a37_external_auto_research_intake_files_exist() -> None:
+    for relative_path in [
+        "docs/external_auto_research_tools_intake.md",
+        ".agents/skills/research-agent-loop/SKILL.md",
+        ".agents/skills/experiment-recording/SKILL.md",
+        ".agents/skills/external-research-review/SKILL.md",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+    registry = (ROOT / ".agents/skill_registry.yaml").read_text(encoding="utf-8")
+    for skill_name in [
+        "research-agent-loop",
+        "experiment-recording",
+        "external-research-review",
+    ]:
+        assert f"name: {skill_name}" in registry
 
 
 def test_a36_preloaded_context_boundary_files_exist() -> None:

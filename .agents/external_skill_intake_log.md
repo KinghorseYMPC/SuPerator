@@ -22,6 +22,7 @@ Track external skill and workflow sources reviewed for SuPerator. This log recor
 | 2026-05-07 | GitHub Docs: Add agent skills | https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills | GitHub Docs terms; no direct reuse | Agent skill structure and security warnings | adapted | Confirms project `.agents/skills` layout and the need to inspect unverified skills before install or execution. | external-skill-intake, skill-maintenance |
 | 2026-05-07 | huggingface/skills | https://github.com/huggingface/skills | Apache-2.0 | AI/ML skill repository | pending | Good candidate for future ML workflow ideas; no content copied in A1.6. | none |
 | 2026-05-07 | iliaal/ai-skills | https://github.com/iliaal/ai-skills | MIT | Compact coding-agent process skills | pending | Candidate for future process-pattern comparison; no content copied in A1.6. | none |
+| 2026-05-07 | Awesome-Auto-Research-Tools | https://github.com/handsome-rich/Awesome-Auto-Research-Tools | CC0-1.0 | Automated scientific research tools and skill collections | adapted | Useful as a curated index for generic auto-research workflow design; reviewed read-only and not downloaded. | research-agent-loop, experiment-recording, external-research-review |
 
 ## Accepted adaptations
 
@@ -29,6 +30,9 @@ Track external skill and workflow sources reviewed for SuPerator. This log recor
 - Maintain a human-readable skill index plus a machine-readable registry.
 - Require review, license checks, project-specific rewriting, tests, and commits before any external idea becomes local guidance.
 - Treat external skills as untrusted until reviewed; never execute external scripts during intake.
+- Represent generic scientific work as an auditable observe, hypothesize, test, evaluate, and record loop.
+- Keep experiment records structured around hypotheses, configs, changed files, commands, metrics, failures, conclusions, and decisions.
+- Review external automated research resources through read-only metadata, license checks, and local adaptation only.
 
 ## Rejected sources
 
@@ -43,3 +47,4 @@ Track external skill and workflow sources reviewed for SuPerator. This log recor
 ## Review history
 
 - 2026-05-07: Initial A1.6 intake policy created with read-only external research. Network was available through web search; no external code was executed.
+- 2026-05-07: A3.7 reviewed Awesome-Auto-Research-Tools through GitHub web access. No external repository was downloaded or executed; generic workflow ideas were adapted into local skills.

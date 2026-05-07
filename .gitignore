@@ -18,6 +18,13 @@ env/
 .env
 .env.*
 
+# External source review caches
+.external_research/
+.external_skills_cache/
+.external_sources/
+tmp_external/
+vendor_external/
+
 # Official data and large artifacts
 data_and_sample_submission/
 task_log_sample/
