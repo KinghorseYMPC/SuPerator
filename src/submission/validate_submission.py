@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from src.data.hdf5_utils import find_main_array_key
+from src.submission.validate_task_logs import validate_task_log
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -57,6 +58,7 @@ def validate_task_submission(
     pred_path = directory / f"{task_prefix}_pred.hdf5"
     time_path = directory / f"{task_prefix}_time.csv"
     log_path = directory / f"{task_prefix}_logs.log"
+    sample_log_path = ROOT / "task_log_sample" / f"{task_prefix}_logs.log"
 
     _require(submission_json_path.is_file(), f"Missing submission.json: {submission_json_path}")
     _require(code_dir.is_dir(), f"Missing code/ directory: {code_dir}")
@@ -65,6 +67,7 @@ def validate_task_submission(
     _require(time_path.is_file(), f"Missing time CSV: {time_path}")
     _require(log_path.is_file(), f"Missing log file: {log_path}")
     _require(log_path.stat().st_size > 0, f"Log file is empty: {log_path}")
+    _require(sample_log_path.is_file(), f"Missing task log sample file: {sample_log_path}")
     _require(test_file_path.is_file(), f"Missing test HDF5 file: {test_file_path}")
 
     with submission_json_path.open("r", encoding="utf-8") as metadata_file:
@@ -111,6 +114,11 @@ def validate_task_submission(
     time_frame = pd.read_csv(time_path)
     train_time = _read_numeric_csv_value(time_frame, "train_time")
     inference_time = _read_numeric_csv_value(time_frame, "inference_time")
+    log_validation = validate_task_log(log_path, sample_log_path, strict=True)
+    _require(
+        log_validation["passed"],
+        "Task log format validation failed: " + "; ".join(log_validation["errors"]),
+    )
 
     summary = {
         "submission_dir": str(directory),
@@ -122,6 +130,7 @@ def validate_task_submission(
         "max_initial_error": max_initial_error,
         "train_time": train_time,
         "inference_time": inference_time,
+        "log_validation": log_validation,
     }
     print("Submission validation passed:")
     for key, value in summary.items():

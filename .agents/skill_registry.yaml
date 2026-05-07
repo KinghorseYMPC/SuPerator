@@ -41,3 +41,9 @@ skills:
     status: active
     source: local
     last_reviewed: 2026-05-07
+  - name: task-log-compliance
+    path: .agents/skills/task-log-compliance/SKILL.md
+    purpose: Ensure task logs follow the latest competition JSONL format before submission
+    status: active
+    source: local
+    last_reviewed: 2026-05-07

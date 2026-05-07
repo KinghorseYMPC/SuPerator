@@ -11,6 +11,7 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - `git-workflow`: git status, staged-change review, commit hygiene, and large-file exclusion.
 - `skill-maintenance`: maintain and evolve local skills as SuPerator phases change.
 - `external-skill-intake`: safely evaluate, summarize, rewrite, and adapt external skills or public workflows.
+- `task-log-compliance`: validate task1/task2 JSONL Agent logs against the latest competition sample format before submission.
 
 ## Skill Update Rules
 
@@ -21,6 +22,7 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - If external material influenced a skill, update `.agents/external_skill_intake_log.md`.
 - Run `pytest -q` after skill structure changes.
 - If submission behavior is affected, run `python scripts/validate_submission.py`.
+- All submission-related work must follow `task-log-compliance`.
 - Commit skill updates separately with a clear English message.
 
 ## External Skill Intake Rules

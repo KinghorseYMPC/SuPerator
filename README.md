@@ -106,3 +106,16 @@ pytest -q
 - 路径应使用配置或相对路径管理，避免写死个人机器路径。
 - 修改提交文件生成逻辑后必须运行 submission 校验。
 - 修改后尽量运行相关测试。
+
+## A2.5 task log compliance
+
+On 2026-05-07 the competition announced a strict format requirement for `task1_logs.log` and `task2_logs.log`. Local official samples must be placed in `task_log_sample/`. This directory is treated as local official material and is ignored by git.
+
+Before packaging or submitting, run:
+
+```bash
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+```
+
+All submission-related work must follow `.agents/skills/task-log-compliance/SKILL.md`.

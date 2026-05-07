@@ -20,6 +20,7 @@ At the start of any Codex session, read in this order:
 
 Code changes must follow `.agents/skills/safe-code-change/SKILL.md`.
 Debugging must follow `.agents/skills/debug-and-fix/SKILL.md`.
+Submission log work must follow `.agents/skills/task-log-compliance/SKILL.md`.
 Before commit, follow `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
 
 Codex may maintain `.agents/skills/` when the user explicitly asks or when a project phase changes. Skill maintenance must follow `.agents/skills/skill-maintenance/SKILL.md`.
@@ -52,5 +53,6 @@ External skill intake from GitHub or other public sources must follow `.agents/s
 - A1.5: agent skill system consolidation.
 - A1.6: skill self-evolution and external skill intake mechanism.
 - A2: Task 1 baseline.
+- A2.5: task log compliance with the latest competition JSONL format.
 - B: Task 1 improvement.
 - C: scientific Agent closed loop.

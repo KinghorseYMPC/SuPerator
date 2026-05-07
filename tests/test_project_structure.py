@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,6 +34,20 @@ def test_agent_skill_files_exist() -> None:
         ".agents/skills/git-workflow/SKILL.md",
         ".agents/skills/skill-maintenance/SKILL.md",
         ".agents/skills/external-skill-intake/SKILL.md",
+        ".agents/skills/task-log-compliance/SKILL.md",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_a25_task_log_compliance_files_exist() -> None:
+    sample_dir = ROOT / "task_log_sample"
+    if not sample_dir.exists():
+        pytest.skip("Local official task_log_sample/ material is not present")
+    for relative_path in [
+        "task_log_sample",
+        "docs/competition_updates.md",
+        "docs/task_log_format_analysis.md",
+        "src/submission/validate_task_logs.py",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 

@@ -48,7 +48,26 @@ python scripts/validate_submission.py
 非 torch 测试必须继续通过。
 submission validator 必须继续通过。
 
+## A2.5 tests
+
+```bash
+python scripts/inspect_task_log_sample.py
+python scripts/make_dummy_task1_submission.py
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
+
+A2.5 验收重点：
+
+- `task_log_sample/` 本地存在；
+- `docs/task_log_format_analysis.md` 和 `docs/competition_updates.md` 已更新；
+- `task1_logs.log` 使用官方样例要求的 JSON Lines 格式；
+- `src/submission/validate_task_logs.py` 对 submission log 是硬约束；
+- dummy submission 仍通过 shape、time.csv、code/、submission.json、前 10 步一致性和 log 格式校验。
+
 ## Rule
 
 如果改动涉及提交文件生成，必须运行 A1 tests。
+如果改动涉及 task logs 或 submission 打包，必须使用 `task-log-compliance` 并运行 A2.5 tests。
 如果改动涉及模型或训练，必须至少运行 model forward 和 one-batch training test。

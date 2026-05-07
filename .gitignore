@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest_tmp/
 pytest-cache-files-*/
 .mypy_cache/
 .ruff_cache/
@@ -19,6 +20,7 @@ env/
 
 # Official data and large artifacts
 data_and_sample_submission/
+task_log_sample/
 *.h5
 *.hdf5
 *.pt

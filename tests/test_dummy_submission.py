@@ -4,6 +4,7 @@ import zipfile
 from src.data.hdf5_utils import list_hdf5_structure
 from src.submission.make_dummy_task1_submission import create_dummy_submission
 from src.submission.package_submission import package_submission
+from src.submission.validate_task_logs import validate_task_log
 from src.submission.validate_submission import validate_task_submission
 
 
@@ -37,6 +38,12 @@ def test_dummy_submission_generation_validation_and_package() -> None:
     assert any((SUBMISSION_DIR / "code").iterdir())
 
     validate_task_submission(SUBMISSION_DIR, 1, TEST_PATH)
+    log_result = validate_task_log(
+        SUBMISSION_DIR / "task1_logs.log",
+        ROOT / "task_log_sample" / "task1_logs.log",
+        strict=True,
+    )
+    assert log_result["passed"], log_result
     package_submission(SUBMISSION_DIR, 1, TEST_PATH, SUBMISSION_ZIP)
     assert SUBMISSION_ZIP.exists()
 
