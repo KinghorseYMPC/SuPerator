@@ -1,0 +1,23 @@
+# Copy this file to configs/compute_backend.local.yaml for private local use.
+# The local file is ignored by git and must not be committed.
+local:
+  project_root: "."
+  source_of_truth: true
+
+slurm:
+  enabled: false
+  host: "<SLURM_HOST>"
+  user: "<SLURM_USER>"
+  remote_project_dir: "<REMOTE_PROJECT_DIR>"
+  conda_env: "<CONDA_ENV>"
+  partition: "<PARTITION>"
+  account: "<ACCOUNT_OR_EMPTY>"
+  gpus: 1
+  cpus_per_task: 4
+  memory: "32G"
+  time_limit: "00:30:00"
+
+kaggle:
+  enabled: false
+  dataset_slug: "<OPTIONAL_DATASET_SLUG>"
+  kernel_slug: "<OPTIONAL_KERNEL_SLUG>"

@@ -79,6 +79,18 @@ def test_a40_local_first_compute_files_exist() -> None:
     assert "name: local-first-compute" in registry
 
 
+def test_a41_slurm_connection_preparation_files_exist() -> None:
+    for relative_path in [
+        "configs/compute_backend.example.yaml",
+        "configs/compute_backend.local.yaml.example",
+        "scripts/slurm/debug_environment.sbatch.template",
+        "docs/slurm_connection_preparation.md",
+        "scripts/create_remote_package_plan.py",
+        "src/experiment/remote_package_plan.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

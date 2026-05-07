@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Template only. Replace placeholders manually before use.
+#SBATCH --job-name=<JOB_NAME>
+#SBATCH --partition=<PARTITION>
+#SBATCH --gres=gpu:<GPUS>
+#SBATCH --cpus-per-task=<CPUS_PER_TASK>
+#SBATCH --mem=<MEMORY>
+#SBATCH --time=<TIME_LIMIT>
+#SBATCH --output=slurm_logs/%x-%j.out
+#SBATCH --error=slurm_logs/%x-%j.err
+
+set -euo pipefail
+
+hostname
+date
+pwd
+nvidia-smi || true
+
+cd "<PROJECT_DIR>"
+
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate "<CONDA_ENV>"
+
+python --version
+python scripts/check_compute_environment.py

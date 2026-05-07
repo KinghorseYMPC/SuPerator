@@ -72,6 +72,12 @@ def test_gitignore_contains_key_patterns() -> None:
         "*.log",
         "outputs/remote_manifests/",
         "remote_runs/",
+        "configs/compute_backend.local.yaml",
+        "configs/*local*.yaml",
+        "remote_package/",
+        "remote_bundle/",
+        "remote_sync_plan/",
+        "slurm_job_files/",
         "slurm_logs/",
         "kaggle_outputs/",
         "*.out",
@@ -94,6 +100,14 @@ def test_readme_and_agents_do_not_include_credentials_or_remote_hosts() -> None:
         assert pattern not in combined
     for pattern in FORBIDDEN_REMOTE_HOST_PATTERNS:
         assert pattern not in combined
+
+
+def test_readme_and_agents_reference_private_backend_config_without_real_values() -> None:
+    combined = read_text("README.md") + "\n" + read_text("AGENTS.md")
+
+    assert "configs/compute_backend.local.yaml" in combined
+    for placeholder in ["<SLURM_HOST>", "<SLURM_USER>", "<REMOTE_PROJECT_DIR>"]:
+        assert placeholder not in combined
 
 
 def test_readme_allows_rule_format_language() -> None:

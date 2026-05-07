@@ -46,7 +46,8 @@ Recommended flow:
 
 ```text
 local repo
--> create remote bundle / manifest
+-> create remote manifest and package plan
+-> prepare a temporary remote bundle from the plan
 -> copy to compute backend manually
 -> run GPU job remotely
 -> collect checkpoint / metrics / logs
@@ -62,7 +63,20 @@ local repo
 - Do not commit cluster usernames.
 - Do not commit remote hostnames.
 - Do not commit credentials.
+- Do not commit filled private backend configs such as `configs/compute_backend.local.yaml`.
 - Express remote paths with placeholders or environment variables.
+- Keep generated remote packages, sync plans, job files, logs, outputs, checkpoints, and predictions in ignored paths.
+
+## Local Dry-Run Preparation
+
+Before any remote run, create local planning artifacts:
+
+```bash
+python scripts/create_remote_manifest.py --backend slurm
+python scripts/create_remote_package_plan.py --backend slurm
+```
+
+These commands do not connect to remote systems or copy files.
 
 ## Compliance
 

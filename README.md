@@ -4,7 +4,7 @@ SuPerator is an AI4S PDE neural operator research agent engineering project. It 
 
 ## Current Status
 
-The project has completed the local foundations through A4.0:
+The project has completed the local foundations through A4.1:
 
 - Project initialization, data inventory, and smoke tests.
 - Dummy submission generation and validation.
@@ -14,8 +14,9 @@ The project has completed the local foundations through A4.0:
 - Preloaded context boundaries for skills, wiki pages, and submission bundles.
 - Read-only external automated research resource intake for generic Agent workflow improvements.
 - Local-first compute backend preparation for temporary SLURM or Kaggle GPU runs.
+- SLURM connection preparation templates, private config conventions, and remote package planning dry-runs.
 
-Current stage: A4.0, local-first compute backend preparation. The private GitHub repository is a backup and synchronization target; the local laptop repository remains the source of truth.
+Current stage: A4.1, SLURM connection preparation. The private GitHub repository is a backup and synchronization target; the local laptop repository remains the source of truth.
 
 ## Compliance Boundary
 
@@ -73,23 +74,38 @@ Official data and local task log samples, when available, should be placed in th
 
 The local laptop repository is the source of truth for code, git history, registry records, validation, submission packaging, and final artifact audit. The private GitHub repository is used for backup and synchronization.
 
-SLURM and Kaggle are optional GPU compute backends only. The project has not assumed an active SLURM connection. Remote systems should receive only temporary code, config, and data copies, and returned checkpoints, metrics, notebooks, stdout, and stderr should be copied back to ignored local output or experiment directories before local validation.
+SLURM and Kaggle are optional GPU compute backends only. A4.1 is SLURM connection preparation only; the project has not assumed an active SLURM connection and does not execute SSH or sbatch commands in this stage. Remote systems should receive only temporary code, config, and data copies, and returned checkpoints, metrics, notebooks, stdout, and stderr should be copied back to ignored local output or experiment directories before local validation.
+
+Private backend settings belong in the ignored local file:
+
+```text
+configs/compute_backend.local.yaml
+```
+
+Use the committed placeholder examples as starting points:
+
+```text
+configs/compute_backend.example.yaml
+configs/compute_backend.local.yaml.example
+```
 
 Relevant documents:
 
 - `docs/local_first_compute_backend.md`
 - `docs/slurm_usage_template.md`
 - `docs/kaggle_usage_template.md`
+- `docs/slurm_connection_preparation.md`
 
 Common local commands:
 
 ```bash
 python scripts/check_compute_environment.py
 python scripts/create_remote_manifest.py --backend slurm
+python scripts/create_remote_package_plan.py --backend slurm
 python scripts/pre_push_audit.py
 ```
 
-Do not commit SSH keys, Kaggle credentials, cluster usernames, remote hostnames, remote outputs, checkpoints, predictions, logs, or generated bundles.
+Do not commit SSH keys, Kaggle credentials, cluster usernames, remote hostnames, private backend configs, remote outputs, checkpoints, predictions, logs, or generated bundles.
 
 ## Basic Checks
 

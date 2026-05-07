@@ -8,7 +8,7 @@ This file is the coding-agent governance entry point. Keep it concise, current, 
 
 ## Current Stage
 
-A4.0: local-first compute backend preparation.
+A4.1: SLURM connection preparation and remote package planning.
 
 Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, generic external automated research resource intake, private GitHub publication preparation, and local-first compute backend preparation.
 
@@ -43,6 +43,10 @@ The local laptop git repository is the source of truth. The private GitHub repos
 Remote runs require a local manifest before execution and local validation after artifacts return. Returned checkpoints, metrics, stdout, stderr, notebooks, predictions, and remote output directories stay in ignored local output or experiment paths unless a small metadata record is intentionally added to the local registry.
 
 Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames, remote hostnames, remote artifacts, generated remote run directories, checkpoints, predictions, logs, or filled private job scripts. Keep remote paths as placeholders or environment variables in committed templates.
+
+Private backend configuration belongs only in ignored local files such as `configs/compute_backend.local.yaml`. Commit placeholder examples only. Do not commit filled backend configs, account names, hostnames, usernames, private paths, tokens, keys, or Kaggle credentials.
+
+Do not execute remote commands such as SSH, scp, rsync, sbatch, squeue, sinfo, or Kaggle API commands unless the user explicitly requests that remote stage. Before any remote run, generate both a local remote manifest and a remote package plan, then validate returned artifacts locally after they come back.
 
 ## Skill Usage Rules
 

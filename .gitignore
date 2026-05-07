@@ -17,6 +17,8 @@ env/
 # Local environment
 .env
 .env.*
+configs/compute_backend.local.yaml
+configs/*local*.yaml
 
 # External source review caches
 .external_research/
@@ -49,6 +51,10 @@ outputs/checkpoints/*
 outputs/submission/*
 outputs/remote_manifests/
 remote_runs/
+remote_package/
+remote_bundle/
+remote_sync_plan/
+slurm_job_files/
 slurm_logs/
 kaggle_outputs/
 logs/

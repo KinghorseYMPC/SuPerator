@@ -36,6 +36,43 @@ def test_prohibited_extension_detection() -> None:
     ]
 
 
+def test_sensitive_filename_detection() -> None:
+    paths = [
+        "configs/compute_backend.local.yaml",
+        "configs/public.yaml",
+        "private/token_store.txt",
+        "private/my_secret_notes.txt",
+        "private/service_credential.json",
+        "private/id_rsa",
+        "private/kaggle.json",
+        "docs/key_terms.md",
+    ]
+
+    assert pre_push_audit.find_prohibited_paths(paths) == [
+        "configs/compute_backend.local.yaml",
+    ]
+    assert pre_push_audit.find_prohibited_sensitive_names(paths) == [
+        "private/id_rsa",
+        "private/kaggle.json",
+        "private/my_secret_notes.txt",
+        "private/service_credential.json",
+        "private/token_store.txt",
+    ]
+
+
+def test_key_extension_detection() -> None:
+    paths = [
+        "deploy/private.pem",
+        "deploy/service.KEY",
+        "docs/key_terms.md",
+    ]
+
+    assert pre_push_audit.find_prohibited_extensions(paths) == [
+        "deploy/private.pem",
+        "deploy/service.KEY",
+    ]
+
+
 def test_large_tracked_file_detection(tmp_path: Path) -> None:
     small = tmp_path / "small.txt"
     large = tmp_path / "large.bin"

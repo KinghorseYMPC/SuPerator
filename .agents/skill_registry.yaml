@@ -73,7 +73,7 @@ skills:
     last_reviewed: 2026-05-07
   - name: local-first-compute
     path: .agents/skills/local-first-compute/SKILL.md
-    purpose: Keep local source-of-truth boundaries for remote GPU compute backends
+    purpose: Keep local source-of-truth boundaries, private backend config rules, remote package plans, and artifact return checks for remote GPU compute backends
     status: active
     source: local
-    last_reviewed: 2026-05-07
+    last_reviewed: 2026-05-08
