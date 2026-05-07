@@ -3,6 +3,8 @@ pandas
 h5py
 pyyaml
 pytest
+scipy
 
-# Install torch according to the target CUDA/CPU environment in later stages.
+# Install torch separately according to local CUDA / CPU environment.
+# See official PyTorch install selector.
 # torch

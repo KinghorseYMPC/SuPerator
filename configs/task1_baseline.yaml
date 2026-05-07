@@ -1,0 +1,29 @@
+project_name: SuPerator
+task: task1
+data:
+  val_path: data_and_sample_submission/train_val_test_init/task1_val.hdf5
+  test_path: data_and_sample_submission/train_val_test_init/task1_test.hdf5
+  input_steps: 10
+  total_steps: 200
+  spatial_points: 256
+  hdf5_key: null
+model:
+  name: fno1d
+  in_steps: 10
+  out_steps: 1
+  width: 32
+  modes: 16
+  depth: 4
+  padding: 8
+train:
+  batch_size: 4
+  learning_rate: 0.001
+  weight_decay: 0.000001
+  max_smoke_batches: 1
+  device: auto
+  seed: 42
+outputs:
+  checkpoint_dir: outputs/checkpoints
+  log_dir: outputs/logs
+  prediction_dir: outputs/predictions
+  submission_dir: outputs/submission

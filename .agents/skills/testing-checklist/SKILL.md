@@ -33,17 +33,20 @@ pytest -q
 - task1_logs.log 非空；
 - zip 内部顶层是 submission/。
 
-## Future A2 tests
+## A2 tests
 
-预留：
+```bash
+python scripts/inspect_task1_hdf5.py
+python scripts/smoke_fno1d_forward.py
+python scripts/one_batch_train_task1.py
+python scripts/evaluate_persistence_task1.py
+pytest -q
+python scripts/validate_submission.py
+```
 
-- model forward smoke test；
-- dataset loading test；
-- one-batch training test；
-- checkpoint save/load test；
-- validation metric test；
-- inference rollout test；
-- submission validation test。
+如果 torch 不存在，torch 相关 smoke 可以跳过，但必须明确报告。
+非 torch 测试必须继续通过。
+submission validator 必须继续通过。
 
 ## Rule
 

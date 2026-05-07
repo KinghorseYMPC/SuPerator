@@ -7,7 +7,7 @@ SuPerator project skills live under `.agents/skills/`. They define project-speci
 - `project-onboarding`: project onboarding, state recovery, rule reading, data checks, and next-step summaries.
 - `safe-code-change`: safe minimal code changes with scoped edits, tests, and rollback-friendly commits.
 - `debug-and-fix`: structured debugging for test failures, HDF5 issues, submission validation failures, training failures, and SLURM failures.
-- `testing-checklist`: stage-specific commands and acceptance criteria for A0, A1, submission validation, and future A2 tests.
+- `testing-checklist`: stage-specific commands and acceptance criteria for A0, A1, A2 baseline smoke tests, and submission validation.
 - `git-workflow`: git status, staged-change review, commit hygiene, and large-file exclusion.
 - `skill-maintenance`: maintain and evolve local skills as SuPerator phases change.
 - `external-skill-intake`: safely evaluate, summarize, rewrite, and adapt external skills or public workflows.
