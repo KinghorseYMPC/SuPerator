@@ -335,6 +335,10 @@ def train_minimal_task1(config: dict[str, Any]) -> dict[str, Any]:
         ),
         "status": "completed",
     }
-    append_registry_record(registry_record)
+    registry_path = config.get("outputs", {}).get("registry_path")
+    if registry_path:
+        append_registry_record(registry_record, registry_path=registry_path)
+    else:
+        append_registry_record(registry_record)
     train_result["registry_record"] = registry_record
     return train_result

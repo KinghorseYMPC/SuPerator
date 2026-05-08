@@ -28,12 +28,17 @@ PROHIBITED_TRACKED_DIRS = (
     "remote_sync_plan/",
     "slurm_job_files/",
     "slurm_logs/",
+    "kaggle_work/",
+    "kaggle_dataset_package/",
     "kaggle_outputs/",
+    "kaggle_kernel/package/",
+    ".kaggle/",
     ".external_research/",
 )
 
 PROHIBITED_TRACKED_FILES = {
     "configs/compute_backend.local.yaml",
+    "kaggle.json",
 }
 
 PROHIBITED_NAME_FRAGMENTS = (

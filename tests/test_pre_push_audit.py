@@ -9,6 +9,9 @@ def test_prohibited_path_detection() -> None:
         "data_and_sample_submission/train.hdf5",
         "outputs/submission/submission.zip",
         "experiments/run.json",
+        "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
+        "kaggle_outputs/task1_min_train/output.txt",
+        "kaggle_kernel/package/kernel-metadata.json",
         ".external_research/cache/index.md",
     ]
 
@@ -16,6 +19,9 @@ def test_prohibited_path_detection() -> None:
         ".external_research/cache/index.md",
         "data_and_sample_submission/train.hdf5",
         "experiments/run.json",
+        "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
+        "kaggle_kernel/package/kernel-metadata.json",
+        "kaggle_outputs/task1_min_train/output.txt",
         "outputs/submission/submission.zip",
     ]
 

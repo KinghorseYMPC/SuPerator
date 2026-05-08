@@ -103,6 +103,19 @@ def test_a44_remote_min_train_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a4k1_kaggle_backend_files_exist() -> None:
+    for relative_path in [
+        "configs/kaggle_task1_min_train.yaml",
+        "docs/kaggle_api_runbook.md",
+        "scripts/kaggle/run_task1_min_train.py",
+        "scripts/create_kaggle_dataset_package.py",
+        "scripts/create_kaggle_kernel_package.py",
+        "kaggle_kernel/kernel-metadata.json.template",
+        "src/experiment/kaggle_package_plan.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

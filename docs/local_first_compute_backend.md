@@ -38,7 +38,8 @@ SLURM may be used for:
 Kaggle may be used for:
 
 - optional GPU experimentation;
-- returning notebooks, outputs, and checkpoints;
+- manually executed API-backed jobs prepared from local package plans;
+- returning notebooks, outputs, metrics, and checkpoints;
 - temporary execution, not as the main project directory.
 
 ## Artifact Flow
@@ -61,6 +62,7 @@ local repo
 
 - Do not commit SSH keys.
 - Do not commit Kaggle credentials.
+- Do not read Kaggle credential files from the project.
 - Do not commit cluster usernames.
 - Do not commit remote hostnames.
 - Do not commit credentials.
@@ -77,14 +79,23 @@ python scripts/create_remote_manifest.py --backend slurm
 python scripts/create_remote_package_plan.py --backend slurm
 python scripts/render_slurm_jobs.py --job debug_environment
 python scripts/render_slurm_jobs.py --job train_task1_minimal --train-config configs/task1_a4_remote_min_train.yaml
+python scripts/create_kaggle_dataset_package.py --dry-run
+python scripts/create_kaggle_kernel_package.py --username placeholder --dry-run
 ```
 
 These commands do not connect to remote systems, copy files, submit jobs, or query queues.
+The Kaggle dry-runs do not call the Kaggle API and do not read credentials.
 
 For a minimal remote training run, the rendered job file remains in ignored
 `slurm_job_files/` and is submitted manually by the user on the SLURM backend.
 Returned logs, checkpoints, metrics, and experiment directories must come back
 to ignored local paths before any local analysis or submission work.
+
+For Kaggle, the generated dataset package and kernel package are local staging
+artifacts only. The user manually creates or versions the private dataset,
+pushes the private kernel, checks status, and downloads outputs. Returned
+Kaggle artifacts stay in ignored local directories until local validation is
+complete.
 
 ## Compliance
 

@@ -79,7 +79,14 @@ def test_gitignore_contains_key_patterns() -> None:
         "remote_sync_plan/",
         "slurm_job_files/",
         "slurm_logs/",
+        "kaggle_work/",
+        "kaggle_dataset_package/",
         "kaggle_outputs/",
+        "kaggle_kernel/",
+        "kaggle_kernel/package/",
+        "kaggle.json",
+        ".kaggle/",
+        "*.ipynb_checkpoints/",
         "*.out",
         "*.err",
     ]:
@@ -100,6 +107,14 @@ def test_readme_and_agents_do_not_include_credentials_or_remote_hosts() -> None:
         assert pattern not in combined
     for pattern in FORBIDDEN_REMOTE_HOST_PATTERNS:
         assert pattern not in combined
+
+
+def test_kaggle_runbook_exists_and_readme_agents_do_not_include_tokens() -> None:
+    assert (ROOT / "docs/kaggle_api_runbook.md").is_file()
+    combined = read_text("README.md") + "\n" + read_text("AGENTS.md")
+    lowered = combined.lower()
+    assert "kaggle token" not in lowered
+    assert "kaggle_key" not in lowered
 
 
 def test_readme_and_agents_reference_private_backend_config_without_real_values() -> None:

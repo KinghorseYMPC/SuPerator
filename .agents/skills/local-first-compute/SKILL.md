@@ -34,6 +34,7 @@ Use this skill to keep clear responsibility boundaries between the local source 
 - Use committed placeholder examples only for shared configuration.
 - Keep filled backend settings in ignored files such as `configs/compute_backend.local.yaml`.
 - Do not commit hostnames, usernames, account names, private remote paths, tokens, keys, Kaggle credentials, or filled job scripts.
+- Do not read, print, or commit Kaggle credential files.
 - For SLURM, set `env_type` to `conda`, `venv`, or `direct_python`; current server-style preparation should support `venv` and `direct_python`.
 
 ## Remote Package Plan
@@ -41,6 +42,7 @@ Use this skill to keep clear responsibility boundaries between the local source 
 - Create a local plan describing include paths, exclude paths, required local files, expected remote files, expected return artifacts, and prohibited files.
 - The plan is a dry-run artifact; it must not copy files, create archives, or connect to a remote backend.
 - The plan must keep the local repository marked as the source of truth.
+- Kaggle package plans must exclude credentials, generated outputs, task logs, checkpoints, and unrelated large data.
 
 ## Remote Artifact Return Checklist
 
@@ -59,3 +61,4 @@ Use this skill to keep clear responsibility boundaries between the local source 
 - Do not place task-specific strategy in this skill.
 - Do not hard-code remote temporary paths into the project.
 - Do not execute remote commands unless the user explicitly requests that stage.
+- Do not call the Kaggle API during local package preparation.
