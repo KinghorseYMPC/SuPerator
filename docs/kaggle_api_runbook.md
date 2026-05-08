@@ -120,6 +120,40 @@ If the generated task log is a `development_summary_log`, the structural
 validator can pass while retaining the provenance warning. Do not remove or
 misrepresent that warning as complete API-proxy LLM provenance.
 
+## Task 1 Automatic Loop
+
+The A5 controller wraps the Kaggle run, returned-output parsing, adoption,
+final submission generation, validators, and repository audit in one local
+entry point:
+
+```bash
+python scripts/run_task1_auto_loop.py --backend kaggle
+```
+
+To resume from already downloaded Kaggle output without calling the Kaggle API:
+
+```bash
+python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
+```
+
+Print the latest local run summary with:
+
+```bash
+python scripts/summarize_task1_auto_loop.py
+```
+
+If Kaggle API access fails because of a network interruption, use the recovery
+commands printed by the controller:
+
+```bash
+kaggle kernels status <KAGGLE_USERNAME>/superator-task1-min-train
+kaggle kernels output <KAGGLE_USERNAME>/superator-task1-min-train -p kaggle_outputs/task1_min_train
+python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
+```
+
+Kaggle outputs and generated `outputs/` artifacts remain ignored and must not
+enter git. The final submission is still generated and validated locally.
+
 ## Local Validation After Return
 
 Run local checks after Kaggle outputs return:

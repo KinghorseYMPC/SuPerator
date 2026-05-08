@@ -142,6 +142,22 @@ the final submission is generated and validated locally. See
 `docs/kaggle_api_runbook.md` for manual dataset creation, kernel push, status
 checks, output download, adoption, and local return-artifact validation.
 
+### Task 1 auto loop
+
+The A5 Task 1 controller runs the local-first Kaggle orchestration, returned
+output parsing, adoption, final submission generation, validators, and
+pre-push audit from one entry point:
+
+```bash
+python scripts/run_task1_auto_loop.py --backend kaggle
+python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
+python scripts/summarize_task1_auto_loop.py
+```
+
+Generated Kaggle output, checkpoints, predictions, logs, and submission zip
+files stay under ignored local paths. Validate the final submission locally
+before any manual upload.
+
 ## Basic Checks
 
 Run the project structure and test suite checks:

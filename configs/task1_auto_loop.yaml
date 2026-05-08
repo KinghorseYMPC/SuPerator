@@ -1,0 +1,38 @@
+project_name: SuPerator
+stage: A5_task1_auto_loop
+task: task1
+
+backend:
+  preferred: kaggle
+  fallback_order:
+    - kaggle
+    - slurm
+    - local
+  kaggle:
+    username: whiskeyyankeecharlie
+    dataset_slug: superator-inputs
+    kernel_slug: superator-task1-min-train
+    max_wait_minutes: 45
+    poll_interval_seconds: 60
+    allow_manual_output_recovery: true
+  slurm:
+    enabled: false
+    reason: queue priority unavailable in current phase
+  local:
+    enabled: true
+    mode: validation_only
+
+paths:
+  kaggle_output_dir: kaggle_outputs/task1_min_train
+  adoption_root: outputs/remote_results/kaggle/task1_min_train
+  checkpoint_dest_dir: outputs/checkpoints
+  submission_dir: outputs/submission/submission
+  submission_zip: outputs/submission/submission.zip
+
+validation:
+  run_task_log_validator: true
+  run_submission_validator: true
+  run_pre_push_audit: true
+
+logging:
+  run_summary_path: outputs/auto_loop/task1_auto_loop_summary.json

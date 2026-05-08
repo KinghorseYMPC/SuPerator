@@ -7,6 +7,7 @@ def test_prohibited_path_detection() -> None:
     paths = [
         "src/submission/validate_submission.py",
         "data_and_sample_submission/train.hdf5",
+        "outputs/auto_loop/task1_auto_loop_summary.json",
         "outputs/remote_results/kaggle/task1_min_train/adoption_summary.json",
         "outputs/submission/submission.zip",
         "experiments/run.json",
@@ -25,6 +26,7 @@ def test_prohibited_path_detection() -> None:
         "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
         "kaggle_kernel/package/kernel-metadata.json",
         "kaggle_outputs/task1_min_train/output.txt",
+        "outputs/auto_loop/task1_auto_loop_summary.json",
         "outputs/remote_results/kaggle/task1_min_train/adoption_summary.json",
         "outputs/submission/submission.zip",
     ]

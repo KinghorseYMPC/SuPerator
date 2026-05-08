@@ -133,6 +133,16 @@ def test_a4k3_kaggle_adoption_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a5_task1_auto_loop_files_exist() -> None:
+    for relative_path in [
+        "configs/task1_auto_loop.yaml",
+        "src/experiment/task1_auto_loop.py",
+        "scripts/run_task1_auto_loop.py",
+        "scripts/summarize_task1_auto_loop.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",
