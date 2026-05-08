@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 
 import pytest
+import yaml
 
 from scripts.kaggle import run_task1_min_train as kernel_runner
 from scripts import run_kaggle_task1_min_train as runner
@@ -62,6 +63,49 @@ def test_find_kaggle_input_root_prefers_complete_candidate(tmp_path: Path) -> No
     complete = _make_kernel_input_root(input_base / "datasets" / "user" / "superator-inputs")
 
     assert kernel_runner.find_kaggle_input_root(input_base=input_base) == complete
+
+
+def test_create_kaggle_runtime_config_updates_path_and_device(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    config_dir = run_root / "configs"
+    config_dir.mkdir(parents=True)
+    source_config_path = config_dir / "kaggle_task1_min_train.yaml"
+    source_config = {
+        "project_name": "SuPerator",
+        "stage": "A4_kaggle_min_train",
+        "data": {
+            "val_path": "/kaggle/input/superator-inputs/old/task1_val.hdf5",
+            "input_steps": 10,
+        },
+        "model": {"name": "fno1d", "width": 32},
+        "train": {"device": "auto", "epochs": 3},
+        "outputs": {"experiment_root": "/kaggle/working/experiments"},
+    }
+    source_config_path.write_text(
+        yaml.safe_dump(source_config, sort_keys=False),
+        encoding="utf-8",
+    )
+    kaggle_input_root = (
+        tmp_path / "input" / "datasets" / "whiskeyyankeecharlie" / "superator-inputs"
+    )
+
+    runtime_config_path = kernel_runner.create_kaggle_runtime_config(
+        run_root,
+        kaggle_input_root,
+    )
+
+    runtime_config = yaml.safe_load(runtime_config_path.read_text(encoding="utf-8"))
+    original_config = yaml.safe_load(source_config_path.read_text(encoding="utf-8"))
+    expected_val_path = (
+        f"{kaggle_input_root.as_posix()}/"
+        "data_and_sample_submission/train_val_test_init/task1_val.hdf5"
+    )
+    assert runtime_config_path.is_file()
+    assert runtime_config["data"]["val_path"] == expected_val_path
+    assert runtime_config["train"]["device"] == "cpu"
+    assert runtime_config["model"] == source_config["model"]
+    assert runtime_config["outputs"] == source_config["outputs"]
+    assert original_config == source_config
 
 
 def test_dry_run_does_not_call_kaggle_api(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

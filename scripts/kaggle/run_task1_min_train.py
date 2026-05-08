@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import platform
@@ -10,6 +11,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 
 KAGGLE_INPUT_BASE = Path("/kaggle/input")
 KAGGLE_INPUT_DATASET_NAME = "superator-inputs"
@@ -17,6 +20,7 @@ RUN_ROOT = Path("/kaggle/working/SuPerator_run")
 WORKING_OUTPUTS = Path("/kaggle/working/outputs")
 WORKING_EXPERIMENTS = Path("/kaggle/working/experiments")
 CONFIG_PATH = "configs/kaggle_task1_min_train.yaml"
+RUNTIME_CONFIG_PATH = "configs/kaggle_runtime_task1_min_train.yaml"
 REQUIRED_INPUT_PATHS = (
     Path("src"),
     Path("scripts"),
@@ -162,6 +166,43 @@ def copy_project_code(input_root: Path) -> None:
         shutil.copy2(requirements, RUN_ROOT / "requirements.txt")
 
 
+def create_kaggle_runtime_config(run_root: Path, kaggle_input_root: Path) -> Path:
+    source_config_path = run_root / CONFIG_PATH
+    runtime_config_path = run_root / RUNTIME_CONFIG_PATH
+    with source_config_path.open("r", encoding="utf-8") as config_file:
+        source_config = yaml.safe_load(config_file)
+    if not isinstance(source_config, dict):
+        raise ValueError(f"Kaggle train config must be a mapping: {source_config_path}")
+
+    runtime_config = copy.deepcopy(source_config)
+    runtime_config.setdefault("data", {})
+    runtime_config.setdefault("train", {})
+    if not isinstance(runtime_config["data"], dict):
+        raise ValueError(f"Kaggle train config data section must be a mapping: {source_config_path}")
+    if not isinstance(runtime_config["train"], dict):
+        raise ValueError(f"Kaggle train config train section must be a mapping: {source_config_path}")
+
+    runtime_config["data"]["val_path"] = (
+        f"{kaggle_input_root.as_posix()}/"
+        "data_and_sample_submission/train_val_test_init/task1_val.hdf5"
+    )
+    # Kaggle currently may allocate a Tesla P100. Current Kaggle PyTorch builds may
+    # be incompatible with the P100 sm_60 CUDA target, and this stage only verifies
+    # the minimal training loop rather than speed. Force CPU here; restore
+    # device=auto later when Kaggle provides a compatible GPU or when running on SLURM.
+    runtime_config["train"]["device"] = "cpu"
+
+    runtime_config_path.parent.mkdir(parents=True, exist_ok=True)
+    with runtime_config_path.open("w", encoding="utf-8") as config_file:
+        yaml.safe_dump(runtime_config, config_file, sort_keys=False)
+
+    print(f"kaggle_input_root: {kaggle_input_root}")
+    print(f"runtime_config_path: {runtime_config_path}")
+    print(f"runtime data.val_path: {runtime_config['data']['val_path']}")
+    print(f"runtime train.device: {runtime_config['train']['device']}")
+    return runtime_config_path
+
+
 def run_command(command: list[str]) -> int:
     print(f"running: {' '.join(command)}")
     completed = subprocess.run(command, cwd=RUN_ROOT, text=True, check=False)
@@ -225,13 +266,14 @@ def main() -> int:
     print(f"run_root: {RUN_ROOT}")
     print(f"cwd_after_chdir: {Path.cwd()}")
     print_tree_summary(RUN_ROOT, max_entries=60)
+    create_kaggle_runtime_config(RUN_ROOT, input_root)
 
     environment_returncode = run_command([sys.executable, "scripts/check_compute_environment.py"])
     if environment_returncode != 0:
         print_result_summary()
         return environment_returncode
     train_returncode = run_command(
-        [sys.executable, "scripts/train_task1_minimal.py", "--config", CONFIG_PATH]
+        [sys.executable, "scripts/train_task1_minimal.py", "--config", RUNTIME_CONFIG_PATH]
     )
     print_result_summary()
     return train_returncode
