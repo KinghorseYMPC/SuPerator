@@ -95,6 +95,31 @@ The parser scans checkpoints, `experiments/experiment_registry.jsonl`,
 kaggle_outputs/task1_min_train/parsed_summary.json
 ```
 
+## Kaggle Output Adoption And Finalize
+
+After downloading a completed Kaggle kernel output into the ignored local
+directory, parse, adopt, and finalize it locally:
+
+```bash
+python scripts/parse_kaggle_min_train_output.py --output-dir kaggle_outputs/task1_min_train
+python scripts/adopt_kaggle_task1_result.py --output-dir kaggle_outputs/task1_min_train
+python scripts/finalize_kaggle_task1_submission.py --output-dir kaggle_outputs/task1_min_train
+```
+
+The adoption step copies the selected returned checkpoint into ignored
+`outputs/checkpoints/` and writes the local adoption record under ignored
+`outputs/remote_results/kaggle/task1_min_train/`. The original
+`kaggle_outputs/` directory also remains ignored and must not be committed.
+
+Final submission files are still generated, packaged, and validated locally
+under `outputs/submission/`. The local repository remains the source of truth;
+Kaggle is only the temporary compute backend that produced the returned
+checkpoint and metrics.
+
+If the generated task log is a `development_summary_log`, the structural
+validator can pass while retaining the provenance warning. Do not remove or
+misrepresent that warning as complete API-proxy LLM provenance.
+
 ## Local Validation After Return
 
 Run local checks after Kaggle outputs return:

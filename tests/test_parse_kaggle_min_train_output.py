@@ -4,7 +4,7 @@ from pathlib import Path
 from scripts.parse_kaggle_min_train_output import main, parse_output
 
 
-def test_parse_kaggle_output_from_fake_directory(tmp_path: Path) -> None:
+def _write_fake_kaggle_output(tmp_path: Path) -> dict[str, Path]:
     checkpoint = tmp_path / "outputs" / "checkpoints" / "exp_a4_kaggle_min_fno1d_best.pt"
     checkpoint.parent.mkdir(parents=True, exist_ok=True)
     checkpoint.write_bytes(b"checkpoint")
@@ -47,6 +47,23 @@ def test_parse_kaggle_output_from_fake_directory(tmp_path: Path) -> None:
     )
     stdout = tmp_path / "kernel_stdout.txt"
     stdout.write_text("- device: cuda\n- train_time: 12.5\n", encoding="utf-8")
+    (tmp_path / "requirements.txt").write_text("numpy\n", encoding="utf-8")
+    (tmp_path / "__results__.html").write_text("<html></html>\n", encoding="utf-8")
+    (tmp_path / "task_log_writer.py").write_text(
+        "raise RuntimeError('not runtime stdout')\n",
+        encoding="utf-8",
+    )
+
+    return {
+        "checkpoint": checkpoint,
+        "registry": registry,
+        "train_result": train_result,
+        "stdout": stdout,
+    }
+
+
+def test_parse_kaggle_output_from_fake_directory(tmp_path: Path) -> None:
+    paths = _write_fake_kaggle_output(tmp_path)
 
     summary = parse_output(tmp_path)
 
@@ -57,6 +74,25 @@ def test_parse_kaggle_output_from_fake_directory(tmp_path: Path) -> None:
     assert summary["train_time"] == 12.5
     assert summary["last_metrics"]["score_total_proxy"] == 0.33
     assert summary["has_traceback"] is False
+    assert str(paths["stdout"]) in summary["stdout_like_files"]
+    assert str(tmp_path / "requirements.txt") not in summary["stdout_like_files"]
+    assert str(tmp_path / "__results__.html") not in summary["stdout_like_files"]
+    assert str(tmp_path / "task_log_writer.py") not in summary["stdout_like_files"]
+    assert summary["train_result_paths"] == [str(paths["train_result"])]
+
+
+def test_parse_kaggle_output_detects_traceback(tmp_path: Path) -> None:
+    _write_fake_kaggle_output(tmp_path)
+    error_log = tmp_path / "stderr.err"
+    error_log.write_text(
+        "Traceback (most recent call last):\nRuntimeError: failed\n",
+        encoding="utf-8",
+    )
+
+    summary = parse_output(tmp_path)
+
+    assert summary["has_traceback"] is True
+    assert any("Traceback" in line for line in summary["errors"])
 
 
 def test_parse_kaggle_output_writes_summary(tmp_path: Path, capsys) -> None:

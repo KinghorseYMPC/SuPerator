@@ -127,7 +127,20 @@ python scripts/create_kaggle_dataset_package.py --dry-run
 python scripts/create_kaggle_kernel_package.py --username placeholder --dry-run
 ```
 
-See `docs/kaggle_api_runbook.md` for manual dataset creation, kernel push, status checks, output download, and local return-artifact validation.
+After a completed Kaggle kernel output is downloaded into ignored
+`kaggle_outputs/task1_min_train/`, keep adoption and final submission work
+local:
+
+```bash
+python scripts/parse_kaggle_min_train_output.py --output-dir kaggle_outputs/task1_min_train
+python scripts/adopt_kaggle_task1_result.py --output-dir kaggle_outputs/task1_min_train
+python scripts/finalize_kaggle_task1_submission.py --output-dir kaggle_outputs/task1_min_train
+```
+
+The adopted checkpoint and summary stay under ignored `outputs/` paths, and
+the final submission is generated and validated locally. See
+`docs/kaggle_api_runbook.md` for manual dataset creation, kernel push, status
+checks, output download, adoption, and local return-artifact validation.
 
 ## Basic Checks
 

@@ -12,7 +12,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECKPOINT_SUFFIXES = {".pt", ".pth", ".ckpt"}
-TEXT_SUFFIXES = {".txt", ".log", ".out", ".err"}
+STDOUT_LIKE_SUFFIXES = {".log", ".out", ".err"}
+STDOUT_LIKE_NAME_TOKENS = {"stdout", "stderr", "output", "log"}
 
 
 def resolve_path(path: str | Path) -> Path:
@@ -81,9 +82,23 @@ def first_text(patterns: list[str], text: str) -> str | None:
 def find_stdout_like_files(output_dir: Path) -> list[Path]:
     candidates = []
     for path in output_dir.rglob("*"):
-        if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES:
+        if path.is_file() and is_stdout_like_file(path):
             candidates.append(path)
     return sorted(candidates)
+
+
+def is_stdout_like_file(path: Path) -> bool:
+    """Return true only for files that clearly look like runtime logs or output."""
+
+    name = path.name.lower()
+    if name == "__results__.html":
+        return False
+    if path.suffix.lower() in STDOUT_LIKE_SUFFIXES:
+        return True
+    if path.suffix.lower() not in {"", ".txt"}:
+        return False
+    stem_tokens = set(re.split(r"[^a-z0-9]+", path.stem.lower()))
+    return bool(stem_tokens & STDOUT_LIKE_NAME_TOKENS)
 
 
 def parse_output(output_dir: str | Path) -> dict[str, Any]:
