@@ -11,11 +11,18 @@ import sys
 from pathlib import Path
 
 
-KAGGLE_INPUT_ROOT = Path("/kaggle/input/superator-inputs")
+KAGGLE_INPUT_BASE = Path("/kaggle/input")
+KAGGLE_INPUT_DATASET_NAME = "superator-inputs"
 RUN_ROOT = Path("/kaggle/working/SuPerator_run")
 WORKING_OUTPUTS = Path("/kaggle/working/outputs")
 WORKING_EXPERIMENTS = Path("/kaggle/working/experiments")
 CONFIG_PATH = "configs/kaggle_task1_min_train.yaml"
+REQUIRED_INPUT_PATHS = (
+    Path("src"),
+    Path("scripts"),
+    Path("configs"),
+    Path("data_and_sample_submission/train_val_test_init/task1_val.hdf5"),
+)
 
 
 def print_tree_summary(root: Path, max_entries: int = 80) -> None:
@@ -36,6 +43,78 @@ def print_tree_summary(root: Path, max_entries: int = 80) -> None:
         entries.append(label)
     for entry in entries:
         print(f"- {entry}")
+
+
+def _missing_required_input_paths(candidate: Path) -> list[Path]:
+    missing: list[Path] = []
+    for relative_path in REQUIRED_INPUT_PATHS:
+        path = candidate / relative_path
+        if relative_path.suffix:
+            exists = path.is_file()
+        else:
+            exists = path.is_dir()
+        if not exists:
+            missing.append(relative_path)
+    return missing
+
+
+def _dedupe_existing_candidates(candidates: list[Path]) -> list[Path]:
+    unique_candidates: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate.is_dir():
+            continue
+        key = str(candidate.resolve())
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_candidates.append(candidate)
+    return unique_candidates
+
+
+def _candidate_summary(candidates: list[Path]) -> str:
+    if not candidates:
+        return "no candidate directories found"
+    lines: list[str] = []
+    for candidate in candidates:
+        missing = _missing_required_input_paths(candidate)
+        if missing:
+            missing_text = ", ".join(path.as_posix() for path in missing)
+            lines.append(f"- {candidate}: missing {missing_text}")
+        else:
+            lines.append(f"- {candidate}: complete")
+    return "\n".join(lines)
+
+
+def find_kaggle_input_root(input_base: Path = KAGGLE_INPUT_BASE) -> Path:
+    direct_candidate = input_base / KAGGLE_INPUT_DATASET_NAME
+    dataset_candidates = sorted(
+        (input_base / "datasets").glob(f"*/{KAGGLE_INPUT_DATASET_NAME}")
+    )
+    recursive_candidates = (
+        sorted(input_base.rglob(KAGGLE_INPUT_DATASET_NAME)) if input_base.is_dir() else []
+    )
+    candidates = _dedupe_existing_candidates(
+        [direct_candidate, *dataset_candidates, *recursive_candidates]
+    )
+    complete_candidates = [
+        candidate for candidate in candidates if not _missing_required_input_paths(candidate)
+    ]
+    if complete_candidates:
+        selected = complete_candidates[0]
+        print(f"kaggle_input_root: {selected}")
+        return selected
+
+    print("Kaggle input directory summary:")
+    print_tree_summary(input_base)
+    raise FileNotFoundError(
+        "No complete Kaggle input dataset root found. "
+        f"Expected a '{KAGGLE_INPUT_DATASET_NAME}' directory under {input_base} "
+        f"with required contents:\n"
+        + "\n".join(f"- {path.as_posix()}" for path in REQUIRED_INPUT_PATHS)
+        + "\nCandidates checked:\n"
+        + _candidate_summary(candidates)
+    )
 
 
 def print_environment() -> None:
@@ -62,19 +141,23 @@ def ensure_output_dirs() -> None:
         print(f"ensured_dir: {directory}")
 
 
-def copy_project_code() -> None:
-    if not KAGGLE_INPUT_ROOT.is_dir():
-        raise FileNotFoundError(f"Kaggle input dataset is missing: {KAGGLE_INPUT_ROOT}")
+def copy_project_code(input_root: Path) -> None:
+    missing = _missing_required_input_paths(input_root)
+    if missing:
+        missing_text = ", ".join(path.as_posix() for path in missing)
+        raise FileNotFoundError(
+            f"Kaggle input dataset is incomplete: {input_root}; missing {missing_text}"
+        )
     if RUN_ROOT.exists():
         shutil.rmtree(RUN_ROOT)
     RUN_ROOT.mkdir(parents=True, exist_ok=True)
     for name in ["src", "scripts", "configs"]:
-        source = KAGGLE_INPUT_ROOT / name
+        source = input_root / name
         target = RUN_ROOT / name
         if not source.is_dir():
             raise FileNotFoundError(f"Required project directory is missing from Kaggle input: {source}")
         shutil.copytree(source, target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    requirements = KAGGLE_INPUT_ROOT / "requirements.txt"
+    requirements = input_root / "requirements.txt"
     if requirements.is_file():
         shutil.copy2(requirements, RUN_ROOT / "requirements.txt")
 
@@ -134,8 +217,9 @@ def print_result_summary() -> None:
 
 def main() -> int:
     print_environment()
-    print_tree_summary(Path("/kaggle/input"))
-    copy_project_code()
+    print_tree_summary(KAGGLE_INPUT_BASE)
+    input_root = find_kaggle_input_root()
+    copy_project_code(input_root)
     ensure_output_dirs()
     os.chdir(RUN_ROOT)
     print(f"run_root: {RUN_ROOT}")
