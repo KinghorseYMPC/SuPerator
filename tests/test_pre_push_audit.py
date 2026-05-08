@@ -12,11 +12,13 @@ def test_prohibited_path_detection() -> None:
         "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
         "kaggle_outputs/task1_min_train/output.txt",
         "kaggle_kernel/package/kernel-metadata.json",
+        ".kaggle/kaggle.json",
         ".external_research/cache/index.md",
     ]
 
     assert pre_push_audit.find_prohibited_paths(paths) == [
         ".external_research/cache/index.md",
+        ".kaggle/kaggle.json",
         "data_and_sample_submission/train.hdf5",
         "experiments/run.json",
         "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
@@ -69,6 +71,22 @@ def test_sensitive_filename_detection() -> None:
 def test_compute_backend_local_yaml_is_prohibited_tracked_file() -> None:
     assert pre_push_audit.find_prohibited_paths(["configs/compute_backend.local.yaml"]) == [
         "configs/compute_backend.local.yaml"
+    ]
+
+
+def test_kaggle_package_metadata_files_are_prohibited_when_generated() -> None:
+    assert pre_push_audit.find_prohibited_paths(
+        [
+            "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
+            "kaggle_kernel/package/kernel-metadata.json",
+            "kaggle_kernel/kernel-metadata.json.template",
+            "scripts/kaggle/run_task1_min_train.py",
+            "scripts/run_kaggle_task1_min_train.py",
+            "scripts/parse_kaggle_min_train_output.py",
+        ]
+    ) == [
+        "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
+        "kaggle_kernel/package/kernel-metadata.json",
     ]
 
 

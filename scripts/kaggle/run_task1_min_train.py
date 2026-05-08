@@ -56,6 +56,12 @@ def print_environment() -> None:
             print(f"torch.cuda.device[{index}].name: {torch.cuda.get_device_name(index)}")
 
 
+def ensure_output_dirs() -> None:
+    for directory in [WORKING_OUTPUTS, WORKING_EXPERIMENTS]:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"ensured_dir: {directory}")
+
+
 def copy_project_code() -> None:
     if not KAGGLE_INPUT_ROOT.is_dir():
         raise FileNotFoundError(f"Kaggle input dataset is missing: {KAGGLE_INPUT_ROOT}")
@@ -73,19 +79,43 @@ def copy_project_code() -> None:
         shutil.copy2(requirements, RUN_ROOT / "requirements.txt")
 
 
-def print_result_summary() -> None:
-    checkpoint_dir = WORKING_OUTPUTS / "checkpoints"
-    print(f"checkpoint_dir: {checkpoint_dir}")
-    if checkpoint_dir.is_dir():
-        for path in sorted(checkpoint_dir.glob("*")):
-            if path.is_file():
-                print(f"- {path} ({path.stat().st_size} bytes)")
-    else:
-        print("- checkpoint directory not found")
+def run_command(command: list[str]) -> int:
+    print(f"running: {' '.join(command)}")
+    completed = subprocess.run(command, cwd=RUN_ROOT, text=True, check=False)
+    print(f"returncode: {completed.returncode}")
+    return int(completed.returncode)
 
-    registry_path = WORKING_EXPERIMENTS / "experiment_registry.jsonl"
+
+def print_registry_tail(registry_path: Path, max_lines: int = 5) -> None:
     print(f"experiment_registry: {registry_path}")
     print(f"experiment_registry_exists: {registry_path.is_file()}")
+    if not registry_path.is_file():
+        return
+    lines = registry_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    print("experiment_registry_tail:")
+    for line in lines[-max_lines:]:
+        print(line[:1000])
+
+
+def print_directory_listing(label: str, directory: Path) -> None:
+    print(f"{label}: {directory}")
+    if not directory.is_dir():
+        print("- directory not found")
+        return
+    for path in sorted(directory.rglob("*")):
+        if path.is_file():
+            print(f"- {path} ({path.stat().st_size} bytes)")
+        elif path.is_dir():
+            print(f"- {path}/")
+
+
+def print_result_summary() -> None:
+    checkpoint_dir = WORKING_OUTPUTS / "checkpoints"
+    print_directory_listing("outputs/checkpoints", checkpoint_dir)
+
+    registry_path = WORKING_EXPERIMENTS / "experiment_registry.jsonl"
+    print_registry_tail(registry_path)
+    print_directory_listing("experiments", WORKING_EXPERIMENTS)
 
     metrics_path = WORKING_EXPERIMENTS / "exp_a4_kaggle_min_fno1d" / "metrics" / "train_result.json"
     print(f"metrics_path: {metrics_path}")
@@ -106,15 +136,21 @@ def main() -> int:
     print_environment()
     print_tree_summary(Path("/kaggle/input"))
     copy_project_code()
+    ensure_output_dirs()
     os.chdir(RUN_ROOT)
     print(f"run_root: {RUN_ROOT}")
+    print(f"cwd_after_chdir: {Path.cwd()}")
     print_tree_summary(RUN_ROOT, max_entries=60)
 
-    command = [sys.executable, "scripts/train_task1_minimal.py", "--config", CONFIG_PATH]
-    print(f"running: {' '.join(command)}")
-    completed = subprocess.run(command, cwd=RUN_ROOT, text=True, check=False)
+    environment_returncode = run_command([sys.executable, "scripts/check_compute_environment.py"])
+    if environment_returncode != 0:
+        print_result_summary()
+        return environment_returncode
+    train_returncode = run_command(
+        [sys.executable, "scripts/train_task1_minimal.py", "--config", CONFIG_PATH]
+    )
     print_result_summary()
-    return int(completed.returncode)
+    return train_returncode
 
 
 if __name__ == "__main__":

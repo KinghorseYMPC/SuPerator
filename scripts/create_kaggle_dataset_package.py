@@ -24,6 +24,9 @@ from src.experiment.kaggle_package_plan import (  # noqa: E402
 )
 
 
+DEFAULT_DATASET_SLUG = "superator-inputs"
+
+
 def _copy_directory(source: Path, target: Path) -> None:
     if not source.is_dir():
         raise FileNotFoundError(f"Required directory does not exist: {source}")
@@ -43,16 +46,20 @@ def _copy_file(source: Path, target: Path) -> None:
     shutil.copy2(source, target)
 
 
-def write_dataset_metadata(output_root: Path, username: str | None) -> Path:
+def write_dataset_metadata(
+    output_root: Path,
+    username: str | None,
+    dataset_slug: str = DEFAULT_DATASET_SLUG,
+) -> Path:
     dataset_id = (
-        f"{username}/superator-inputs"
+        f"{username}/{dataset_slug}"
         if username
-        else "<KAGGLE_USERNAME>/superator-inputs"
+        else f"<KAGGLE_USERNAME>/{dataset_slug}"
     )
     metadata = {
         "title": "SuPerator Inputs",
         "id": dataset_id,
-        "licenses": [{"name": "unknown"}],
+        "licenses": [{"name": "CC0-1.0"}],
     }
     path = output_root / "dataset-metadata.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +67,11 @@ def write_dataset_metadata(output_root: Path, username: str | None) -> Path:
     return path
 
 
-def create_package(output_root: Path, username: str | None = None) -> dict:
+def create_package(
+    output_root: Path,
+    username: str | None = None,
+    dataset_slug: str = DEFAULT_DATASET_SLUG,
+) -> dict:
     plan = build_kaggle_dataset_package_plan(output_root=output_root)
     validate_kaggle_package_plan(plan)
 
@@ -77,14 +88,17 @@ def create_package(output_root: Path, username: str | None = None) -> dict:
         _copy_directory(ROOT / directory, output_root / directory)
     _copy_file(ROOT / "requirements.txt", output_root / "requirements.txt")
     _copy_file(data_source, output_root / ALLOWED_DATA_PATH)
-    metadata_path = write_dataset_metadata(output_root, username=username)
+    metadata_path = write_dataset_metadata(
+        output_root,
+        username=username,
+        dataset_slug=dataset_slug,
+    )
 
     return {"plan": plan, "metadata_path": metadata_path}
 
 
 def print_next_steps(output_root: Path) -> None:
     print("Next manual Kaggle API commands:")
-    print(f"- edit {output_root / 'dataset-metadata.json'} and replace <KAGGLE_USERNAME>")
     print(f"- kaggle datasets create -p {output_root.as_posix()} --dir-mode zip")
     print(f"- later updates: kaggle datasets version -p {output_root.as_posix()} --dir-mode zip -m \"update inputs\"")
 
@@ -93,6 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-root", default="kaggle_dataset_package/superator-inputs")
     parser.add_argument("--username", default=None)
+    parser.add_argument("--dataset-slug", default=DEFAULT_DATASET_SLUG)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 
@@ -105,14 +120,23 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- output_root: {output_root}")
     print(f"- include_paths: {', '.join(plan['include_paths'])}")
     print(f"- exclude_paths: {', '.join(plan['exclude_paths'])}")
-    print(f"- dataset_id: {plan['dataset_id']}")
+    dataset_id = (
+        f"{args.username}/{args.dataset_slug}"
+        if args.username
+        else f"<KAGGLE_USERNAME>/{args.dataset_slug}"
+    )
+    print(f"- dataset_id: {dataset_id}")
     if args.dry_run:
         print("- dry_run: true; no files copied and no Kaggle API commands executed")
         print_next_steps(output_root)
         return 0
 
     try:
-        result = create_package(output_root, username=args.username)
+        result = create_package(
+            output_root,
+            username=args.username,
+            dataset_slug=args.dataset_slug,
+        )
     except FileNotFoundError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

@@ -1,84 +1,115 @@
 # Kaggle API Runbook
 
-本 runbook 只描述用户手动执行 Kaggle API 训练闭环前后的本地准备步骤。项目脚本默认不调用 Kaggle API，不读取 `kaggle.json`，不训练模型。
+This runbook describes the local-first Kaggle API loop for the Task 1 minimal
+training backend. Kaggle is a temporary compute backend only; the local git
+repository remains the source of truth.
 
-## 1. 安全放置 kaggle.json
+## Safety Rules
 
-- Windows 路径：`%USERPROFILE%\.kaggle\kaggle.json`
-- 不要把 `kaggle.json` 放入项目目录。
-- 不要复制、打印、提交或上传 `kaggle.json`。
+- Do not read, print, copy, upload, or commit `kaggle.json`.
+- Keep `kaggle_dataset_package/`, `kaggle_kernel/package/`, and
+  `kaggle_outputs/` ignored and untracked.
+- Download Kaggle outputs back to local ignored paths before parsing,
+  validation, registry review, or submission work.
+- Do not commit checkpoints, predictions, runtime logs, zip packages, or
+  downloaded Kaggle outputs.
 
-## 2. 安装和验证
+## Prerequisites
+
+Place Kaggle credentials in the normal user-level Kaggle CLI location, outside
+this repository:
 
 ```bash
-python -m pip install kaggle
+%USERPROFILE%\.kaggle\kaggle.json
+```
+
+Then verify the CLI manually or through the orchestration script:
+
+```bash
 kaggle --version
 kaggle datasets list -s test
 ```
 
-这些命令由用户在本机手动执行，用于确认 Kaggle CLI 已安装且凭据位置正确。
+## Local Dry-Run Checks
 
-## 3. 创建私有 dataset
-
-先在本地构建 dataset package：
+These commands do not call the Kaggle API:
 
 ```bash
-python scripts/create_kaggle_dataset_package.py
+python scripts/create_kaggle_dataset_package.py --username <KAGGLE_USERNAME> --dry-run
+python scripts/create_kaggle_kernel_package.py --username <KAGGLE_USERNAME> --dry-run
+python scripts/run_kaggle_task1_min_train.py --username <KAGGLE_USERNAME> --dry-run
 ```
 
-然后编辑 `kaggle_dataset_package/superator-inputs/dataset-metadata.json` 中的 `id`，把 `<KAGGLE_USERNAME>` 替换成自己的 Kaggle 用户名。
+## Full Kaggle API Loop
 
-创建私有 dataset：
+Run the complete local orchestration:
 
 ```bash
-kaggle datasets create -p kaggle_dataset_package/superator-inputs --dir-mode zip
+python scripts/run_kaggle_task1_min_train.py --username <KAGGLE_USERNAME>
 ```
 
-后续更新使用：
+The script:
+
+- checks `kaggle --version`;
+- checks API authentication with `kaggle datasets list -s test`;
+- builds `kaggle_dataset_package/superator-inputs`;
+- creates the private dataset on first run;
+- versions the dataset on later runs, or automatically falls back to versioning
+  if create reports that the dataset already exists;
+- builds `kaggle_kernel/package`;
+- pushes the private GPU script kernel;
+- polls kernel status up to the configured wait limit;
+- downloads completed kernel output into
+  `kaggle_outputs/task1_min_train`;
+- writes `kaggle_outputs/task1_min_train/kaggle_run_summary.json`.
+
+Use a bounded wait if needed:
 
 ```bash
-kaggle datasets version -p kaggle_dataset_package/superator-inputs --dir-mode zip -m "update inputs"
+python scripts/run_kaggle_task1_min_train.py --username <KAGGLE_USERNAME> --max-wait-minutes 45
 ```
 
-## 4. 创建 / 推送私有 kernel
+If kernel push succeeds but polling times out, the local orchestration code has
+not failed. Continue later with the recovery commands below.
 
-先在本地构建 kernel package：
-
-```bash
-python scripts/create_kaggle_kernel_package.py --username <KAGGLE_USERNAME>
-```
-
-再手动推送：
-
-```bash
-kaggle kernels push -p kaggle_kernel/package
-```
-
-## 5. 查看状态
+## Recovery Commands
 
 ```bash
 kaggle kernels status <KAGGLE_USERNAME>/superator-task1-min-train
+kaggle kernels output <KAGGLE_USERNAME>/superator-task1-min-train -p kaggle_outputs/task1_min_train
+python scripts/parse_kaggle_min_train_output.py --output-dir kaggle_outputs/task1_min_train
 ```
 
-## 6. 下载输出
+## Parse Returned Output
+
+After outputs return to the local ignored directory, summarize them with:
 
 ```bash
-kaggle kernels output <KAGGLE_USERNAME>/superator-task1-min-train -p kaggle_outputs/task1_min_train
+python scripts/parse_kaggle_min_train_output.py --output-dir kaggle_outputs/task1_min_train
 ```
 
-`kaggle_outputs/` 是本地忽略目录，不能提交到 git。
+The parser scans checkpoints, `experiments/experiment_registry.jsonl`,
+`train_result.json`, and stdout-like text files when present. It writes:
 
-## 7. 回传本地后
+```text
+kaggle_outputs/task1_min_train/parsed_summary.json
+```
 
-- 解析 `outputs/checkpoints`。
-- 解析 `experiments` 和 `experiments/experiment_registry.jsonl`。
-- 本地 validation / submission 仍在笔记本执行。
-- Kaggle 输出只作为返回 artifact，不能替代本地 source of truth。
+## Local Validation After Return
 
-## 8. 不允许
+Run local checks after Kaggle outputs return:
 
-- 不上传 `kaggle.json`。
-- 不公开私有数据。
-- 不把 Kaggle 输出提交 git。
-- 不在 Kaggle 上作为唯一源码修改项目。
-- 不把 Kaggle notebook 当成唯一代码副本。
+```bash
+python scripts/pre_push_audit.py
+python scripts/validate_task_logs.py
+python scripts/validate_submission.py
+pytest -q
+```
+
+If `validate_submission.py` reports that the local submission artifact is
+missing, generate the dummy submission first and validate again:
+
+```bash
+python scripts/make_dummy_task1_submission.py
+python scripts/validate_submission.py
+```

@@ -116,6 +116,14 @@ def test_a4k1_kaggle_backend_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a4k2_kaggle_api_orchestration_files_exist() -> None:
+    for relative_path in [
+        "scripts/run_kaggle_task1_min_train.py",
+        "scripts/parse_kaggle_min_train_output.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

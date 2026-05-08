@@ -39,6 +39,8 @@ PROHIBITED_TRACKED_DIRS = (
 PROHIBITED_TRACKED_FILES = {
     "configs/compute_backend.local.yaml",
     "kaggle.json",
+    "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
+    "kaggle_kernel/package/kernel-metadata.json",
 }
 
 PROHIBITED_NAME_FRAGMENTS = (

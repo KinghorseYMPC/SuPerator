@@ -14,6 +14,7 @@ def test_dataset_metadata_uses_placeholder_without_username(tmp_path: Path) -> N
 
     assert metadata["title"] == "SuPerator Inputs"
     assert metadata["id"] == "<KAGGLE_USERNAME>/superator-inputs"
+    assert metadata["licenses"] == [{"name": "CC0-1.0"}]
 
 
 def test_dataset_metadata_uses_username(tmp_path: Path) -> None:
@@ -21,6 +22,17 @@ def test_dataset_metadata_uses_username(tmp_path: Path) -> None:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
 
     assert metadata["id"] == "placeholder/superator-inputs"
+
+
+def test_dataset_metadata_uses_custom_slug(tmp_path: Path) -> None:
+    metadata_path = write_dataset_metadata(
+        tmp_path,
+        username="placeholder",
+        dataset_slug="custom-inputs",
+    )
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    assert metadata["id"] == "placeholder/custom-inputs"
 
 
 def test_kernel_metadata_template_and_rendering() -> None:
@@ -36,3 +48,14 @@ def test_kernel_metadata_template_and_rendering() -> None:
     rendered = render_metadata("placeholder")
     assert rendered["id"] == "placeholder/superator-task1-min-train"
     assert rendered["dataset_sources"] == ["placeholder/superator-inputs"]
+
+
+def test_kernel_metadata_custom_slugs() -> None:
+    rendered = render_metadata(
+        "placeholder",
+        dataset_slug="custom-inputs",
+        kernel_slug="custom-kernel",
+    )
+
+    assert rendered["id"] == "placeholder/custom-kernel"
+    assert rendered["dataset_sources"] == ["placeholder/custom-inputs"]
