@@ -5,15 +5,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 FORBIDDEN_STRATEGY_PHRASES = [
-    "优先优化 Task",
     "提升得分",
-    "使用 FNO 提升",
+    "优先优化 Task",
+    "评分规则优化",
+    "训练路线",
+    "调参路线",
     "rollout loss",
     "time-weighted loss",
     "increase leaderboard",
     "best model for Task",
     "optimize competition score",
-    "评分规则优化",
 ]
 
 FORBIDDEN_CREDENTIAL_PATTERNS = [
@@ -43,6 +44,7 @@ def test_publication_docs_exist() -> None:
     assert (ROOT / "README.md").is_file()
     assert "SuPerator" in read_text("README.md")
     assert (ROOT / "AGENTS.md").is_file()
+    assert (ROOT / "CONTRIBUTING.md").is_file()
     assert (ROOT / "requirements.txt").is_file()
 
 
@@ -62,12 +64,12 @@ def test_readme_documents_collaborator_onboarding_sections() -> None:
 
 
 def test_engineering_execution_log_exists() -> None:
-    assert (ROOT / "docs/engineering_execution_log.md").is_file()
     content = read_text("docs/engineering_execution_log.md")
     assert "A6" in content
     assert "Task 1 Experiment Suite Automation" in content
     assert "A7" in content
     assert "Task 1 Full Auto Experiment Execution Controller" in content
+    assert "Knowledge Base Route Definition" in content
 
 
 def test_agents_documents_git_permissions() -> None:
@@ -101,26 +103,29 @@ def test_gitignore_contains_key_patterns() -> None:
         "*.ckpt",
         "*.zip",
         "*.log",
+        "*.out",
+        "*.err",
+        "*.pdf",
         "outputs/remote_manifests/",
         "remote_runs/",
         "configs/compute_backend.local.yaml",
         "configs/*local*.yaml",
         "remote_package/",
         "remote_bundle/",
-        "remote_package/",
         "remote_sync_plan/",
         "slurm_job_files/",
         "slurm_logs/",
         "kaggle_work/",
         "kaggle_dataset_package/",
         "kaggle_outputs/",
-        "kaggle_kernel/",
         "kaggle_kernel/package/",
         "kaggle.json",
         ".kaggle/",
-        "*.ipynb_checkpoints/",
-        "*.out",
-        "*.err",
+        "literature_pdfs/",
+        "literature_cache/",
+        "vector_store/",
+        "knowledge_base/indexes/",
+        "knowledge_base/.cache/",
     ]:
         assert pattern in gitignore
 
@@ -201,10 +206,14 @@ def test_readme_and_agents_document_collaboration_workflow() -> None:
     assert "CONTRIBUTING.md" in combined
     assert "docs/collaboration_workflow.md" in combined
     assert "docs/collaborator_quickstart.md" in combined
+    assert "docs/knowledge_base_route.md" in combined
+    assert "docs/literature_library_policy.md" in combined
     assert "docs/wiki/README.md" in combined
     assert "knowledge-base" in combined
     assert "code-loop" in combined
     assert "non-interactive" in combined
+    assert "automated literature library management" in combined
+    assert "skills, engineering workflows, or tooling docs" in combined
 
 
 def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:

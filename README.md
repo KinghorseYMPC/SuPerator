@@ -309,14 +309,28 @@ Collaborators should read:
 - `CONTRIBUTING.md`
 - `docs/collaboration_workflow.md`
 - `docs/collaborator_quickstart.md`
+- `docs/knowledge_base_route.md`
+- `docs/literature_library_policy.md`
 - `docs/wiki/README.md`
 
 The stable `main` branch should receive reviewed changes only. Use separate
-branches for the code-loop route and the knowledge-base route. Knowledge-base
-pages may cover broad PDE, neural operator, scientific computing, and tooling
-knowledge, but must not contain competition-specific execution plans, concrete
-tuning routes, score-optimization advice, or human-preloaded Agent action
-routes.
+branches for the code-loop route and the knowledge-base route.
+
+The knowledge-base route is for automated literature library management and
+automated research knowledge-base management: paper search workflow design,
+PDF download workflow design into ignored local storage, metadata,
+classification, Markdown literature cards, paper summaries, academic concept
+notes, and links between papers and knowledge points. It may cover broad PDE,
+neural operator, operator learning, Burgers equation, FNO, DeepONet, and
+PI-DeepONet knowledge.
+
+SLURM, Kaggle, HDF5, Git, and experiment-recording procedures belong in
+skills, engineering workflows, or tooling docs. They are not the knowledge-base
+content body.
+
+Knowledge-base content must not contain competition-specific execution plans,
+concrete model-parameter adjustment paths, competition scoring-improvement
+advice, or human-preloaded Agent action routes.
 
 ## Submission Validation
 

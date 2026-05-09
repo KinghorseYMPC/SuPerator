@@ -48,9 +48,12 @@ file formats, timing limits, data restrictions, checkpoint restrictions, log
 requirements, and submission bundle requirements. Store those constraints in
 `docs/competition_clarifications.md`.
 
-Wiki content, if present, must stay broad: PDE background, neural operator
-background, Burgers equation background, and general tooling knowledge. It must
-not contain competition-specific execution plans or tuning advice.
+Wiki and `knowledge_base/` content must stay broad: PDE background, neural
+operator background, operator learning, Burgers equation background, literature
+cards, citation metadata, and academic concept notes. Engineering tooling
+procedures belong in skills or tooling docs. Knowledge-base content must not
+contain competition-specific execution plans or model-parameter adjustment
+advice for the competition.
 
 After an Agent starts reading competition tasks and executing work, there must
 be no human intervention in that run. Agent-created notes, configs, logs, and
@@ -101,11 +104,18 @@ Project skills live under `.agents/skills/`. The root `SKILL.md` is not used.
   not overwrite each other.
 - Recommended branch prefixes are `code/code-loop/`, `kb/`, `docs/`, and
   `fix/`.
-- Knowledge-base pages under `docs/wiki/` may contain broad PDE, neural
-  operator, scientific computing, and tooling knowledge only.
+- The knowledge-base route focuses on automated literature library management
+  and automated research knowledge-base management: paper search workflow
+  design, PDF download workflow design into ignored local storage, metadata,
+  classification, Markdown literature cards, paper summaries, academic concept
+  notes, and links between papers and knowledge points.
+- SLURM, Kaggle, HDF5, Git, and experiment-recording procedures belong in
+  skills, engineering workflows, or tooling docs. They are not the
+  knowledge-base content body.
 - Coding Agents must not create skills or wiki pages containing competition
-  task strategy, concrete tuning routes, score-optimization advice, or
-  human-preloaded Agent action routes.
+  task strategy, concrete model-parameter adjustment paths,
+  competition scoring-improvement advice, or human-preloaded Agent action
+  routes.
 - Codex may run `git add` and `git commit` after requested code or
   documentation changes pass validation.
 - Codex must not run `git push` unless the user explicitly requests it.

@@ -32,6 +32,7 @@ data_and_sample_submission/
 task_log_sample/
 *.h5
 *.hdf5
+*.pdf
 *.pt
 *.pth
 *.ckpt
@@ -65,6 +66,13 @@ mlruns/
 *.out
 *.err
 *.ipynb_checkpoints/
+
+# Literature and knowledge-base generated artifacts
+literature_pdfs/
+literature_cache/
+vector_store/
+knowledge_base/indexes/
+knowledge_base/.cache/
 
 # Kaggle credentials
 kaggle.json

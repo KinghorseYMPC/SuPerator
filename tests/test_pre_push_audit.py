@@ -14,6 +14,11 @@ def test_prohibited_path_detection() -> None:
         "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
         "kaggle_outputs/task1_min_train/output.txt",
         "kaggle_kernel/package/kernel-metadata.json",
+        "literature_pdfs/paper.pdf",
+        "literature_cache/raw.json",
+        "vector_store/index.bin",
+        "knowledge_base/indexes/search.idx",
+        "knowledge_base/.cache/tmp.json",
         ".kaggle/kaggle.json",
         ".external_research/cache/index.md",
         ".external_sources/repo/README.md",
@@ -30,9 +35,14 @@ def test_prohibited_path_detection() -> None:
         "kaggle_dataset_package/superator-inputs/dataset-metadata.json",
         "kaggle_kernel/package/kernel-metadata.json",
         "kaggle_outputs/task1_min_train/output.txt",
+        "knowledge_base/.cache/tmp.json",
+        "knowledge_base/indexes/search.idx",
+        "literature_cache/raw.json",
+        "literature_pdfs/paper.pdf",
         "outputs/auto_loop/task1_auto_loop_summary.json",
         "outputs/remote_results/kaggle/task1_min_train/adoption_summary.json",
         "outputs/submission/submission.zip",
+        "vector_store/index.bin",
     ]
 
 
@@ -42,12 +52,14 @@ def test_prohibited_extension_detection() -> None:
         "checkpoints/model.PT",
         "outputs/task1_logs.log",
         "archive/submission.zip",
+        "literature/paper.pdf",
         "docs/readme.md",
     ]
 
     assert pre_push_audit.find_prohibited_extensions(paths) == [
         "archive/submission.zip",
         "checkpoints/model.PT",
+        "literature/paper.pdf",
         "outputs/task1_logs.log",
     ]
 
@@ -125,6 +137,14 @@ def test_a7_full_auto_files_are_not_prohibited_paths() -> None:
             "CONTRIBUTING.md",
             "docs/collaboration_workflow.md",
             "docs/collaborator_quickstart.md",
+            "docs/knowledge_base_route.md",
+            "docs/literature_library_policy.md",
+            "knowledge_base/README.md",
+            "knowledge_base/literature_cards/README.md",
+            "knowledge_base/concepts/README.md",
+            "knowledge_base/reading_notes/README.md",
+            "knowledge_base/taxonomies/README.md",
+            "knowledge_base/metadata_examples/README.md",
         ]
     ) == []
 

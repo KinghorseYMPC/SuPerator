@@ -32,6 +32,11 @@ PROHIBITED_TRACKED_DIRS = (
     "kaggle_dataset_package/",
     "kaggle_outputs/",
     "kaggle_kernel/package/",
+    "literature_pdfs/",
+    "literature_cache/",
+    "vector_store/",
+    "knowledge_base/indexes/",
+    "knowledge_base/.cache/",
     ".kaggle/",
     ".external_research/",
     ".external_skills_cache/",
@@ -58,6 +63,7 @@ PROHIBITED_NAME_FRAGMENTS = (
 
 PROHIBITED_EXTENSIONS = {
     ".hdf5",
+    ".pdf",
     ".h5",
     ".pt",
     ".pth",

@@ -187,9 +187,23 @@ def test_a71_collaboration_docs_exist() -> None:
         "CONTRIBUTING.md",
         "docs/collaboration_workflow.md",
         "docs/collaborator_quickstart.md",
+        "docs/knowledge_base_route.md",
+        "docs/literature_library_policy.md",
         "docs/wiki/README.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_knowledge_base_skeleton_exists() -> None:
+    for relative_path in [
+        "knowledge_base/README.md",
+        "knowledge_base/literature_cards/README.md",
+        "knowledge_base/concepts/README.md",
+        "knowledge_base/reading_notes/README.md",
+        "knowledge_base/taxonomies/README.md",
+        "knowledge_base/metadata_examples/README.md",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
 
 
 def test_a36_preloaded_context_boundary_files_exist() -> None:

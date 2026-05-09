@@ -4,6 +4,34 @@ This document records engineering execution facts for SuPerator stages. It does
 not define model-selection advice, dataset-specific training plans, score
 optimization routes, or competition task execution strategy.
 
+## A7.1 Follow-Up - Knowledge Base Route Definition
+
+- stage: A7.1 follow-up
+- started_at: 2026-05-09
+- purpose: correct knowledge-base route definition before collaborator
+  onboarding.
+- changed docs:
+  - clarified that the knowledge-base route means automated literature library
+    management and automated research knowledge-base management;
+  - clarified that SLURM, Kaggle, HDF5, Git, and experiment-recording
+    procedures belong in skills, engineering workflows, or tooling docs;
+  - added literature library policy and knowledge-base route documents;
+  - added lightweight `knowledge_base/` directory skeleton.
+- repository policy updates:
+  - ignored local literature PDF directories, caches, vector stores, generated
+    indexes, and PDF files;
+  - extended pre-push audit coverage for literature artifacts.
+- validation commands:
+  - `python scripts/check_text_encoding.py`: passed with 0 errors and 0
+    warnings.
+  - `python scripts/pre_push_audit.py`: passed with no errors before staging;
+    it reported expected uncommitted changes.
+  - `python scripts/validate_task_logs.py`: passed with the existing
+    `development_summary_log` provenance warning.
+  - `python scripts/validate_submission.py`: passed.
+  - `pytest -q`: 187 passed with a pytest cache permission warning.
+- commit hash: pending.
+
 ## A7.1 - Collaboration Readiness And Remote Execution Hardening
 
 - stage: A7.1

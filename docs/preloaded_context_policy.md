@@ -6,7 +6,7 @@ SuPerator separates preloaded context into five categories:
 
 - Generic skills: reusable work procedures that do not encode competition task strategy.
 - Competition clarifications: official rules, file formats, time limits, data limits, and provenance requirements.
-- Broad wiki knowledge: general PDE, neural operator, tooling, and infrastructure background.
+- Broad wiki knowledge: general PDE, neural operator, operator learning, and literature-linked academic background.
 - Agent-generated execution artifacts: logs, configs, metrics, conclusions, and code produced during an Agent run.
 - Prohibited preloaded task strategy: human-authored plans or recommendations for solving a specific competition task.
 
@@ -56,7 +56,11 @@ Wiki pages may contain broad knowledge such as:
 - General PDE concepts.
 - General neural operator concepts.
 - General Burgers equation background.
-- General PyTorch, HDF5, and SLURM knowledge.
+- Literature-linked academic concepts and citation metadata.
+
+Engineering tooling topics such as SLURM, Kaggle, HDF5, Git, and experiment
+recording belong in skills, engineering workflows, or tooling documents rather
+than the knowledge-base content body.
 
 ## Not allowed in wiki
 
