@@ -11,6 +11,7 @@ def test_required_root_files_exist() -> None:
         "guideline.md",
         "AGENTS.md",
         "README.md",
+        "CONTRIBUTING.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
@@ -177,6 +178,16 @@ def test_a7_task1_full_auto_files_exist() -> None:
         "src/experiment/full_auto_controller.py",
         "scripts/run_task1_full_auto_experiment.py",
         "scripts/summarize_task1_full_auto.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
+def test_a71_collaboration_docs_exist() -> None:
+    for relative_path in [
+        "CONTRIBUTING.md",
+        "docs/collaboration_workflow.md",
+        "docs/collaborator_quickstart.md",
+        "docs/wiki/README.md",
     ]:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 

@@ -51,6 +51,7 @@ PROHIBITED_NAME_FRAGMENTS = (
     "token",
     "secret",
     "credential",
+    "password",
     "id_rsa",
     "kaggle.json",
 )
@@ -72,6 +73,7 @@ PROHIBITED_EXTENSIONS = {
 REQUIRED_FILES = (
     "requirements.txt",
     "README.md",
+    "CONTRIBUTING.md",
     "AGENTS.md",
     "docs/preloaded_context_policy.md",
     "docs/competition_clarifications.md",

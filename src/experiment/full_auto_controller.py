@@ -133,6 +133,8 @@ def try_backend_sequence(
         attempt = {
             "backend": backend,
             "status": result.get("status"),
+            "failure_class": result.get("failure_class"),
+            "recoverable": result.get("recoverable"),
             "reason": _attempt_reason(result),
             "commands": result.get("commands", []),
             "artifacts": result.get("artifacts", []),
@@ -150,6 +152,14 @@ def try_backend_sequence(
             state["status"] = "success" if execute or resume else "dry_run"
             state["selected_backend"] = backend
             state["artifacts"]["backend"] = result.get("artifacts", [])
+            previous_failures = [
+                item.get("backend")
+                for item in state["backend_attempts"][:-1]
+                if item.get("status") not in SUCCESS_STATUSES
+            ]
+            if previous_failures:
+                state["fallback_from"] = previous_failures
+                state["fallback_backend"] = backend
             break
         if _attempt_timeout(result):
             if not fallback_on_timeout:

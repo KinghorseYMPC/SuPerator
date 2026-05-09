@@ -8,10 +8,10 @@ work from a fresh clone while preserving auditability across rule reading, data
 inspection, experiment records, artifact generation, validation, and git
 hygiene.
 
-Current stage: A7, Task 1 full auto experiment execution controller. A7 adds a
-single local-first entry point for backend priority selection, bounded
-execution, returned-output recovery, result comparison, validated finalization,
-and summary reporting.
+Current stage: A7.1, collaboration readiness and non-interactive remote
+execution hardening. A7 added a single local-first entry point for backend
+priority selection, bounded execution, returned-output recovery, result
+comparison, validated finalization, and summary reporting.
 
 ## Compliance Boundary
 
@@ -75,7 +75,7 @@ and large files. Do not commit:
 - `outputs/`, `experiments/`, `kaggle_outputs/`, generated Kaggle packages, or
   generated SLURM files;
 - checkpoints, predictions, runtime logs, zip packages, or remote bundles;
-- private backend configs, credentials, tokens, SSH keys, or local `.env`
+- private backend configs, private auth files, SSH private keys, or local `.env`
   files.
 
 Before staging or pushing, run:
@@ -175,7 +175,7 @@ python scripts/validate_submission.py
 ```
 
 See `docs/kaggle_api_runbook.md` for the local-first runbook. Do not read or
-commit Kaggle credential files.
+commit Kaggle private auth files.
 
 ## SLURM Backend Status
 
@@ -296,6 +296,27 @@ backend and fallback outcome. Generated outputs, returned artifacts,
 checkpoints, runtime logs, and submission zip files remain in ignored local
 directories. If a remote backend fails, the summary records the backend attempt
 and recovery commands when available.
+
+Remote shell and file-transfer commands used by the full-auto controller must
+run in non-interactive mode and fail quickly when private auth is not ready;
+the controller should then record the failed backend attempt and continue
+fallback according to config.
+
+## Collaboration Workflow
+
+Collaborators should read:
+
+- `CONTRIBUTING.md`
+- `docs/collaboration_workflow.md`
+- `docs/collaborator_quickstart.md`
+- `docs/wiki/README.md`
+
+The stable `main` branch should receive reviewed changes only. Use separate
+branches for the code-loop route and the knowledge-base route. Knowledge-base
+pages may cover broad PDE, neural operator, scientific computing, and tooling
+knowledge, but must not contain competition-specific execution plans, concrete
+tuning routes, score-optimization advice, or human-preloaded Agent action
+routes.
 
 ## Submission Validation
 

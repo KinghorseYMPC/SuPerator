@@ -13,6 +13,8 @@ backend_policy:
 execution:
   default_mode: dry_run
   require_execute_flag: true
+  non_interactive_remote: true
+  remote_connect_timeout_seconds: 10
   max_total_wall_minutes: 120
 
 slurm:

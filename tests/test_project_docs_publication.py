@@ -55,6 +55,7 @@ def test_readme_documents_collaborator_onboarding_sections() -> None:
         "basic validation commands",
         "kaggle backend quickstart",
         "task 1 experiment suite",
+        "collaboration workflow",
         "stage history",
     ]:
         assert phrase in readme
@@ -133,9 +134,12 @@ def test_readme_and_agents_do_not_include_strategy_phrases() -> None:
 
 def test_readme_and_agents_do_not_include_credentials_or_remote_hosts() -> None:
     combined = read_text("README.md") + "\n" + read_text("AGENTS.md")
+    lowered = combined.lower()
 
     for pattern in FORBIDDEN_CREDENTIAL_PATTERNS:
         assert pattern not in combined
+    for word in ["token", "secret", "credential", "password"]:
+        assert word not in lowered
     for pattern in FORBIDDEN_REMOTE_HOST_PATTERNS:
         assert pattern not in combined
 
@@ -189,6 +193,18 @@ def test_readme_documents_a7_full_auto_commands() -> None:
         "python scripts/summarize_task1_full_auto.py",
     ]:
         assert command in readme
+
+
+def test_readme_and_agents_document_collaboration_workflow() -> None:
+    combined = read_text("README.md") + "\n" + read_text("AGENTS.md")
+
+    assert "CONTRIBUTING.md" in combined
+    assert "docs/collaboration_workflow.md" in combined
+    assert "docs/collaborator_quickstart.md" in combined
+    assert "docs/wiki/README.md" in combined
+    assert "knowledge-base" in combined
+    assert "code-loop" in combined
+    assert "non-interactive" in combined
 
 
 def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:

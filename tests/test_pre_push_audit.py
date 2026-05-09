@@ -59,6 +59,7 @@ def test_sensitive_filename_detection() -> None:
         "private/token_store.txt",
         "private/my_secret_notes.txt",
         "private/service_credential.json",
+        "private/password_store.txt",
         "private/id_rsa",
         "private/kaggle.json",
         "docs/key_terms.md",
@@ -71,6 +72,7 @@ def test_sensitive_filename_detection() -> None:
         "private/id_rsa",
         "private/kaggle.json",
         "private/my_secret_notes.txt",
+        "private/password_store.txt",
         "private/service_credential.json",
         "private/token_store.txt",
     ]
@@ -120,6 +122,9 @@ def test_a7_full_auto_files_are_not_prohibited_paths() -> None:
             "src/experiment/full_auto_controller.py",
             "scripts/run_task1_full_auto_experiment.py",
             "scripts/summarize_task1_full_auto.py",
+            "CONTRIBUTING.md",
+            "docs/collaboration_workflow.md",
+            "docs/collaborator_quickstart.md",
         ]
     ) == []
 

@@ -4,6 +4,44 @@ This document records engineering execution facts for SuPerator stages. It does
 not define model-selection advice, dataset-specific training plans, score
 optimization routes, or competition task execution strategy.
 
+## A7.1 - Collaboration Readiness And Remote Execution Hardening
+
+- stage: A7.1
+- started_at: 2026-05-09
+- purpose: finish the staged A7 controller commit, harden automated remote
+  execution against interactive auth prompts, and prepare collaboration
+  documentation before a collaborator clones the project.
+- staged A7 recovery:
+  - A7 staged files were inspected for prohibited output paths, large artifact
+    suffixes, private backend config, Kaggle private auth files, and sensitive
+    filename fragments.
+  - A7 was committed as `add task1 full auto experiment controller`
+    (`5b72d57`).
+- non-interactive remote hardening:
+  - SLURM SSH/SCP/rsync command construction now uses non-interactive SSH
+    options and bounded connect timeout by default.
+  - Non-interactive auth or connection failure is classified as recoverable so
+    full-auto fallback can continue to the next backend.
+- collaboration readiness:
+  - added collaborator contribution guidance;
+  - added branch-based collaboration workflow;
+  - added collaborator quickstart;
+  - tightened wiki boundary documentation.
+- validation commands:
+  - `python scripts/run_task1_full_auto_experiment.py --dry-run`: passed.
+  - `python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume`:
+    passed using existing local returned output.
+  - `python scripts/summarize_task1_full_auto.py`: passed.
+  - `python scripts/validate_task_logs.py`: passed with the existing
+    `development_summary_log` provenance warning.
+  - `python scripts/validate_submission.py`: passed.
+  - `python scripts/pre_push_audit.py`: passed with the expected
+    uncommitted-changes warning before staging.
+  - `python scripts/check_text_encoding.py`: passed with 0 errors and 0
+    warnings.
+  - `pytest -q`: 185 passed with a pytest cache permission warning.
+- commit hash: recorded in the final task report after metadata amend.
+
 ## A7 - Task 1 Full Auto Experiment Execution Controller
 
 - stage: A7

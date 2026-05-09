@@ -28,6 +28,10 @@ def _config(tmp_path: Path) -> dict:
         encoding="utf-8",
     )
     return {
+        "execution": {
+            "non_interactive_remote": True,
+            "remote_connect_timeout_seconds": 10,
+        },
         "slurm": {
             "backend_config": str(backend_path),
             "package_plan_output": str(tmp_path / "plan.json"),
@@ -84,6 +88,41 @@ def test_execute_constructs_ssh_and_rsync_commands(tmp_path: Path, monkeypatch) 
     assert result["status"] == "success"
     assert any(call[0] == "ssh" and "sbatch" in call[-1] for call in calls)
     assert any(call[0] == "rsync" for call in calls)
+    assert any("BatchMode=yes" in call for call in calls)
+    assert any("ConnectTimeout=10" in call for call in calls)
+    assert any(call[0] == "rsync" and "-e" in call and "BatchMode=yes" in " ".join(call) for call in calls)
+
+
+def test_ssh_and_scp_commands_use_non_interactive_options(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+
+    ssh_command = slurm_executor.build_ssh_command(config, "user@host", "true")
+    scp_command = slurm_executor.build_scp_command(config, "local", "user@host:remote")
+
+    for command in [ssh_command, scp_command]:
+        assert "BatchMode=yes" in command
+        assert "ConnectTimeout=10" in command
+
+
+def test_auth_failure_is_recoverable(tmp_path: Path, monkeypatch) -> None:
+    def fake_run(command, cwd=None, timeout=None, env=None, dry_run=False):
+        return {
+            "command": [str(part) for part in command],
+            "returncode": 255,
+            "stdout": "",
+            "stderr": "Permission denied (publickey).",
+            "timed_out": False,
+            "dry_run": dry_run,
+        }
+
+    monkeypatch.setattr(slurm_executor, "run_command", fake_run)
+
+    result = slurm_executor.run_slurm_task1(_config(tmp_path), execute=True)
+
+    assert result["status"] == "failed"
+    assert result["failure_class"] == "auth_or_connection"
+    assert result["recoverable"] is True
+    assert result["reason"] == "non-interactive SSH/SCP failed"
 
 
 def test_poll_timeout_returns_structured_result(tmp_path: Path, monkeypatch) -> None:

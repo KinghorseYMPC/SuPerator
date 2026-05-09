@@ -40,6 +40,42 @@ def test_slurm_timeout_falls_back_to_kaggle(tmp_path: Path, monkeypatch) -> None
 
     assert state["selected_backend"] == "kaggle"
     assert calls == ["slurm", "kaggle"]
+    assert state["fallback_backend"] == "kaggle"
+
+
+def test_slurm_auth_failure_falls_back_to_kaggle(tmp_path: Path, monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(
+        full_auto_controller,
+        "run_slurm_task1",
+        lambda config, execute=False: calls.append("slurm")
+        or {
+            "backend": "slurm",
+            "status": "failed",
+            "failure_class": "auth_or_connection",
+            "recoverable": True,
+            "reason": "non-interactive SSH/SCP failed",
+            "commands": [],
+            "warnings": [],
+            "errors": ["SLURM upload command failed"],
+            "artifacts": [],
+            "recovery_commands": ["configure non-interactive SSH auth"],
+        },
+    )
+    monkeypatch.setattr(
+        full_auto_controller,
+        "run_kaggle_task1",
+        lambda config, execute=False, resume=False: calls.append("kaggle")
+        or {"backend": "kaggle", "status": "success", "commands": [], "warnings": [], "errors": [], "artifacts": []},
+    )
+
+    state = full_auto_controller.try_backend_sequence(_config(tmp_path), requested_backend="auto", execute=True)
+
+    assert state["selected_backend"] == "kaggle"
+    assert state["backend_attempts"][0]["failure_class"] == "auth_or_connection"
+    assert state["backend_attempts"][0]["recoverable"] is True
+    assert state["recovery_commands"] == ["configure non-interactive SSH auth"]
+    assert calls == ["slurm", "kaggle"]
 
 
 def test_kaggle_network_failure_falls_back_to_local(tmp_path: Path, monkeypatch) -> None:

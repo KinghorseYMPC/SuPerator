@@ -12,10 +12,10 @@ and free of task execution strategy.
 
 ## Current Stage
 
-A5.1: collaborator documentation and repository hygiene. This stage fixes text
-encoding checks, maintains README / AGENTS / requirements / `.gitignore`,
-records project stage history, and keeps a fresh GitHub clone easy to continue
-from.
+A7.1: collaborator readiness and non-interactive remote execution hardening.
+This stage keeps README / AGENTS / collaboration docs current, preserves
+repository hygiene, and prevents automated remote commands from waiting for an
+interactive auth prompt.
 
 This stage does not train models, call the Kaggle API, connect to SLURM, or
 generate large artifacts.
@@ -73,9 +73,9 @@ added to the local registry.
 Private backend configuration belongs only in ignored local files such as
 `configs/compute_backend.local.yaml`. Commit placeholder examples only. Do not
 commit filled backend configs, account names, hostnames, usernames, private
-paths, tokens, keys, or Kaggle credentials. Do not assume `conda` exists on
-SLURM; backend configs must declare `env_type` as `conda`, `venv`, or
-`direct_python`.
+paths, access material, private keys, or Kaggle private auth files. Do not
+assume `conda` exists on SLURM; backend configs must declare `env_type` as
+`conda`, `venv`, or `direct_python`.
 
 Do not execute remote commands such as `ssh`, `scp`, `rsync`, `sbatch`, `srun`,
 `squeue`, `sinfo`, or Kaggle API commands unless the user explicitly requests
@@ -94,6 +94,24 @@ Project skills live under `.agents/skills/`. The root `SKILL.md` is not used.
   adding, renaming, retiring, or moving a skill.
 - Run relevant tests after skill or workflow changes.
 - Do not place task execution strategy in skills.
+
+## Collaboration Rules
+
+- Use branch-based collaboration so code-loop work and knowledge-base work do
+  not overwrite each other.
+- Recommended branch prefixes are `code/code-loop/`, `kb/`, `docs/`, and
+  `fix/`.
+- Knowledge-base pages under `docs/wiki/` may contain broad PDE, neural
+  operator, scientific computing, and tooling knowledge only.
+- Coding Agents must not create skills or wiki pages containing competition
+  task strategy, concrete tuning routes, score-optimization advice, or
+  human-preloaded Agent action routes.
+- Codex may run `git add` and `git commit` after requested code or
+  documentation changes pass validation.
+- Codex must not run `git push` unless the user explicitly requests it.
+- Every task ending report must include modified files, validation commands,
+  validator results, commit hash when created, current `git status`, and
+  whether push was performed.
 
 ## External Intake Rules
 
@@ -138,15 +156,19 @@ when available.
 
 - Kaggle and SLURM are temporary compute backends only.
 - Do not read, print, copy, or commit `kaggle.json`.
-- Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames,
-  remote hostnames, remote artifacts, generated remote run directories,
-  checkpoints, predictions, logs, or filled private job scripts.
+- Do not commit private auth files, SSH private keys, Kaggle private auth
+  files, cluster usernames, remote hostnames, remote artifacts, generated
+  remote run directories, checkpoints, predictions, logs, or filled private
+  job scripts.
 - Keep remote paths as placeholders or environment variables in committed
   templates.
 - Keep generated backend packages, downloaded outputs, and returned artifacts in
   ignored local directories.
 - Do not call the Kaggle API or run remote commands unless the user explicitly
   requests that stage.
+- Automated remote commands must be non-interactive and use bounded connection
+  timeouts. They must fail quickly and let the controller record a recoverable
+  backend failure instead of waiting for an interactive auth prompt.
 
 ## Git Permissions And Workflow
 
@@ -197,8 +219,8 @@ scripts, and minimal neutral run instructions. They should not contain:
 - Manage paths through configs or relative paths.
 - Run relevant tests after meaningful changes when feasible.
 - Do not commit large files, datasets, checkpoints, predictions, runtime logs,
-  zip packages, external caches, credentials, `.env` files, tokens, keys, or
-  secrets.
+  zip packages, external caches, private auth files, `.env` files, access
+  material, or private keys.
 - Do not commit `kaggle_outputs/`, `kaggle_dataset_package/`,
   `kaggle_kernel/package/`, `outputs/`, `experiments/`,
   `data_and_sample_submission/`, or `task_log_sample/`.

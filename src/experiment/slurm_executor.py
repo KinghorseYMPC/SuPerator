@@ -38,6 +38,7 @@ EXCLUDE_UPLOAD_PATHS = [
     "remote_package",
     "slurm_logs",
 ]
+REMOTE_AUTH_FAILURE_REASON = "non-interactive SSH/SCP failed"
 
 
 def _utc_now() -> str:
@@ -69,6 +70,79 @@ def _remote_project_dir(slurm_backend: dict[str, Any]) -> str:
 
 def _command_success(result: dict[str, Any]) -> bool:
     return result.get("returncode") == 0 and not result.get("timed_out")
+
+
+def _execution_config(config: dict[str, Any]) -> dict[str, Any]:
+    return config.get("execution", {}) if isinstance(config.get("execution"), dict) else {}
+
+
+def ssh_options(config: dict[str, Any]) -> list[str]:
+    """Return non-interactive SSH options for remote automation commands."""
+
+    execution = _execution_config(config)
+    if not execution.get("non_interactive_remote", True):
+        return []
+    timeout = int(execution.get("remote_connect_timeout_seconds", 10))
+    return ["-o", "BatchMode=yes", "-o", f"ConnectTimeout={timeout}"]
+
+
+def build_ssh_command(config: dict[str, Any], target: str, remote_command: str) -> list[str]:
+    return ["ssh", *ssh_options(config), target, remote_command]
+
+
+def build_scp_command(config: dict[str, Any], source: str, destination: str) -> list[str]:
+    return ["scp", *ssh_options(config), source, destination]
+
+
+def build_rsync_command(config: dict[str, Any], source: str, destination: str, excludes: list[str] | None = None) -> list[str]:
+    ssh_command = "ssh"
+    options = ssh_options(config)
+    if options:
+        ssh_command = " ".join(["ssh", *options])
+    return ["rsync", "-az", "-e", ssh_command, *(excludes or []), source, destination]
+
+
+def classify_remote_failure(command_results: list[dict[str, Any]]) -> str | None:
+    """Classify common non-interactive SSH/SCP/rsync failures."""
+
+    text = "\n".join(
+        f"{result.get('stdout', '')}\n{result.get('stderr', '')}" for result in command_results
+    ).lower()
+    needles = [
+        "permission denied",
+        "publickey",
+        "batchmode",
+        "authentication",
+        "connection timed out",
+        "connection refused",
+        "could not resolve hostname",
+        "no route to host",
+        "operation timed out",
+        "host key verification failed",
+    ]
+    if any(needle in text for needle in needles):
+        return "auth_or_connection"
+    return None
+
+
+def _remote_failure_result(commands: list[dict[str, Any]], errors: list[str] | None = None) -> dict[str, Any]:
+    failure_class = classify_remote_failure(commands)
+    if failure_class == "auth_or_connection":
+        return {
+            "status": "failed",
+            "failure_class": "auth_or_connection",
+            "recoverable": True,
+            "reason": REMOTE_AUTH_FAILURE_REASON,
+            "commands": commands,
+            "warnings": [],
+            "errors": errors or [REMOTE_AUTH_FAILURE_REASON],
+        }
+    return {
+        "status": "failed",
+        "commands": commands,
+        "warnings": [],
+        "errors": errors or ["SLURM remote command failed"],
+    }
 
 
 def _failure_result(status: str, reason: str, **extra: Any) -> dict[str, Any]:
@@ -144,7 +218,7 @@ def upload_to_slurm(config: dict[str, Any], execute: bool = False) -> dict[str, 
 
     target = _target(slurm_backend)
     remote_dir = _remote_project_dir(slurm_backend)
-    mkdir_command = ["ssh", target, f"mkdir -p {remote_dir}"]
+    mkdir_command = build_ssh_command(config, target, f"mkdir -p {remote_dir}")
     commands.append(run_command(mkdir_command, cwd=ROOT, dry_run=not execute))
     for path in slurm.get("upload_paths", []):
         excludes = []
@@ -154,17 +228,21 @@ def upload_to_slurm(config: dict[str, Any], execute: bool = False) -> dict[str, 
         destination = f"{target}:{remote_dir}/{source}"
         commands.append(
             run_command(
-                ["rsync", "-az", *excludes, source, destination],
+                build_rsync_command(config, source, destination, excludes),
                 cwd=ROOT,
                 dry_run=not execute,
             )
         )
     ok = all(_command_success(command) for command in commands)
+    if not ok:
+        failed = _remote_failure_result(commands, ["SLURM upload command failed"])
+        failed["warnings"] = warnings
+        return failed
     return {
-        "status": "success" if ok else "failed",
+        "status": "success",
         "commands": commands,
         "warnings": warnings,
-        "errors": [] if ok else ["SLURM upload command failed"],
+        "errors": [],
     }
 
 
@@ -236,14 +314,17 @@ def submit_slurm_job(config: dict[str, Any], execute: bool = False) -> dict[str,
     remote_command = "cd {remote_dir} && sbatch slurm_job_files/train_task1_minimal.sbatch".format(
         remote_dir=remote_dir
     )
-    command = run_command(["ssh", target, remote_command], cwd=ROOT, dry_run=not execute)
+    command = run_command(build_ssh_command(config, target, remote_command), cwd=ROOT, dry_run=not execute)
     job_id = None
     match = re.search(r"Submitted batch job\s+(\d+)", command.get("stdout", ""))
     if match:
         job_id = match.group(1)
-    status = "success" if (not execute or (_command_success(command) and job_id)) else "failed"
-    errors = [] if status == "success" else ["failed to submit or parse SLURM job id"]
-    return {"status": status, "job_id": job_id, "commands": [command], "warnings": warnings, "errors": errors}
+    if not execute or (_command_success(command) and job_id):
+        return {"status": "success", "job_id": job_id, "commands": [command], "warnings": warnings, "errors": []}
+    failed = _remote_failure_result([command], ["failed to submit or parse SLURM job id"])
+    failed["job_id"] = job_id
+    failed["warnings"] = warnings
+    return failed
 
 
 def poll_slurm_job(config: dict[str, Any], job_id: str | None, execute: bool = False) -> dict[str, Any]:
@@ -267,7 +348,7 @@ def poll_slurm_job(config: dict[str, Any], job_id: str | None, execute: bool = F
     history: list[dict[str, Any]] = []
 
     while True:
-        command = run_command(["ssh", target, f"squeue -j {job_id}"], cwd=ROOT, dry_run=not execute)
+        command = run_command(build_ssh_command(config, target, f"squeue -j {job_id}"), cwd=ROOT, dry_run=not execute)
         commands.append(command)
         output = f"{command.get('stdout', '')}\n{command.get('stderr', '')}"
         queued = bool(re.search(rf"\b{re.escape(str(job_id))}\b", output))
@@ -275,12 +356,15 @@ def poll_slurm_job(config: dict[str, Any], job_id: str | None, execute: bool = F
         if not execute:
             return {"status": "planned", "commands": commands, "warnings": warnings, "errors": [], "history": history}
         if not _command_success(command):
-            return {"status": "failed", "commands": commands, "warnings": warnings, "errors": ["squeue command failed"], "history": history}
+            failed = _remote_failure_result(commands, ["squeue command failed"])
+            failed["history"] = history
+            failed["warnings"] = warnings
+            return failed
         if not queued:
             return {"status": "success", "commands": commands, "warnings": warnings, "errors": [], "history": history}
         if time.monotonic() >= deadline:
             if slurm.get("auto_cancel_on_timeout"):
-                commands.append(run_command(["ssh", target, f"scancel {job_id}"], cwd=ROOT, dry_run=False))
+                commands.append(run_command(build_ssh_command(config, target, f"scancel {job_id}"), cwd=ROOT, dry_run=False))
             return {"status": "timeout", "commands": commands, "warnings": warnings, "errors": ["SLURM job polling timed out"], "history": history}
         time.sleep(max(0.0, poll_interval))
 
@@ -306,13 +390,18 @@ def collect_slurm_artifacts(config: dict[str, Any], execute: bool = False) -> di
         source = f"{target}:{remote_dir}/{str(path).replace('\\', '/')}"
         destination = str(local_root / str(path))
         artifacts.append(destination)
-        commands.append(run_command(["rsync", "-az", source, destination], cwd=ROOT, dry_run=not execute))
+        commands.append(run_command(build_rsync_command(config, source, destination), cwd=ROOT, dry_run=not execute))
     ok = all(_command_success(command) for command in commands)
+    if not ok:
+        failed = _remote_failure_result(commands, ["SLURM artifact collection failed"])
+        failed["warnings"] = warnings
+        failed["artifacts"] = artifacts
+        return failed
     return {
-        "status": "success" if ok else "failed",
+        "status": "success",
         "commands": commands,
         "warnings": warnings,
-        "errors": [] if ok else ["SLURM artifact collection failed"],
+        "errors": [],
         "artifacts": artifacts,
     }
 
@@ -362,6 +451,10 @@ def run_slurm_task1(config: dict[str, Any], execute: bool = False) -> dict[str, 
         "warnings": [],
         "errors": [],
         "steps": [],
+        "recovery_commands": [
+            "configure non-interactive SSH auth for the SLURM host, then rerun the requested full-auto command",
+            "run python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume after returned Kaggle output exists",
+        ],
     }
 
     plan = prepare_slurm_remote_package(config)
@@ -386,6 +479,9 @@ def run_slurm_task1(config: dict[str, Any], execute: bool = False) -> dict[str, 
     state["errors"].extend(upload.get("errors", []))
     if execute and upload["status"] != "success":
         state["status"] = "failed"
+        state["failure_class"] = upload.get("failure_class")
+        state["recoverable"] = upload.get("recoverable", False)
+        state["reason"] = upload.get("reason", "SLURM upload failed")
         return state
 
     submit = submit_slurm_job(config, execute=execute)
@@ -395,6 +491,9 @@ def run_slurm_task1(config: dict[str, Any], execute: bool = False) -> dict[str, 
     state["errors"].extend(submit.get("errors", []))
     if execute and submit["status"] != "success":
         state["status"] = "failed"
+        state["failure_class"] = submit.get("failure_class")
+        state["recoverable"] = submit.get("recoverable", False)
+        state["reason"] = submit.get("reason", "SLURM submit failed")
         return state
 
     poll = poll_slurm_job(config, submit.get("job_id"), execute=execute)
@@ -407,6 +506,9 @@ def run_slurm_task1(config: dict[str, Any], execute: bool = False) -> dict[str, 
         return state
     if execute and poll["status"] != "success":
         state["status"] = "failed"
+        state["failure_class"] = poll.get("failure_class")
+        state["recoverable"] = poll.get("recoverable", False)
+        state["reason"] = poll.get("reason", "SLURM poll failed")
         return state
 
     collect = collect_slurm_artifacts(config, execute=execute)
@@ -417,6 +519,9 @@ def run_slurm_task1(config: dict[str, Any], execute: bool = False) -> dict[str, 
     state["errors"].extend(collect.get("errors", []))
     if execute and collect["status"] != "success":
         state["status"] = "failed"
+        state["failure_class"] = collect.get("failure_class")
+        state["recoverable"] = collect.get("recoverable", False)
+        state["reason"] = collect.get("reason", "SLURM artifact collection failed")
         return state
 
     parse = _parse_collected_slurm_result(execute=execute)
