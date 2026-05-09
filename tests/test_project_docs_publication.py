@@ -65,6 +65,8 @@ def test_engineering_execution_log_exists() -> None:
     content = read_text("docs/engineering_execution_log.md")
     assert "A6" in content
     assert "Task 1 Experiment Suite Automation" in content
+    assert "A7" in content
+    assert "Task 1 Full Auto Experiment Execution Controller" in content
 
 
 def test_agents_documents_git_permissions() -> None:
@@ -172,6 +174,19 @@ def test_readme_documents_a6_suite_commands() -> None:
         "python scripts/run_task1_experiment_suite.py --backend kaggle --resume",
         "python scripts/compare_task1_results.py",
         "python scripts/finalize_best_task1_result.py",
+    ]:
+        assert command in readme
+
+
+def test_readme_documents_a7_full_auto_commands() -> None:
+    readme = read_text("README.md")
+
+    assert "Task 1 Full Auto Experiment" in readme
+    for command in [
+        "python scripts/run_task1_full_auto_experiment.py --dry-run",
+        "python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume",
+        "python scripts/run_task1_full_auto_experiment.py --backend auto --execute",
+        "python scripts/summarize_task1_full_auto.py",
     ]:
         assert command in readme
 

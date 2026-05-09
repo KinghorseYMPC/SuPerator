@@ -181,3 +181,17 @@ training plans, or score optimization routes.
 - commit hash: recorded in the final task report after commit creation.
 - limitations: SLURM remains local plan generation only; generated outputs and
   returned artifacts remain ignored local material.
+
+## A7 - Task 1 Full Auto Experiment Execution Controller
+
+- stage: A7
+- purpose: provide a single local-first Task 1 full-auto controller for backend
+  priority selection, bounded backend execution, fallback recording,
+  returned-output recovery, comparison, finalization, validation, and summary
+  reporting.
+- completed artifacts: pending completion in the A7 implementation commit.
+- validation result: pending completion in the A7 implementation commit.
+- commit hash: pending completion in the A7 implementation commit.
+- limitations: private backend configuration remains local-only and ignored;
+  generated outputs, returned artifacts, checkpoints, runtime logs, and
+  submission packages remain ignored local material.

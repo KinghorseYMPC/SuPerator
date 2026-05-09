@@ -103,6 +103,23 @@ def test_generated_experiment_configs_are_not_prohibited_paths() -> None:
         [
             "configs/generated/task1/exp_a6_smoke_fno1d.yaml",
             "configs/generated/task1/exp_a6_small_fno1d.yaml",
+            "configs/task1_full_auto.yaml",
+            "src/experiment/full_auto_controller.py",
+        ]
+    ) == []
+
+
+def test_a7_full_auto_files_are_not_prohibited_paths() -> None:
+    assert pre_push_audit.find_prohibited_paths(
+        [
+            "configs/task1_full_auto.yaml",
+            "src/experiment/command_runner.py",
+            "src/experiment/slurm_executor.py",
+            "src/experiment/kaggle_executor.py",
+            "src/experiment/local_executor.py",
+            "src/experiment/full_auto_controller.py",
+            "scripts/run_task1_full_auto_experiment.py",
+            "scripts/summarize_task1_full_auto.py",
         ]
     ) == []
 

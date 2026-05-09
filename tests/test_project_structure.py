@@ -167,6 +167,20 @@ def test_a6_task1_experiment_suite_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a7_task1_full_auto_files_exist() -> None:
+    for relative_path in [
+        "configs/task1_full_auto.yaml",
+        "src/experiment/command_runner.py",
+        "src/experiment/slurm_executor.py",
+        "src/experiment/kaggle_executor.py",
+        "src/experiment/local_executor.py",
+        "src/experiment/full_auto_controller.py",
+        "scripts/run_task1_full_auto_experiment.py",
+        "scripts/summarize_task1_full_auto.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

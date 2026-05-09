@@ -4,6 +4,37 @@ This document records engineering execution facts for SuPerator stages. It does
 not define model-selection advice, dataset-specific training plans, score
 optimization routes, or competition task execution strategy.
 
+## A7 - Task 1 Full Auto Experiment Execution Controller
+
+- stage: A7
+- started_at: 2026-05-09
+- purpose: Task 1 full auto experiment execution controller.
+- planned capabilities:
+  - SLURM automatic run;
+  - Kaggle automatic run;
+  - local fallback run;
+  - result parse/adopt/compare/finalize;
+  - validation.
+- scope boundary:
+  - this stage records engineering automation capabilities only;
+  - this stage does not record model optimization strategy;
+  - this stage does not record competition score improvement advice;
+  - generated outputs, returned remote artifacts, checkpoints, zip files,
+    runtime logs, and private backend configs remain ignored local material.
+
+### A7 Execution Record
+
+- planned implementation:
+  - `configs/task1_full_auto.yaml`
+  - `src/experiment/command_runner.py`
+  - `src/experiment/slurm_executor.py`
+  - `src/experiment/kaggle_executor.py`
+  - `src/experiment/local_executor.py`
+  - `src/experiment/full_auto_controller.py`
+  - `scripts/run_task1_full_auto_experiment.py`
+  - `scripts/summarize_task1_full_auto.py`
+- validation record: to be completed after local validation commands pass.
+
 ## A6 - Task 1 Experiment Suite Automation
 
 - stage: A6

@@ -1,0 +1,64 @@
+project_name: SuPerator
+stage: A7_task1_full_auto
+task: task1
+
+backend_policy:
+  preferred_order:
+    - slurm
+    - kaggle
+    - local
+  fallback_on_failure: true
+  fallback_on_timeout: true
+
+execution:
+  default_mode: dry_run
+  require_execute_flag: true
+  max_total_wall_minutes: 120
+
+slurm:
+  enabled: true
+  backend_config: configs/compute_backend.local.yaml
+  remote_project_dir_from_config: true
+  remote_run_id_prefix: task1_a7
+  package_plan_output: outputs/remote_manifests/task1_a7_remote_package_plan.json
+  sbatch_job: train_task1_minimal
+  train_config: configs/task1_a4_remote_min_train.yaml
+  poll_interval_seconds: 30
+  max_wait_minutes: 20
+  auto_cancel_on_timeout: false
+  allow_interactive_srun: false
+  upload_paths:
+    - src
+    - scripts
+    - configs
+    - requirements.txt
+    - data_and_sample_submission/train_val_test_init/task1_val.hdf5
+  return_paths:
+    - slurm_logs
+    - outputs/checkpoints
+    - experiments/experiment_registry.jsonl
+    - experiments/exp_a4_remote_min_fno1d
+
+kaggle:
+  enabled: true
+  username: whiskeyyankeecharlie
+  dataset_slug: superator-inputs
+  kernel_slug: superator-task1-min-train
+  output_dir: kaggle_outputs/task1_min_train
+  max_wait_minutes: 45
+  poll_interval_seconds: 60
+  allow_manual_output_recovery: true
+
+local:
+  enabled: true
+  train_config: configs/task1_a3_min_train.yaml
+  allow_cpu: true
+  allow_gpu: true
+  max_train_minutes: 30
+
+postprocess:
+  comparison_report: outputs/experiment_suites/task1/comparison_report.json
+  finalize_best: true
+  validate_submission: true
+  pre_push_audit: true
+  summary_path: outputs/full_auto/task1_full_auto_summary.json

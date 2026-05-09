@@ -8,11 +8,10 @@ work from a fresh clone while preserving auditability across rule reading, data
 inspection, experiment records, artifact generation, validation, and git
 hygiene.
 
-Current stage: A6, Task 1 experiment suite automation. A5.1 completed
-collaborator documentation and repository hygiene in commit `cba0a19`. A6
-adds a local-first suite controller for config generation, backend candidate
-selection, returned-output recovery, result comparison, and validated
-finalization.
+Current stage: A7, Task 1 full auto experiment execution controller. A7 adds a
+single local-first entry point for backend priority selection, bounded
+execution, returned-output recovery, result comparison, validated finalization,
+and summary reporting.
 
 ## Compliance Boundary
 
@@ -261,6 +260,42 @@ Finalize the top ranked result from the comparison report:
 ```bash
 python scripts/finalize_best_task1_result.py
 ```
+
+## Task 1 Full Auto Experiment
+
+The A7 controller uses the configured backend priority order SLURM, Kaggle,
+then local GPU / CPU fallback. It writes its run summary under ignored
+`outputs/` and does not push to git.
+
+Dry-run the full-auto plan without remote calls or training:
+
+```bash
+python scripts/run_task1_full_auto_experiment.py --dry-run
+```
+
+Resume from already downloaded Kaggle output:
+
+```bash
+python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume
+```
+
+Execute the configured full-auto backend sequence:
+
+```bash
+python scripts/run_task1_full_auto_experiment.py --backend auto --execute
+```
+
+Summarize the latest full-auto run:
+
+```bash
+python scripts/summarize_task1_full_auto.py
+```
+
+`--execute` may call SLURM, Kaggle, or local training depending on the selected
+backend and fallback outcome. Generated outputs, returned artifacts,
+checkpoints, runtime logs, and submission zip files remain in ignored local
+directories. If a remote backend fails, the summary records the backend attempt
+and recovery commands when available.
 
 ## Submission Validation
 
