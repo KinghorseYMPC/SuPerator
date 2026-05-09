@@ -154,6 +154,26 @@ python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
 Kaggle outputs and generated `outputs/` artifacts remain ignored and must not
 enter git. The final submission is still generated and validated locally.
 
+## A6 Experiment Suite Controller
+
+The A6 Task 1 experiment suite controller may call the A5 Kaggle auto-loop when
+the user explicitly selects Kaggle execution. The safe recovery path uses
+already downloaded Kaggle output and does not call the Kaggle API:
+
+```bash
+python scripts/run_task1_experiment_suite.py --backend kaggle --resume
+```
+
+An API-backed Kaggle run still requires explicit execution intent:
+
+```bash
+python scripts/run_task1_experiment_suite.py --backend kaggle --execute
+```
+
+Returned Kaggle output remains local ignored material. It must still be parsed,
+adopted into ignored local output paths, finalized locally, and validated
+locally before it is used in the Task 1 submission flow.
+
 ## Local Validation After Return
 
 Run local checks after Kaggle outputs return:

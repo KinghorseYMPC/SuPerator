@@ -8,10 +8,11 @@ work from a fresh clone while preserving auditability across rule reading, data
 inspection, experiment records, artifact generation, validation, and git
 hygiene.
 
-Current stage: A5.1, collaborator documentation and repository hygiene. A5
-completed the Task 1 automated local-first loop controller in commit `93cba1c`.
-This stage does not train models, call the Kaggle API, connect to SLURM, or
-generate large artifacts.
+Current stage: A6, Task 1 experiment suite automation. A5.1 completed
+collaborator documentation and repository hygiene in commit `cba0a19`. A6
+adds a local-first suite controller for config generation, backend candidate
+selection, returned-output recovery, result comparison, and validated
+finalization.
 
 ## Compliance Boundary
 
@@ -222,6 +223,44 @@ python scripts/summarize_task1_auto_loop.py
 Use `--resume-from-output` only when returned Kaggle output already exists in
 the ignored local output directory. Generated Kaggle output, checkpoints,
 predictions, logs, and submission zip files remain ignored local artifacts.
+
+## Task 1 Experiment Suite
+
+The A6 suite controller generates tracked experiment configs, selects an
+available compute backend candidate, records a suite summary under ignored
+`outputs/`, and compares returned local result summaries. It does not submit
+SLURM jobs. It does not call the Kaggle API unless run with
+`--backend kaggle --execute`.
+
+Generate suite configs:
+
+```bash
+python scripts/run_task1_experiment_suite.py --generate-configs-only
+```
+
+Dry-run the selected backend plan:
+
+```bash
+python scripts/run_task1_experiment_suite.py --dry-run
+```
+
+Resume from existing returned Kaggle output:
+
+```bash
+python scripts/run_task1_experiment_suite.py --backend kaggle --resume
+```
+
+Compare collected results:
+
+```bash
+python scripts/compare_task1_results.py
+```
+
+Finalize the top ranked result from the comparison report:
+
+```bash
+python scripts/finalize_best_task1_result.py
+```
 
 ## Submission Validation
 

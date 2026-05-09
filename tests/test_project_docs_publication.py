@@ -54,9 +54,17 @@ def test_readme_documents_collaborator_onboarding_sections() -> None:
         "local setup",
         "basic validation commands",
         "kaggle backend quickstart",
+        "task 1 experiment suite",
         "stage history",
     ]:
         assert phrase in readme
+
+
+def test_engineering_execution_log_exists() -> None:
+    assert (ROOT / "docs/engineering_execution_log.md").is_file()
+    content = read_text("docs/engineering_execution_log.md")
+    assert "A6" in content
+    assert "Task 1 Experiment Suite Automation" in content
 
 
 def test_agents_documents_git_permissions() -> None:
@@ -153,6 +161,19 @@ def test_readme_allows_rule_format_language() -> None:
     assert "competition_clarifications" in readme
     assert "JSON Lines" in readme
     assert "submission" in readme.lower()
+
+
+def test_readme_documents_a6_suite_commands() -> None:
+    readme = read_text("README.md")
+
+    for command in [
+        "python scripts/run_task1_experiment_suite.py --generate-configs-only",
+        "python scripts/run_task1_experiment_suite.py --dry-run",
+        "python scripts/run_task1_experiment_suite.py --backend kaggle --resume",
+        "python scripts/compare_task1_results.py",
+        "python scripts/finalize_best_task1_result.py",
+    ]:
+        assert command in readme
 
 
 def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:

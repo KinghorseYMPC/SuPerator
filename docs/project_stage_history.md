@@ -151,3 +151,33 @@ training plans, or score optimization routes.
 - commit hash: `93cba1c`
 - limitations: generated outputs remain ignored; Codex does not push to GitHub
   unless the user explicitly asks.
+
+## A5.1 - Collaborator Documentation And Repository Hygiene
+
+- stage: A5.1
+- purpose: keep a fresh clone easy to continue from while preserving repository
+  hygiene and publication boundaries.
+- completed artifacts: README updates, AGENTS updates, `.gitignore`
+  hardening, text encoding checks, pre-push audit checks, and stage history
+  documentation.
+- validation result: documentation and repository hygiene updates committed.
+- commit hash: `cba0a19`
+- limitations: this stage did not train models, call the Kaggle API, connect
+  to SLURM, or generate large artifacts.
+
+## A6 - Task 1 Experiment Suite Automation
+
+- stage: A6
+- purpose: implement a repeatable Task 1 experiment suite controller for
+  config generation, backend candidate selection, returned-output recovery,
+  result comparison, and validated finalization.
+- completed artifacts: suite config, generated experiment configs, config
+  generation module, backend selector, result comparison module, suite
+  controller script, comparison script, finalize-best script, documentation,
+  engineering execution log, and A6 test coverage.
+- validation result: `validate_task_logs.py`, `validate_submission.py`,
+  `pre_push_audit.py`, `check_text_encoding.py`, and `pytest -q` passed during
+  A6 implementation.
+- commit hash: recorded in the final task report after commit creation.
+- limitations: SLURM remains local plan generation only; generated outputs and
+  returned artifacts remain ignored local material.

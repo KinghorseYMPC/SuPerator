@@ -1,0 +1,44 @@
+project_name: SuPerator
+stage: A6_task1_experiment_suite
+task: task1
+experiment_id: exp_a6_smoke_fno1d
+data:
+  val_path: data_and_sample_submission/train_val_test_init/task1_val.hdf5
+  test_path: data_and_sample_submission/train_val_test_init/task1_test.hdf5
+  hdf5_key: null
+  input_steps: 10
+  total_steps: 200
+  spatial_points: 256
+  train_samples: 80
+  dev_samples: 20
+model:
+  name: fno1d
+  in_steps: 10
+  out_steps: 1
+  width: 32
+  modes: 16
+  depth: 4
+  padding: 8
+train:
+  seed: 42
+  device: auto
+  batch_size: 4
+  epochs: 3
+  learning_rate: 0.001
+  weight_decay: 1.0e-06
+  max_train_batches_per_epoch: 20
+  grad_clip_norm: 1.0
+  use_amp: false
+eval:
+  rollout_total_steps: 200
+  max_dev_samples: 20
+outputs:
+  experiment_root: experiments
+  checkpoint_dir: outputs/checkpoints
+  log_dir: outputs/logs
+  prediction_dir: outputs/predictions
+  submission_dir: outputs/submission
+submission:
+  submission_id: SuPerator
+  problem_id: PDE_Burgers
+  code_path: code

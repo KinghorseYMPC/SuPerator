@@ -151,6 +151,22 @@ def test_a5_task1_auto_loop_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a6_task1_experiment_suite_files_exist() -> None:
+    for relative_path in [
+        "configs/task1_experiment_suite.yaml",
+        "configs/generated/task1/exp_a6_smoke_fno1d.yaml",
+        "configs/generated/task1/exp_a6_small_fno1d.yaml",
+        "src/experiment/config_generation.py",
+        "src/experiment/backend_selector.py",
+        "src/experiment/result_comparison.py",
+        "scripts/run_task1_experiment_suite.py",
+        "scripts/compare_task1_results.py",
+        "scripts/finalize_best_task1_result.py",
+        "docs/engineering_execution_log.md",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_a36_preloaded_context_boundary_files_exist() -> None:
     for relative_path in [
         "docs/preloaded_context_policy.md",

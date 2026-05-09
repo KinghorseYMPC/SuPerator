@@ -98,6 +98,15 @@ def test_kaggle_package_metadata_files_are_prohibited_when_generated() -> None:
     ]
 
 
+def test_generated_experiment_configs_are_not_prohibited_paths() -> None:
+    assert pre_push_audit.find_prohibited_paths(
+        [
+            "configs/generated/task1/exp_a6_smoke_fno1d.yaml",
+            "configs/generated/task1/exp_a6_small_fno1d.yaml",
+        ]
+    ) == []
+
+
 def test_key_extension_detection() -> None:
     paths = [
         "deploy/private.pem",

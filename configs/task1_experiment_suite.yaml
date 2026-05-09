@@ -1,0 +1,58 @@
+project_name: SuPerator
+stage: A6_task1_experiment_suite
+task: task1
+
+backend_policy:
+  preferred_order:
+    - slurm
+    - kaggle
+    - local
+  allow_slurm: true
+  allow_kaggle: true
+  allow_local: true
+  require_manual_confirmation_for_remote_submit: true
+
+experiments:
+  - experiment_id: exp_a6_smoke_fno1d
+    base_config: configs/task1_a3_min_train.yaml
+    output_config: configs/generated/task1/exp_a6_smoke_fno1d.yaml
+    overrides:
+      stage: A6_task1_experiment_suite
+      experiment_id: exp_a6_smoke_fno1d
+      train:
+        epochs: 3
+        batch_size: 4
+        max_train_batches_per_epoch: 20
+        device: auto
+      model:
+        width: 32
+        modes: 16
+        depth: 4
+
+  - experiment_id: exp_a6_small_fno1d
+    base_config: configs/task1_a3_min_train.yaml
+    output_config: configs/generated/task1/exp_a6_small_fno1d.yaml
+    overrides:
+      stage: A6_task1_experiment_suite
+      experiment_id: exp_a6_small_fno1d
+      train:
+        epochs: 8
+        batch_size: 4
+        max_train_batches_per_epoch: 20
+        device: auto
+      model:
+        width: 32
+        modes: 16
+        depth: 4
+
+paths:
+  generated_config_dir: configs/generated/task1
+  suite_summary_path: outputs/experiment_suites/task1/suite_summary.json
+  comparison_report_path: outputs/experiment_suites/task1/comparison_report.json
+  local_result_root: outputs/experiment_suites/task1
+  kaggle_output_dir: kaggle_outputs/task1_min_train
+
+validation:
+  run_task_log_validator: true
+  run_submission_validator: true
+  run_pre_push_audit: true
