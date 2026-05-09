@@ -2,15 +2,23 @@
 
 ## Project Goal
 
-SuPerator builds an AI4S PDE neural operator research agent engineering workflow. The goal is to keep Agent work auditable across rule reading, data inspection, experiment recording, artifact generation, validation, and repository hygiene.
+SuPerator builds an AI4S PDE neural operator research-agent engineering
+workflow. The goal is to keep Agent work auditable across rule reading, data
+inspection, experiment recording, artifact generation, validation, and
+repository hygiene.
 
-This file is the coding-agent governance entry point. Keep it concise, current, and free of task execution strategy.
+This file is the coding-agent governance entry point. Keep it concise, current,
+and free of task execution strategy.
 
 ## Current Stage
 
-A4.K1: local preparation for a manually executed Kaggle API minimal GPU training loop, including dataset package planning, kernel script packaging, metadata templates, return-artifact instructions, and local validation.
+A5.1: collaborator documentation and repository hygiene. This stage fixes text
+encoding checks, maintains README / AGENTS / requirements / `.gitignore`,
+records project stage history, and keeps a fresh GitHub clone easy to continue
+from.
 
-Completed stages include project initialization, dummy submission pipeline, consolidated skills, external skill intake rules, baseline foundations, strict task log validation, minimal training loop scaffolding, preloaded context boundaries, generic external automated research resource intake, private GitHub publication preparation, local-first compute backend preparation, SLURM venv/direct Python rendering, debug job validation, and SLURM minimal training preparation.
+This stage does not train models, call the Kaggle API, connect to SLURM, or
+generate large artifacts.
 
 ## Required Reading Order
 
@@ -23,30 +31,58 @@ At the start of a Codex or Agent session, read in this order:
 For code changes, also read `.agents/skills/safe-code-change/SKILL.md`.
 For debugging, read `.agents/skills/debug-and-fix/SKILL.md`.
 For log work, read `.agents/skills/task-log-compliance/SKILL.md`.
-For data or checkpoint isolation, read `.agents/skills/data-checkpoint-isolation/SKILL.md`.
-Before commit, read `.agents/skills/testing-checklist/SKILL.md` and `.agents/skills/git-workflow/SKILL.md`.
+For data or checkpoint isolation, read
+`.agents/skills/data-checkpoint-isolation/SKILL.md`.
+Before commit, read `.agents/skills/testing-checklist/SKILL.md` and
+`.agents/skills/git-workflow/SKILL.md`.
 
 ## Compliance Boundary
 
-Project skills and governance docs may contain generic procedures only. They must not contain competition task priority, task-specific execution plans, model-selection advice, dataset-specific training plans, scoring optimization routes, or human-preloaded Agent action routes.
+Project skills and governance docs may contain generic procedures only. They
+must not contain competition task priority, task-specific execution plans,
+model-selection advice, dataset-specific training plans, scoring optimization
+routes, or human-preloaded Agent action routes.
 
-Competition clarifications may record neutral constraints only: official rules, file formats, timing limits, data restrictions, checkpoint restrictions, log requirements, and submission bundle requirements. Store those constraints in `docs/competition_clarifications.md`.
+Competition clarifications may record neutral constraints only: official rules,
+file formats, timing limits, data restrictions, checkpoint restrictions, log
+requirements, and submission bundle requirements. Store those constraints in
+`docs/competition_clarifications.md`.
 
-Wiki content, if present, must stay broad: PDE background, neural operator background, Burgers equation background, and general tooling knowledge. It must not contain competition-specific execution plans or tuning advice.
+Wiki content, if present, must stay broad: PDE background, neural operator
+background, Burgers equation background, and general tooling knowledge. It must
+not contain competition-specific execution plans or tuning advice.
 
-After an Agent starts reading competition tasks and executing work, there must be no human intervention in that run. Agent-created notes, configs, logs, and reports become part of the Agent context and must follow the same boundary.
+After an Agent starts reading competition tasks and executing work, there must
+be no human intervention in that run. Agent-created notes, configs, logs, and
+reports become part of the Agent context and must follow the same boundary.
 
 ## Local-First Compute Policy
 
-The local laptop git repository is the source of truth. The private GitHub repository is a backup and synchronization target. SLURM and Kaggle are temporary GPU compute backends only and must not become the main project directory or the only copy of code, configs, experiment records, or submission materials.
+The local laptop git repository is the source of truth. The private GitHub
+repository is a backup and synchronization target. SLURM and Kaggle are
+temporary GPU compute backends only and must not become the main project
+directory or the only copy of code, configs, experiment records, or submission
+materials.
 
-Remote runs require a local manifest before execution and local validation after artifacts return. Returned checkpoints, metrics, stdout, stderr, notebooks, predictions, and remote output directories stay in ignored local output or experiment paths unless a small metadata record is intentionally added to the local registry.
+Remote runs require a local manifest before execution and local validation
+after artifacts return. Returned checkpoints, metrics, stdout, stderr,
+notebooks, predictions, and remote output directories stay in ignored local
+output or experiment paths unless a small metadata record is intentionally
+added to the local registry.
 
-Do not read or commit Kaggle credential files. Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames, remote hostnames, remote artifacts, generated remote run directories, checkpoints, predictions, logs, or filled private job scripts. Keep remote paths as placeholders or environment variables in committed templates.
+Private backend configuration belongs only in ignored local files such as
+`configs/compute_backend.local.yaml`. Commit placeholder examples only. Do not
+commit filled backend configs, account names, hostnames, usernames, private
+paths, tokens, keys, or Kaggle credentials. Do not assume `conda` exists on
+SLURM; backend configs must declare `env_type` as `conda`, `venv`, or
+`direct_python`.
 
-Private backend configuration belongs only in ignored local files such as `configs/compute_backend.local.yaml`. Commit placeholder examples only. Do not commit filled backend configs, account names, hostnames, usernames, private paths, tokens, keys, or Kaggle credentials. Do not assume `conda` exists on SLURM; backend configs must declare `env_type` as `conda`, `venv`, or `direct_python`.
-
-Do not execute remote commands such as SSH, scp, rsync, sbatch, srun, squeue, sinfo, or Kaggle API commands unless the user explicitly requests that remote stage. Remote minimal training is still submitted manually by the user. Before any remote run, generate both a local remote manifest and a remote package plan, then validate returned artifacts locally after they come back. Kaggle inputs and outputs must return to local ignored paths for validation and audit.
+Do not execute remote commands such as `ssh`, `scp`, `rsync`, `sbatch`, `srun`,
+`squeue`, `sinfo`, or Kaggle API commands unless the user explicitly requests
+that remote stage. Before any remote run, generate both a local remote manifest
+and a remote package plan, then validate returned artifacts locally after they
+come back. Kaggle inputs and outputs must return to local ignored paths for
+validation and audit.
 
 ## Skill Usage Rules
 
@@ -54,13 +90,15 @@ Project skills live under `.agents/skills/`. The root `SKILL.md` is not used.
 
 - Use the smallest relevant skill set for the current task.
 - Keep skill changes generic and procedural.
-- Update `.agents/skills/README.md` and `.agents/skill_registry.yaml` when adding, renaming, retiring, or moving a skill.
+- Update `.agents/skills/README.md` and `.agents/skill_registry.yaml` when
+  adding, renaming, retiring, or moving a skill.
 - Run relevant tests after skill or workflow changes.
 - Do not place task execution strategy in skills.
 
 ## External Intake Rules
 
-External skill intake from GitHub or other public sources must follow `.agents/skills/external-skill-intake/SKILL.md`.
+External skill intake from GitHub or other public sources must follow
+`.agents/skills/external-skill-intake/SKILL.md`.
 
 - Do not execute external repository scripts.
 - Do not vendor external repositories into this project.
@@ -68,7 +106,16 @@ External skill intake from GitHub or other public sources must follow `.agents/s
 - Review license and scope before adaptation.
 - Record accepted and rejected sources in `.agents/external_skill_intake_log.md`.
 - Rewrite accepted ideas into project-specific generic procedures.
-- Use external automated research resources only to improve generic Agent capabilities such as research loops, experiment recording, source review, testing, and git hygiene.
+- Use external automated research resources only to improve generic Agent
+  capabilities such as research loops, experiment recording, source review,
+  testing, and git hygiene.
+
+## Preloaded Context Boundary
+
+The preloaded context policy is documented in
+`docs/preloaded_context_policy.md`. Skills, README, AGENTS, and wiki pages must
+not preload a human-authored route for solving a specific competition task.
+Competition clarifications may record neutral constraints only.
 
 ## Log Compliance Rules
 
@@ -78,15 +125,57 @@ Task log files must be JSON Lines:
 - Every record includes `timestamp`.
 - `timestamp` is timezone-aware ISO 8601.
 - Every record includes non-negative `elapsed_seconds`.
-- Every record includes non-empty `response` or `tool_calls` content under strict local validation.
+- Every record includes non-empty `response` or `tool_calls` content under
+  strict local validation.
 - The first-to-last timestamp span for one task log is at most 12 hours.
 - Do not forge LLM call logs.
 
-Local development summary logs may support structural checks. Final provenance should prefer a complete API proxy LLM log or another complete LLM call export when available.
+Local development summary logs may support structural checks. Final provenance
+should prefer a complete API proxy LLM log or another complete LLM call export
+when available.
+
+## Remote Compute Backend Rules
+
+- Kaggle and SLURM are temporary compute backends only.
+- Do not read, print, copy, or commit `kaggle.json`.
+- Do not commit credentials, SSH keys, Kaggle credentials, cluster usernames,
+  remote hostnames, remote artifacts, generated remote run directories,
+  checkpoints, predictions, logs, or filled private job scripts.
+- Keep remote paths as placeholders or environment variables in committed
+  templates.
+- Keep generated backend packages, downloaded outputs, and returned artifacts in
+  ignored local directories.
+- Do not call the Kaggle API or run remote commands unless the user explicitly
+  requests that stage.
+
+## Git Permissions And Workflow
+
+Codex may run `git add` and `git commit` when the user has asked for code or
+documentation changes and validation has passed. Codex must stage
+intentionally, inspect the staged diff, and commit with a clear English commit
+message.
+
+Codex must not run `git push` unless the user explicitly requests a push.
+
+Before commit:
+
+```bash
+git status
+python scripts/pre_push_audit.py
+git diff --cached --stat
+git diff --cached --name-only
+```
+
+Before push, run:
+
+```bash
+python scripts/pre_push_audit.py
+```
 
 ## Submission Code Bundle Rules
 
-Final submission `code/` bundles should contain runnable code, configs, scripts, and minimal neutral run instructions. They should not contain:
+Final submission `code/` bundles should contain runnable code, configs,
+scripts, and minimal neutral run instructions. They should not contain:
 
 - `.agents/`
 - strategy-oriented `docs/`
@@ -97,7 +186,8 @@ Final submission `code/` bundles should contain runnable code, configs, scripts,
 - `outputs/`
 - `experiments/`
 - `data_and_sample_submission/`
-- datasets, checkpoints, predictions, zip packages, runtime logs, or external caches
+- datasets, checkpoints, predictions, zip packages, runtime logs, or external
+  caches
 
 ## Git, Test, And Large File Hygiene
 
@@ -106,20 +196,41 @@ Final submission `code/` bundles should contain runnable code, configs, scripts,
 - Do not modify official raw data.
 - Manage paths through configs or relative paths.
 - Run relevant tests after meaningful changes when feasible.
-- Do not commit large files, datasets, checkpoints, predictions, runtime logs, zip packages, external caches, credentials, `.env` files, tokens, keys, or secrets.
-- Before commit, check `git status`, run required validation, stage intentionally, inspect `git diff --cached --stat`, and confirm prohibited paths are absent.
-- Before push, run `python scripts/pre_push_audit.py`.
+- Do not commit large files, datasets, checkpoints, predictions, runtime logs,
+  zip packages, external caches, credentials, `.env` files, tokens, keys, or
+  secrets.
+- Do not commit `kaggle_outputs/`, `kaggle_dataset_package/`,
+  `kaggle_kernel/package/`, `outputs/`, `experiments/`,
+  `data_and_sample_submission/`, or `task_log_sample/`.
+- Do not commit `*.hdf5`, `*.h5`, `*.pt`, `*.pth`, `*.ckpt`, `*.zip`, `*.log`,
+  `*.out`, or `*.err`.
+- Before commit, check `git status`, run required validation, stage
+  intentionally, inspect `git diff --cached --stat`, and confirm prohibited
+  paths are absent.
+
+## Required End-Of-Task Report
+
+Every task ending report must include:
+
+- modified files;
+- test commands;
+- validator results;
+- git commit hash when a commit was created;
+- current `git status`;
+- whether a push was performed.
 
 ## Core Commands
 
 ```bash
+python scripts/check_text_encoding.py
 python scripts/pre_push_audit.py
 python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 pytest -q
 ```
 
-If `validate_submission.py` reports that the local submission artifact is missing, generate a dummy submission first:
+If `validate_submission.py` reports that the local submission artifact is
+missing, generate a dummy submission first:
 
 ```bash
 python scripts/make_dummy_task1_submission.py

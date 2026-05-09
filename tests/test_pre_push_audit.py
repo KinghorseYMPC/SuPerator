@@ -16,10 +16,14 @@ def test_prohibited_path_detection() -> None:
         "kaggle_kernel/package/kernel-metadata.json",
         ".kaggle/kaggle.json",
         ".external_research/cache/index.md",
+        ".external_sources/repo/README.md",
+        ".external_skills_cache/source/SKILL.md",
     ]
 
     assert pre_push_audit.find_prohibited_paths(paths) == [
         ".external_research/cache/index.md",
+        ".external_skills_cache/source/SKILL.md",
+        ".external_sources/repo/README.md",
         ".kaggle/kaggle.json",
         "data_and_sample_submission/train.hdf5",
         "experiments/run.json",

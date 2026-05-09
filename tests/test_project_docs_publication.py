@@ -19,7 +19,6 @@ FORBIDDEN_STRATEGY_PHRASES = [
 FORBIDDEN_CREDENTIAL_PATTERNS = [
     "BEGIN " + "OPENSSH PRIVATE KEY",
     "BEGIN " + "RSA PRIVATE KEY",
-    "kaggle" + ".json",
     "KAGGLE_" + "KEY=",
     "KAGGLE_" + "USERNAME=",
     "ssh-" + "rsa ",
@@ -45,6 +44,27 @@ def test_publication_docs_exist() -> None:
     assert "SuPerator" in read_text("README.md")
     assert (ROOT / "AGENTS.md").is_file()
     assert (ROOT / "requirements.txt").is_file()
+
+
+def test_readme_documents_collaborator_onboarding_sections() -> None:
+    readme = read_text("README.md").lower()
+
+    for phrase in [
+        "project overview",
+        "local setup",
+        "basic validation commands",
+        "kaggle backend quickstart",
+        "stage history",
+    ]:
+        assert phrase in readme
+
+
+def test_agents_documents_git_permissions() -> None:
+    agents = read_text("AGENTS.md").lower()
+
+    assert "git add" in agents
+    assert "git commit" in agents
+    assert "must not run `git push` unless the user explicitly requests" in agents
 
 
 def test_gitignore_contains_key_patterns() -> None:
@@ -76,6 +96,7 @@ def test_gitignore_contains_key_patterns() -> None:
         "configs/*local*.yaml",
         "remote_package/",
         "remote_bundle/",
+        "remote_package/",
         "remote_sync_plan/",
         "slurm_job_files/",
         "slurm_logs/",
@@ -115,6 +136,7 @@ def test_kaggle_runbook_exists_and_readme_agents_do_not_include_tokens() -> None
     lowered = combined.lower()
     assert "kaggle token" not in lowered
     assert "kaggle_key" not in lowered
+    assert "do not read, print, copy, or commit `kaggle.json`" in lowered
 
 
 def test_readme_and_agents_reference_private_backend_config_without_real_values() -> None:

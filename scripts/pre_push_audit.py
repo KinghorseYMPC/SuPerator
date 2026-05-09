@@ -34,6 +34,10 @@ PROHIBITED_TRACKED_DIRS = (
     "kaggle_kernel/package/",
     ".kaggle/",
     ".external_research/",
+    ".external_skills_cache/",
+    ".external_sources/",
+    "tmp_external/",
+    "vendor_external/",
 )
 
 PROHIBITED_TRACKED_FILES = {

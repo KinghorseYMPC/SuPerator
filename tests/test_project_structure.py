@@ -15,6 +15,14 @@ def test_required_root_files_exist() -> None:
         assert (ROOT / relative_path).exists(), f"missing {relative_path}"
 
 
+def test_a51_collaborator_docs_files_exist() -> None:
+    for relative_path in [
+        "docs/project_stage_history.md",
+        "scripts/check_text_encoding.py",
+    ]:
+        assert (ROOT / relative_path).exists(), f"missing {relative_path}"
+
+
 def test_root_skill_is_removed_or_index_only() -> None:
     root_skill = ROOT / "SKILL.md"
     if root_skill.exists():

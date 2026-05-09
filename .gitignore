@@ -43,12 +43,8 @@ task_log_sample/
 *.npy
 
 # Experiment and runtime outputs
-experiments/*
-outputs/*
-outputs/logs/*
-outputs/predictions/*
-outputs/checkpoints/*
-outputs/submission/*
+experiments/
+outputs/
 outputs/remote_manifests/
 remote_runs/
 remote_package/
