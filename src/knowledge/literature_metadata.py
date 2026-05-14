@@ -65,7 +65,12 @@ def parse_arxiv_id(value: str | None) -> str:
     if not value:
         return ""
     match = _ARXIV_ID_RE.search(value)
-    return match.group("id") if match else value.strip()
+    if match:
+        return match.group("id")
+    stripped = value.strip()
+    if "://" in stripped:
+        return ""
+    return stripped
 
 
 def build_literature_metadata(
@@ -212,4 +217,3 @@ def write_literature_metadata(metadata: dict[str, Any], output_dir: Path) -> Pat
         encoding="utf-8",
     )
     return output_path
-
