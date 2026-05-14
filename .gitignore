@@ -40,6 +40,8 @@ task_log_sample/
 *.tar.gz
 *.zip
 *.log
+*.pem
+*.key
 *.npz
 *.npy
 
