@@ -61,7 +61,7 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
 def collect_train_results(search_roots: list[str | Path] | None = None) -> list[dict[str, Any]]:
     roots = search_roots or DEFAULT_SEARCH_ROOTS
     records: list[dict[str, Any]] = []
-    target_json_names = {"train_result.json", "adoption_summary.json", "parsed_summary.json"}
+    target_json_names = {"train_result.json", "adoption_summary.json", "parsed_summary.json", "run_summary.json"}
 
     for root_value in roots:
         root = resolve_path(root_value)
@@ -121,6 +121,8 @@ def _infer_backend(source_path: str, payload: dict[str, Any]) -> str | None:
         return "kaggle"
     if "slurm" in source:
         return "slurm"
+    if "pdeagent" in source:
+        return "local-pdeagent"
     if explicit:
         return str(explicit)
     return "local" if "experiments" in source or "outputs/checkpoints" in source else None
@@ -233,7 +235,8 @@ def normalize_result(record: dict[str, Any]) -> dict[str, Any]:
         "max_initial_error": _to_float(payload.get("max_initial_error")),
         "train_loss": _to_float(_metric(payload, ["last_train_loss", "train_loss"])),
         "dev_one_step_loss": _to_float(
-            _metric(payload, ["best_dev_one_step_loss", "last_dev_one_step_loss", "dev_one_step_loss"])
+            _metric(payload, ["best_dev_loss", "last_dev_loss", "best_dev_one_step_loss",
+                              "last_dev_one_step_loss", "dev_one_step_loss"])
         ),
         "score_total_proxy": _to_float(_metric(payload, ["score_total_proxy"])),
         "validation_passed": _validation_passed(payload),

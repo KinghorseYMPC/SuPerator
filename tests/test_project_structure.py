@@ -314,3 +314,13 @@ def test_a95_task1_adapter_files_exist() -> None:
         "tests/test_pdeagent_task1_smoke_script.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a96_suite_integration_files_exist() -> None:
+    for relative_path in [
+        "scripts/run_pdeagent_task1_adapter.py",
+        "configs/generated/task1/exp_a9_6_pdeagent_task1_adapter_smoke.yaml",
+        "docs/pdeagent_migration/task1_experiment_suite_integration.md",
+        "tests/test_run_pdeagent_task1_adapter.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

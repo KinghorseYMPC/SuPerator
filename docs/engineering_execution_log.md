@@ -465,3 +465,39 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.6 — Experiment Suite Integration
+
+- stage: A9.6
+- started_at: 2026-05-16
+- purpose: register pdeagent Task 1 adapter as an experiment suite candidate,
+  enable dry-run and local execute via suite controller.
+- files created:
+  - `scripts/run_pdeagent_task1_adapter.py`
+  - `configs/generated/task1/exp_a9_6_pdeagent_task1_adapter_smoke.yaml`
+  - `docs/pdeagent_migration/task1_experiment_suite_integration.md`
+  - `tests/test_run_pdeagent_task1_adapter.py`
+- files modified:
+  - `configs/task1_experiment_suite.yaml` (added pdeagent experiment)
+  - `scripts/run_task1_experiment_suite.py` (pdeagent runner detection)
+  - `src/experiment/config_generation.py` (pass runner field)
+  - `src/experiment/result_comparison.py` (run_summary + pdeagent metrics)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_run_task1_experiment_suite.py`
+  - `tests/test_result_comparison.py`
+  - `tests/test_project_structure.py`
+- scope boundary:
+  - No remote execution
+  - Local dry-run only
+  - No submission generation
+  - pdeagent adapter is a suite candidate, not the default
+- validation:
+  - `python scripts/run_pdeagent_task1_adapter.py --dry-run`: to be run
+  - `python scripts/run_task1_experiment_suite.py --generate-configs-only`: to be run
+  - `python scripts/run_task1_experiment_suite.py --dry-run`: to be run
+  - `python scripts/compare_task1_results.py`: to be run
+  - all validators: to be run
+  - targeted pytest: to be run
+- commit hash: pending

@@ -65,7 +65,13 @@
 
 ---
 
-## A9.6 — Task 2 Adapter Design
+## A9.6 — Experiment Suite Integration ✅ (COMPLETED 2026-05-16)
+
+**优先级**：P1
+**目标**：将 pdeagent Task 1 adapter 接入 experiment suite / full auto controller
+**状态**：完成
+
+## A9.7 — Task 2 Adapter Design
 
 **优先级**：P1  
 **目标**：确保 Task 2（FiLM + nu estimator）在 SuPerator 中可工作  

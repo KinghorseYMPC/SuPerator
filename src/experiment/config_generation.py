@@ -107,6 +107,7 @@ def generate_experiment_configs(suite_config_path: str | Path) -> list[dict[str,
                 "experiment_id": str(experiment_id),
                 "base_config": str(resolve_path(base_config)),
                 "output_config": str(generated_path),
+                "runner": experiment.get("runner"),
                 "config": generated_payload,
             }
         )

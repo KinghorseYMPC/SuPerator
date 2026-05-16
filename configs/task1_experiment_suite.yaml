@@ -45,6 +45,19 @@ experiments:
         modes: 16
         depth: 4
 
+  - experiment_id: exp_a9_6_pdeagent_task1_adapter_smoke
+    base_config: configs/pdeagent_task1_adapter_smoke.yaml
+    output_config: configs/generated/task1/exp_a9_6_pdeagent_task1_adapter_smoke.yaml
+    runner: pdeagent_task1_adapter
+    overrides:
+      stage: A9_6_pdeagent_task1_adapter
+      experiment_id: exp_a9_6_pdeagent_task1_adapter_smoke
+      train:
+        epochs: 1
+        max_train_batches_per_epoch: 2
+        batch_size: 4
+        device: auto
+
 paths:
   generated_config_dir: configs/generated/task1
   suite_summary_path: outputs/experiment_suites/task1/suite_summary.json

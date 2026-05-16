@@ -124,3 +124,43 @@ def test_kaggle_resume_uses_auto_loop_resume(monkeypatch, tmp_path: Path) -> Non
     assert state["status"] == "completed"
     assert "--resume-from-output" in calls[0]
     assert "scripts/run_task1_auto_loop.py" in calls[0]
+
+
+def test_pdeagent_runner_is_detected_in_dry_run(monkeypatch, tmp_path: Path) -> None:
+    """Dry-run with pdeagent runner should record correct command."""
+    base = tmp_path / "base.yaml"
+    base.write_text(
+        yaml.safe_dump({
+            "project_name": "SuPerator", "stage": "base", "task": "task1",
+            "experiment_id": "pde_test",
+            "data": {"val_path": str(tmp_path / "fake.h5")},
+            "model": {"name": "pdeagent_task1", "input_steps": 10, "output_steps": 10, "width": 8, "modes": 4, "depth": 2, "use_film": False},
+            "train": {"epochs": 1, "batch_size": 2, "device": "cpu"},
+            "outputs": {"checkpoint_dir": str(tmp_path / "ckpt"), "result_dir": str(tmp_path / "res")},
+        }, sort_keys=False),
+        encoding="utf-8",
+    )
+    suite = {
+        "project_name": "SuPerator", "stage": "A6_suite", "task": "task1",
+        "backend_policy": {"preferred_order": ["local"], "allow_local": True},
+        "experiments": [{
+            "experiment_id": "exp_pdeagent_smoke",
+            "base_config": str(base),
+            "output_config": str(tmp_path / "gen" / "pdeagent.yaml"),
+            "runner": "pdeagent_task1_adapter",
+            "overrides": {"experiment_id": "exp_pdeagent_smoke", "train": {"epochs": 1}},
+        }],
+        "paths": {"suite_summary_path": str(tmp_path / "s.json"), "comparison_report_path": str(tmp_path / "c.json")},
+    }
+    suite_path = tmp_path / "suite.yaml"
+    suite_path.write_text(yaml.safe_dump(suite, sort_keys=False), encoding="utf-8")
+    monkeypatch.setattr(runner, "select_backend", lambda policy, requested_backend="auto": {"backend": "local", "status": "available"})
+
+    args = runner.build_parser().parse_args(["--suite-config", str(suite_path), "--dry-run", "--experiment-id", "exp_pdeagent_smoke"])
+    exit_code, state = runner.run_suite(args)
+
+    assert exit_code == 0
+    commands = state.get("commands", [])
+    assert any("run_pdeagent_task1_adapter.py" in c.get("command", "") for c in commands), (
+        f"Expected pdeagent runner command, got: {commands}"
+    )

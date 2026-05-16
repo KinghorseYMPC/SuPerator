@@ -70,3 +70,42 @@ def test_collect_normalize_compare_and_write_report(tmp_path: Path) -> None:
     assert compared[0]["score_total_proxy"] == 0.9
     assert report["record_count"] == len(normalized)
     assert (tmp_path / "comparison.json").is_file()
+
+
+def test_normalize_pdeagent_result() -> None:
+    """normalize_result should handle pdeagent training results."""
+    record = {
+        "record_type": "train_result",
+        "source_path": "outputs/pdeagent_task1/test_train_result.json",
+        "payload": {
+            "experiment_id": "test_pdeagent",
+            "checkpoint_path": "outputs/checkpoints/test_best.pt",
+            "metrics": {"last_train_loss": 0.042, "best_dev_loss": 0.038},
+            "train_time": 12.5,
+            "device": "cpu",
+            "status": "completed",
+        },
+    }
+    norm = result_comparison.normalize_result(record)
+    assert norm["experiment_id"] == "test_pdeagent"
+    assert "pdeagent" in str(norm["backend"])
+    assert norm["dev_one_step_loss"] == 0.038
+    assert norm["train_time"] == 12.5
+    assert norm["train_loss"] == 0.042
+
+
+def test_existing_kaggle_result_still_works() -> None:
+    """Existing Kaggle/SLURM results should not be broken."""
+    record = {
+        "record_type": "adoption_summary",
+        "source_path": "kaggle_outputs/task1_min_train/adoption_summary.json",
+        "payload": {
+            "experiment_id": "kaggle_test",
+            "adopted_checkpoint_path": "outputs/checkpoints/kaggle_best.pt",
+            "score_total_proxy": 45.5,
+            "status": "completed",
+        },
+    }
+    norm = result_comparison.normalize_result(record)
+    assert norm["backend"] == "kaggle"
+    assert norm["score_total_proxy"] == 45.5

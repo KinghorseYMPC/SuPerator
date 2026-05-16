@@ -123,7 +123,16 @@ def _run_local_smoke(
     if smoke is None:
         state.setdefault("warnings", []).append("local execute is limited to smoke experiments")
         return True
-    command = [sys.executable, "scripts/train_task1_minimal.py", "--config", smoke["output_config"]]
+
+    # Detect pdeagent adapter runner
+    runner = smoke.get("runner")
+
+    if runner == "pdeagent_task1_adapter":
+        command = [sys.executable, "scripts/run_pdeagent_task1_adapter.py",
+                   "--config", smoke["output_config"], "--train"]
+    else:
+        command = [sys.executable, "scripts/train_task1_minimal.py", "--config", smoke["output_config"]]
+
     if not execute:
         _record_command(state, "local_smoke_train", command)
         return True

@@ -25,15 +25,15 @@
 | [scoring_adapter.md](scoring_adapter.md) | A9.3 Scoring Adapter 实现文档 |
 | [baseline_adapter.md](baseline_adapter.md) | A9.4 Baseline Adapter 设计文档 |
 | [task1_adapter.md](task1_adapter.md) | A9.5 Task 1 Adapter 实现文档 |
+| [task1_experiment_suite_integration.md](task1_experiment_suite_integration.md) | A9.6 Experiment Suite 集成文档 |
 
 ## 当前阶段状态
 
-**A9.5** — Task 1 Adapter 完整实现 **（当前阶段）**
-- 完整 ChunkedFNO1d 模型（Conv1d lift + coord + FNO blocks + residual + chunk rollout）
-- PdeAgentTask1WindowDataset（滑动窗口 HDF5 数据集）
-- 训练循环（train_one_epoch / evaluate_one_step / checkpoint）
-- 推理（autoregressive rollout + checkpoint predict）
-- Smoke 脚本（真实数据或 synthetic fallback）
+**A9.6** — Experiment Suite 集成 **（当前阶段）**
+- pdeagent Task 1 adapter 已注册为 experiment suite 候选
+- `run_pdeagent_task1_adapter.py` 支持 dry-run / train / predict
+- Generated config 已生成
+- Result comparison 可读取 pdeagent 输出
 - **未修改 SuPerator 训练 / 推理 / submission 主流程**
 
 ## 核心原则
