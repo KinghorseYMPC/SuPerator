@@ -1,0 +1,80 @@
+schema_version: "0.1"
+
+identity:
+  title: ""
+  normalized_title: ""
+  authors:
+    - name: ""
+      affiliation: ""
+      orcid: ""
+  year: null
+  venue:
+    name: ""
+    type: ""
+  publication_status: ""
+
+identifiers:
+  arxiv_id: ""
+  doi: ""
+  semantic_scholar_id: ""
+  openreview_id: ""
+  url: ""
+  pdf_url: ""
+
+source_tracking:
+  discovered_from: ""
+  accessed_at: ""
+  metadata_source_url: ""
+  pdf_downloaded: false
+  local_pdf_path: ""
+  source_citations:
+    - label: ""
+      url: ""
+      accessed_at: ""
+
+classification:
+  primary_domain: ""
+  secondary_domains: []
+  pde_families: []
+  method_families: []
+  model_families: []
+  dataset_families: []
+  application_domains: []
+  tags: []
+
+content_summary:
+  abstract_summary: ""
+  problem_setting: ""
+  key_contributions: []
+  method_overview: ""
+  theoretical_results: []
+  experimental_setup_summary: ""
+  main_findings: []
+  limitations: []
+  open_questions: []
+
+knowledge_absorption:
+  related_concepts:
+    - concept_id: ""
+      relation: ""
+  candidate_new_concepts: []
+  reusable_definitions: []
+  reusable_equations: []
+  caution_notes: []
+
+compliance:
+  no_task_specific_strategy: true
+  no_training_or_tuning_route: true
+  no_scoring_optimization: true
+  no_forged_agent_log: true
+  contains_pdf_or_large_file: false
+  verbatim_quotes:
+    count: 0
+    max_words_per_quote: 25
+    notes: ""
+
+review:
+  card_status: "draft"
+  reviewed_by: ""
+  reviewed_at: ""
+  notes: ""
