@@ -249,3 +249,29 @@ def test_key_src_directories_exist() -> None:
         "src/submission",
     ]:
         assert (ROOT / relative_path).is_dir(), f"missing {relative_path}"
+
+
+def test_a91_external_references_files_exist() -> None:
+    for relative_path in [
+        "external_references/README.md",
+        "external_references/pdeagent_code_ref/README.md",
+        "external_references/pdeagent_code_ref/manifest.json",
+        "scripts/audit_pdeagent_import.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+    for relative_path in [
+        "external_references/pdeagent_code_ref/code-ref",
+        "external_references/pdeagent_code_ref/agent",
+    ]:
+        assert (ROOT / relative_path).is_dir(), f"missing {relative_path}"
+
+
+def test_a91_pdeagent_migration_docs_exist() -> None:
+    for relative_path in [
+        "docs/pdeagent_migration/README.md",
+        "docs/pdeagent_migration/imported_assets.md",
+        "docs/pdeagent_migration/migration_assessment.md",
+        "docs/pdeagent_migration/next_steps.md",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

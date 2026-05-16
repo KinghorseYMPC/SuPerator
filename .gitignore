@@ -80,6 +80,22 @@ knowledge_base/.cache/
 kaggle.json
 .kaggle/
 
+# External reference assets — allow code and docs, block artifacts
+external_references/**/config.yaml
+external_references/**/.venv/
+external_references/**/output/
+external_references/**/task1/
+external_references/**/task2/
+external_references/**/data_and_sample_submission/
+external_references/**/*.hdf5
+external_references/**/*.h5
+external_references/**/*.pt
+external_references/**/*.pth
+external_references/**/*.ckpt
+external_references/**/*.zip
+external_references/**/*.log
+external_references/**/__pycache__/
+
 # OS/editor noise
 .DS_Store
 Thumbs.db

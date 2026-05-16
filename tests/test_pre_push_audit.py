@@ -1,4 +1,7 @@
+import os
 from pathlib import Path
+
+import pytest
 
 from scripts import pre_push_audit
 
@@ -182,3 +185,21 @@ def test_required_files_present_in_repository() -> None:
 
     assert missing == []
     assert pre_push_audit.check_submission_validator(pre_push_audit.ROOT)[0] is True
+
+
+def test_external_references_do_not_trigger_prohibited_extension_checks() -> None:
+    """External references .py files should NOT be flagged as prohibited."""
+    ref_dir = pre_push_audit.ROOT / "external_references"
+    if not ref_dir.is_dir():
+        pytest.skip("external_references directory not present")
+    # Collect all files under external_references
+    ref_files = []
+    for root, _dirs, files in os.walk(ref_dir):
+        for f in files:
+            rel = os.path.relpath(os.path.join(root, f), pre_push_audit.ROOT)
+            ref_files.append(pre_push_audit.normalize_repo_path(rel))
+    # Python files should not be flagged
+    prohibited = pre_push_audit.find_prohibited_extensions(ref_files)
+    assert len(prohibited) == 0, (
+        f"external_references files should not trigger prohibited extensions: {prohibited}"
+    )

@@ -1,0 +1,115 @@
+{
+  "source_project": "pdeagent",
+  "source_root": "../pdeagent",
+  "imported_at": "2026-05-16T13:50:21.323591+00:00",
+  "imported_files": [
+    {
+      "source_path": "../pdeagent/agent/config.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/config.py",
+      "sha256": "b00b664b8b9ffd8c4381481075c7f8e88ac9b77f75e96cd288097356961815e2",
+      "size_bytes": 4414,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/agent/llm_client.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/llm_client.py",
+      "sha256": "be7bccc897f492a56f08a3f2bf3dd117b521abd8fb87e3bbc8e836350fcd3dae",
+      "size_bytes": 9092,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/agent/memory.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/memory.py",
+      "sha256": "39353c6f87e15c5379b6f7ddea653f64c6d6d4c0daae96c9dad526aea92d25eb",
+      "size_bytes": 4783,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/agent/orchestrator.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/orchestrator.py",
+      "sha256": "d5523eafc5b6e5dfc3c1d9e248f083e3d02de8a581e4efd134d25593f7861eaa",
+      "size_bytes": 23235,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/agent/phases.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/phases.py",
+      "sha256": "260d18f6b8c909cdd6746c8c35924be0f938db4a4bffbc25f3e98ed0c21fdccf",
+      "size_bytes": 29592,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/agent/tools.py",
+      "destination_path": "external_references/pdeagent_code_ref/agent/tools.py",
+      "sha256": "cfbf02de60406e88b88cd932e96b9ba009498d304527e58518bd76ff534f9db2",
+      "size_bytes": 16151,
+      "category": "agent-reference"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/dataset.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/dataset.py",
+      "sha256": "d4db144b4ec7daf5ee3fc9ef240019ca18b49a80679f597799c17d641823bd88",
+      "size_bytes": 12473,
+      "category": "code-ref"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/eval_checkpoint.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/eval_checkpoint.py",
+      "sha256": "9d15bf26770187e11cd31b453a39c79350c7e0dfcc65a3e1db7d6f5a3a5fd9bb",
+      "size_bytes": 8991,
+      "category": "code-ref"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/infer.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/infer.py",
+      "sha256": "a7154d8da8328f7f937d964b05a743433bb879a5d9dffb9f9ad13d938b8aaeff",
+      "size_bytes": 7188,
+      "category": "code-ref"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/model.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/model.py",
+      "sha256": "e3284de6ff7a779434d3e68870e4aa6665c5b8dbb3faf7a1267c5a745f0c5c42",
+      "size_bytes": 11046,
+      "category": "code-ref"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/train.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/train.py",
+      "sha256": "e64e0185fa4d3f514f63610999e729029a41c219ac5e6d3c1d2885f67ef35c52",
+      "size_bytes": 17925,
+      "category": "code-ref"
+    },
+    {
+      "source_path": "../pdeagent/code-ref/utils.py",
+      "destination_path": "external_references/pdeagent_code_ref/code-ref/utils.py",
+      "sha256": "1f168ca919eeab7ae2b5c3892594767e1d45e14e93fbfedbd39a8a3f10d4e45f",
+      "size_bytes": 7916,
+      "category": "code-ref"
+    }
+  ],
+  "excluded_paths": [
+    "config.yaml",
+    "pack_submission.py",
+    "run_agent.py",
+    "run_baseline.py",
+    "scripts/",
+    "task1/",
+    "task2/",
+    "output/",
+    ".venv/",
+    "data_and_sample_submission/",
+    "data_and_sample_submission.zip",
+    "AGENTS.md",
+    "AGENT_CODE_GUIDE.md"
+  ],
+  "migration_status": "isolated_reference_only",
+  "notes": [
+    "no execution performed",
+    "no credentials copied",
+    "no outputs copied",
+    "no data copied",
+    "no config.yaml copied",
+    "API key not copied"
+  ]
+}

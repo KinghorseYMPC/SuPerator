@@ -223,3 +223,51 @@ optimization routes, or competition task execution strategy.
 - known limitations:
   - SLURM remains local plan generation only.
   - Kaggle resume requires returned output to exist in ignored local paths.
+
+## A9.1 — Isolated pdeagent P0 Asset Import
+
+- stage: A9.1
+- started_at: 2026-05-16
+- purpose: isolated import of pdeagent P0 high-value code assets into a read-only
+  reference area, with audit script and migration documentation.
+- imported file categories:
+  - code-ref: model.py, dataset.py, train.py, infer.py, utils.py, eval_checkpoint.py
+  - agent-reference: llm_client.py, tools.py, phases.py, orchestrator.py, config.py, memory.py
+- total imported files: 12 (~146 KB)
+- files created:
+  - `external_references/README.md`
+  - `external_references/pdeagent_code_ref/README.md`
+  - `external_references/pdeagent_code_ref/manifest.json`
+  - `scripts/audit_pdeagent_import.py`
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/imported_assets.md`
+  - `docs/pdeagent_migration/migration_assessment.md`
+  - `docs/pdeagent_migration/next_steps.md`
+  - `tests/test_pdeagent_import_audit.py`
+- files modified:
+  - `.gitignore` (added external_references artifact blocking rules)
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+  - `tests/test_pre_push_audit.py`
+- scope boundary:
+  - no model training
+  - no LLM API calls
+  - no Kaggle/SLURM connections
+  - no pdeagent execution
+  - no modification of SuPerator main training/inference/submission flows
+  - imported files are isolated reference only, not integrated into SuPerator
+  - pack_submission.py, config.yaml, data, checkpoints, outputs excluded
+- excluded from import:
+  - config.yaml (API key risk)
+  - pack_submission.py (synthetic logs)
+  - AGENTS.md, AGENT_CODE_GUIDE.md (competition strategy)
+  - task1/, task2/, output/, .venv/, data_and_sample_submission/
+- validation:
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending
