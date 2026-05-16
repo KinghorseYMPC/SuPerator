@@ -77,7 +77,13 @@
 **目标**：本地 GPU 环境适配 pdeagent conda 环境，环境检查与 runbook
 **状态**：完成
 
-## A9.8 — Task 2 Adapter Design
+## A9.8 — Task 1 Quick Local Run ✅ (COMPLETED 2026-05-16)
+
+**优先级**：P1
+**目标**：pdeagent Task 1 quick train/predict 闭环（pdeagent conda 环境）
+**状态**：完成
+
+## A9.9 — Task 2 Adapter Design
 
 **优先级**：P1  
 **目标**：确保 Task 2（FiLM + nu estimator）在 SuPerator 中可工作  

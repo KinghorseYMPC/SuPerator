@@ -534,3 +534,32 @@ optimization routes, or competition task execution strategy.
   - all validators: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.8 — Task 1 Quick Local Run
+
+- stage: A9.8
+- started_at: 2026-05-16
+- purpose: enable quick train/predict/parse cycle for pdeagent Task 1 adapter
+  in the pdeagent conda env, replicating pdeagent's min-loop capability.
+- files created:
+  - `scripts/parse_pdeagent_task1_run.py`
+  - `docs/pdeagent_migration/task1_quick_local_run.md`
+  - `tests/test_parse_pdeagent_task1_run.py`
+- files modified:
+  - `scripts/run_pdeagent_task1_adapter.py` (--quick, --quick-cycle, auto-checkpoint, prediction_summary)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_run_pdeagent_task1_adapter.py`
+  - `tests/test_project_structure.py`
+- scope boundary:
+  - Quick-cycle NOT executed (current shell not pdeagent)
+  - No long training
+  - No submission generation
+  - No Kaggle/SLURM/LLM calls
+  - User must manually run: conda activate pdeagent + quick-cycle
+- validation:
+  - `python scripts/parse_pdeagent_task1_run.py --dry-run`: to be run
+  - all validators: to be run
+  - targeted pytest: to be run
+- commit hash: pending

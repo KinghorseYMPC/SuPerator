@@ -142,6 +142,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--predict", action="store_true")
+    parser.add_argument("--quick", action="store_true", help="Alias for --train (smoke level)")
+    parser.add_argument("--quick-cycle", action="store_true",
+                        help="Run train + predict + parse in sequence")
     parser.add_argument("--checkpoint", default="")
     parser.add_argument("--require-pdeagent-env", action="store_true")
     parser.add_argument("--output-summary", default="outputs/pdeagent_task1/run_summary.json")
@@ -156,10 +159,20 @@ def main(argv: list[str] | None = None) -> int:
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
+    # --quick is alias for --train
+    if args.quick:
+        args.train = True
+
     do_train = args.train
     do_predict = args.predict
-    do_dry = args.dry_run or (not do_train and not do_predict)
+    do_quick_cycle = args.quick_cycle
     require_env = args.require_pdeagent_env
+    do_dry = args.dry_run or (not do_train and not do_predict and not do_quick_cycle)
+
+    if do_quick_cycle:
+        do_train = True
+        do_predict = True
+        do_dry = False
 
     if (do_train or do_predict) and require_env:
         import os as _os
@@ -180,11 +193,23 @@ def main(argv: list[str] | None = None) -> int:
         summary["train"] = train_result
 
     if do_predict:
-        if not args.checkpoint:
-            print("[ERROR] --predict requires --checkpoint <path>")
-            return 1
-        pred_result = run_predict(config, args.checkpoint)
+        ckpt_path = args.checkpoint
+        if not ckpt_path:
+            # Auto-find from run_summary
+            train_data = summary.get("train", {})
+            if isinstance(train_data, dict):
+                ckpt_path = train_data.get("checkpoint_path", "")
+            if not ckpt_path:
+                print("[ERROR] --predict requires --checkpoint or a prior --train run.")
+                return 1
+        pred_result = run_predict(config, ckpt_path)
         summary["predict"] = pred_result
+        # Write prediction summary
+        pred_out = resolve("outputs/pdeagent_task1/prediction_summary.json")
+        pred_out.parent.mkdir(parents=True, exist_ok=True)
+        with open(pred_out, "w", encoding="utf-8") as f:
+            json.dump(pred_result, f, indent=2, ensure_ascii=False)
+        print(f"[OK] Prediction summary written to: {pred_out}")
 
     # Environment info
     import os
@@ -200,6 +225,18 @@ def main(argv: list[str] | None = None) -> int:
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"\n[OK] Run summary written to: {output_path}")
+
+    # Quick-cycle: auto-parse after train+predict
+    if do_quick_cycle:
+        from scripts.parse_pdeagent_task1_run import parse_run
+        parsed = parse_run("outputs/pdeagent_task1")
+        parsed_path = resolve("outputs/pdeagent_task1/parsed_quick_summary.json")
+        parsed_path.parent.mkdir(parents=True, exist_ok=True)
+        parsed_path.write_text(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"[OK] Quick-cycle parsed summary written to: {parsed_path}")
+        status_icon = "PASS" if parsed.get("quick_pass") else "FAIL"
+        print(f"[QUICK-CYCLE] {status_icon} | train_loss={parsed.get('train_loss')} | "
+              f"first10_error={parsed.get('first10_max_error')}")
 
     return 0
 

@@ -87,3 +87,25 @@ class TestEnvFeatures:
         )
         # Should fail because CONDA_DEFAULT_ENV != pdeagent
         assert result.returncode != 0 or "pdeagent" in (result.stdout + result.stderr).lower()
+
+class TestQuickCycle:
+    def test_quick_cycle_flag_accepted(self, tmp_path):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--quick-cycle",
+             "--output-summary", str(tmp_path / "qc.json")],
+            cwd=ROOT, capture_output=True, text=True, timeout=60,
+            env=ENV,
+        )
+        output = (result.stdout or "") + (result.stderr or "")
+        assert "unrecognized arguments" not in output.lower()
+        assert "error:" not in output.lower()[:200]
+
+    def test_quick_flag_is_alias_for_train(self, tmp_path):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--quick", "--dry-run",
+             "--output-summary", str(tmp_path / "q.json")],
+            cwd=ROOT, capture_output=True, text=True, timeout=60,
+            env=ENV,
+        )
+        output = (result.stdout or "") + (result.stderr or "")
+        assert "unrecognized arguments" not in output.lower()

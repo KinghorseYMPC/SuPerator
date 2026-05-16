@@ -334,3 +334,12 @@ def test_a97_env_files_exist() -> None:
         "tests/test_check_local_pdeagent_env.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a98_quick_run_files_exist() -> None:
+    for relative_path in [
+        "scripts/parse_pdeagent_task1_run.py",
+        "docs/pdeagent_migration/task1_quick_local_run.md",
+        "tests/test_parse_pdeagent_task1_run.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
