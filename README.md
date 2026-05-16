@@ -1,37 +1,28 @@
 # SuPerator
 
-## Project Overview
+## 项目概述
 
-SuPerator is an AI4S PDE neural operator research-agent engineering project.
-The repository is organized so collaborators and coding agents can continue
-work from a fresh clone while preserving auditability across rule reading, data
-inspection, experiment records, artifact generation, validation, and git
-hygiene.
+SuPerator 是一个 AI4S（AI for Science）偏微分方程神经算子研究智能体工程项目。
+仓库的组织方式使得合作者和编程智能体能够从全新 clone 开始继续工作，同时在规则阅读、
+数据检查、实验记录、产物生成、校验和 git 卫生方面保持可审计性。
 
-Current stage: A7.1, collaboration readiness and non-interactive remote
-execution hardening. A7 added a single local-first entry point for backend
-priority selection, bounded execution, returned-output recovery, result
-comparison, validated finalization, and summary reporting.
+当前阶段：A7.2，项目全面审计已完成。A7 实现了统一的 local-first 入口点，支持后端
+优先级选择、有界执行、回传输出恢复、结果比较、校验化最终产出和摘要报告。
 
-## Compliance Boundary
+## 合规边界
 
-This repository may contain governance procedures, neutral rule
-clarifications, validators, scripts, configs, tests, and broad background
-documentation. It must not contain human-preloaded task execution strategy,
-model-selection advice, dataset-specific training plans, score optimization
-routes, or hidden action plans in skills or wiki pages.
+本仓库可以包含治理流程、中立的规则澄清、校验器、脚本、配置、测试和通用背景文档。
+**不得**包含人工预置的任务执行策略、模型选择建议、数据集特定的训练计划、
+评分优化路线，或隐藏在 skill 与 wiki 页面中的行动方案。
 
-Neutral rule and format clarifications live in
-`docs/competition_clarifications.md`. The preloaded context policy lives in
-`docs/preloaded_context_policy.md`.
+中立的规则与格式澄清存放在 `docs/competition_clarifications.md`。
+预置上下文策略存放在 `docs/preloaded_context_policy.md`。
 
-Final submission `code/` bundles should contain runnable source code, configs,
-scripts, and minimal neutral run instructions. They should not include
-`.agents/`, strategy-oriented docs, `AGENTS.md`, `README.md`, `guideline.md`,
-official data, local task log samples, outputs, experiments, checkpoints, logs,
-or large artifacts.
+最终提交的 `code/` 目录应包含可运行源代码、配置、脚本和最小化的中性运行说明。
+不应包含 `.agents/`、策略导向的文档、`AGENTS.md`、`README.md`、`guideline.md`、
+官方数据、本地 task log 样本、outputs、experiments、checkpoints、日志或大型产物。
 
-## Repository Layout
+## 仓库目录结构
 
 ```text
 SuPerator/
@@ -46,11 +37,14 @@ SuPerator/
     local_first_compute_backend.md
     preloaded_context_policy.md
     project_stage_history.md
+    project_audit/
     wiki/
+  knowledge_base/
   kaggle_kernel/
     kernel-metadata.json.template
   scripts/
     kaggle/
+    knowledge/
   src/
     agent/
     data/
@@ -60,56 +54,53 @@ SuPerator/
     models/
     submission/
     train/
+    knowledge/
   tests/
   requirements.txt
   README.md
   AGENTS.md
+  CONTRIBUTING.md
 ```
 
-## What Is Not Stored In Git
+## 不进入 Git 的内容
 
-The repository intentionally excludes generated artifacts, private settings,
-and large files. Do not commit:
+仓库有意排除生成的产物、私有设置和大文件。**禁止提交：**
 
-- official data or sample task-log material;
-- `outputs/`, `experiments/`, `kaggle_outputs/`, generated Kaggle packages, or
-  generated SLURM files;
-- checkpoints, predictions, runtime logs, zip packages, or remote bundles;
-- private backend configs, private auth files, SSH private keys, or local `.env`
-  files.
+- 官方数据和 sample task-log 材料；
+- `outputs/`、`experiments/`、`kaggle_outputs/`、生成的 Kaggle package、生成的 SLURM 文件；
+- checkpoints、predictions、运行时日志、zip 包、远程打包文件；
+- 私有 backend 配置、私有认证文件、SSH 私钥、本地 `.env` 文件。
 
-Before staging or pushing, run:
+提交或推送前请运行：
 
 ```bash
 git status
 python scripts/pre_push_audit.py
 ```
 
-## Local Setup
+## 本地环境准备
 
-Create and activate a local virtual environment, then install the lightweight
-project dependencies:
+创建并激活本地虚拟环境，然后安装轻量项目依赖：
 
 ```bash
 python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-Install `torch` separately for the target CUDA or CPU environment. The project
-does not pin a `torch` build in `requirements.txt`.
+根据目标 CUDA 或 CPU 环境单独安装 `torch`。本项目不在 `requirements.txt` 中锁定
+`torch` 构建版本。
 
-## Required Local Data Placement
+## 必要的数据放置
 
-Official data and local task log samples are local-only materials. When
-available, place them in the ignored directories expected by configs and
-validators:
+官方数据和本地 task log 样本属于仅本地材料。如果手头有这些数据，请放到 config 和
+校验器期望的 ignored 目录中：
 
 ```text
 data_and_sample_submission/
 task_log_sample/
 ```
 
-Generated submissions and run outputs stay under ignored local paths such as:
+生成的提交物和运行输出留在 ignored 本地路径中，例如：
 
 ```text
 outputs/
@@ -117,11 +108,11 @@ experiments/
 kaggle_outputs/
 ```
 
-Do not modify official raw data in place.
+不要原地修改官方原始数据。
 
-## Basic Validation Commands
+## 基础检查命令
 
-Run these checks before handing work to another collaborator:
+在把工作交给另一位合作者之前，运行以下检查：
 
 ```bash
 python scripts/check_text_encoding.py
@@ -131,7 +122,7 @@ python scripts/validate_submission.py
 pytest -q
 ```
 
-Run the project inventory smoke check when orienting a new clone:
+新 clone 之后的项目存量烟雾检查：
 
 ```bash
 python scripts/inspect_project.py
@@ -139,7 +130,7 @@ python scripts/inspect_project.py
 
 ## Dummy Submission
 
-Generate a local dummy submission without training:
+无需训练即可生成本地 dummy submission：
 
 ```bash
 python scripts/make_dummy_task1_submission.py
@@ -147,24 +138,22 @@ python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 ```
 
-The generated artifacts are written under `outputs/submission/`, which is
-ignored by git.
+生成的产物写在 `outputs/submission/` 下，该目录已被 git 忽略。
 
-## Kaggle Backend Quickstart
+## Kaggle Backend 快速入门
 
-Kaggle is an optional temporary compute backend. The local repository remains
-the source of truth for code, configs, registry records, validation, and final
-artifact audit.
+Kaggle 是可选临时计算后端。本地仓库始终是代码、配置、registry 记录、校验
+和最终产物审计的 source of truth。
 
-Local dry-runs do not call the Kaggle API:
+本地 dry-run 不会调用 Kaggle API：
 
 ```bash
 python scripts/create_kaggle_dataset_package.py --dry-run
 python scripts/create_kaggle_kernel_package.py --username placeholder --dry-run
 ```
 
-After the user manually runs a Kaggle stage and downloads outputs into an
-ignored local directory, parse, adopt, finalize, and validate locally:
+用户手动运行 Kaggle 阶段并将输出下载到 ignored 本地目录后，在本地进行
+解析、采纳、最终化和校验：
 
 ```bash
 python scripts/parse_kaggle_min_train_output.py --output-dir kaggle_outputs/task1_min_train
@@ -174,33 +163,32 @@ python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 ```
 
-See `docs/kaggle_api_runbook.md` for the local-first runbook. Do not read or
-commit Kaggle private auth files.
+详见 `docs/kaggle_api_runbook.md` 中的 local-first 操作手册。
+不要读取或提交 Kaggle 私有认证文件。
 
-## SLURM Backend Status
+## SLURM Backend 状态
 
-SLURM is an optional temporary compute backend. Current project support is
-local preparation only unless the user explicitly starts a remote stage. Do not
-run `ssh`, `scp`, `rsync`, `sbatch`, `srun`, `squeue`, or `sinfo` as part of
-normal local development.
+SLURM 是可选临时计算后端。当前项目仅支持本地准备工作，除非用户明确启动
+远程阶段。在正常本地开发中，不要运行 `ssh`、`scp`、`rsync`、`sbatch`、
+`srun`、`squeue` 或 `sinfo`。
 
-Private backend settings belong in the ignored local file:
+私有后端设置应放在 ignored 本地文件：
 
 ```text
 configs/compute_backend.local.yaml
 ```
 
-Use committed placeholder examples as starting points:
+使用已提交的占位示例作为起点：
 
 ```text
 configs/compute_backend.example.yaml
 configs/compute_backend.local.yaml.example
 ```
 
-SLURM configs must declare `env_type` as `conda`, `venv`, or `direct_python`.
-The current prepared flow supports venv/direct Python environments and does not assume `conda` exists.
+SLURM 配置必须声明 `env_type` 为 `conda`、`venv` 或 `direct_python`。
+当前已准备的流程支持 venv/direct Python 环境，不假定 `conda` 存在。
 
-Relevant documents:
+相关文档：
 
 - `docs/local_first_compute_backend.md`
 - `docs/slurm_usage_template.md`
@@ -209,9 +197,8 @@ Relevant documents:
 
 ## Task 1 Auto Loop
 
-The A5 Task 1 controller wraps local-first Kaggle orchestration, returned-output
-parsing, adoption, final submission generation, validators, and repository
-audit from one entry point:
+A5 Task 1 控制器以单一入口包装 local-first Kaggle 编排、回传输出解析、
+采纳、最终提交生成、校验器和仓库审计：
 
 ```bash
 python scripts/run_task1_auto_loop.py --backend kaggle
@@ -219,43 +206,42 @@ python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
 python scripts/summarize_task1_auto_loop.py
 ```
 
-Use `--resume-from-output` only when returned Kaggle output already exists in
-the ignored local output directory. Generated Kaggle output, checkpoints,
-predictions, logs, and submission zip files remain ignored local artifacts.
+仅在 ignored 本地输出目录中已有回传 Kaggle 输出时才使用 `--resume-from-output`。
+生成的 Kaggle 输出、checkpoints、predictions、日志和 submission zip 文件
+均为 ignored 本地产物。
 
 ## Task 1 Experiment Suite
 
-The A6 suite controller generates tracked experiment configs, selects an
-available compute backend candidate, records a suite summary under ignored
-`outputs/`, and compares returned local result summaries. It does not submit
-SLURM jobs. It does not call the Kaggle API unless run with
-`--backend kaggle --execute`.
+A6 suite 控制器生成带追踪的实验配置，选择一个可用的计算后端候选，
+在 ignored `outputs/` 下记录 suite 摘要，并比较回传的本地结果摘要。
+它不会提交 SLURM 作业，也不会调用 Kaggle API（除非使用
+`--backend kaggle --execute`）。
 
-Generate suite configs:
+生成 suite 配置：
 
 ```bash
 python scripts/run_task1_experiment_suite.py --generate-configs-only
 ```
 
-Dry-run the selected backend plan:
+对选定的后端方案进行 dry-run：
 
 ```bash
 python scripts/run_task1_experiment_suite.py --dry-run
 ```
 
-Resume from existing returned Kaggle output:
+从已有回传 Kaggle 输出恢复：
 
 ```bash
 python scripts/run_task1_experiment_suite.py --backend kaggle --resume
 ```
 
-Compare collected results:
+比较收集到的结果：
 
 ```bash
 python scripts/compare_task1_results.py
 ```
 
-Finalize the top ranked result from the comparison report:
+从比较报告中选出排名第一的结果并最终化：
 
 ```bash
 python scripts/finalize_best_task1_result.py
@@ -263,48 +249,45 @@ python scripts/finalize_best_task1_result.py
 
 ## Task 1 Full Auto Experiment
 
-The A7 controller uses the configured backend priority order SLURM, Kaggle,
-then local GPU / CPU fallback. It writes its run summary under ignored
-`outputs/` and does not push to git.
+A7 控制器使用配置的后端优先级顺序：SLURM → Kaggle → 本地 GPU/CPU fallback。
+它将运行摘要写在 ignored `outputs/` 下，不会推送到 git。
 
-Dry-run the full-auto plan without remote calls or training:
+对全自动方案进行 dry-run（不连接远程、不训练）：
 
 ```bash
 python scripts/run_task1_full_auto_experiment.py --dry-run
 ```
 
-Resume from already downloaded Kaggle output:
+从已下载的 Kaggle 输出恢复：
 
 ```bash
 python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume
 ```
 
-Execute the configured full-auto backend sequence:
+执行配置的全自动后端序列：
 
 ```bash
 python scripts/run_task1_full_auto_experiment.py --backend auto --execute
 ```
 
-Summarize the latest full-auto run:
+汇总最近一次全自动运行：
 
 ```bash
 python scripts/summarize_task1_full_auto.py
 ```
 
-`--execute` may call SLURM, Kaggle, or local training depending on the selected
-backend and fallback outcome. Generated outputs, returned artifacts,
-checkpoints, runtime logs, and submission zip files remain in ignored local
-directories. If a remote backend fails, the summary records the backend attempt
-and recovery commands when available.
+`--execute` 可能调用 SLURM、Kaggle 或本地训练，具体取决于选定的后端和
+fallback 结果。生成的输出、回传产物、checkpoints、运行时日志和 submission
+zip 文件留在 ignored 本地目录中。若远程后端失败，摘要会记录后端尝试情况
+和可用的恢复命令。
 
-Remote shell and file-transfer commands used by the full-auto controller must
-run in non-interactive mode and fail quickly when private auth is not ready;
-the controller should then record the failed backend attempt and continue
-fallback according to config.
+全自动控制器使用的远程 shell 和文件传输命令必须在非交互模式下运行，
+并在私有认证未就绪时快速失败；控制器随后记录失败的后端尝试，
+并根据配置继续 fallback。
 
-## Collaboration Workflow
+## 协作方式
 
-Collaborators should read:
+合作者应阅读：
 
 - `CONTRIBUTING.md`
 - `docs/collaboration_workflow.md`
@@ -313,52 +296,47 @@ Collaborators should read:
 - `docs/literature_library_policy.md`
 - `docs/wiki/README.md`
 
-The stable `main` branch should receive reviewed changes only. Use separate
-branches for the code-loop route and the knowledge-base route.
+稳定的 `main` 分支只应接收已审核的变更。code-loop 路线和 knowledge-base
+路线应使用独立分支。
 
-The knowledge-base route is for automated literature library management and
-automated research knowledge-base management: paper search workflow design,
-PDF download workflow design into ignored local storage, metadata,
-classification, Markdown literature cards, paper summaries, academic concept
-notes, and links between papers and knowledge points. It may cover broad PDE,
-neural operator, operator learning, Burgers equation, FNO, DeepONet, and
-PI-DeepONet knowledge.
+knowledge-base 路线专注于自动化文献库管理和自动化研究知识库管理：
+论文检索工作流设计、PDF 下载工作流设计（下载到 ignored 本地存储）、
+元数据、分类、Markdown 文献卡片、论文摘要、学术概念笔记，以及论文与
+知识点之间的链接。可以覆盖广泛的 PDE、神经算子、算子学习、Burgers 方程、
+FNO、DeepONet 和 PI-DeepONet 知识。
 
-SLURM, Kaggle, HDF5, Git, and experiment-recording procedures belong in
-skills, engineering workflows, or tooling docs. They are not the knowledge-base
-content body.
+SLURM、Kaggle、HDF5、Git 和实验记录流程属于 skill、工程工作流或
+工具文档，不是 knowledge-base 内容主体。
 
-Knowledge-base content must not contain competition-specific execution plans,
-concrete model-parameter adjustment paths, competition scoring-improvement
-advice, or human-preloaded Agent action routes.
+知识库内容不得包含竞赛特定的执行计划、具体的模型参数调整路径、
+竞赛评分提升建议或人工预置的 Agent 行动路线。
 
-## Submission Validation
+## Submission 校验
 
-Task logs must be JSON Lines. Every non-blank line must be one valid JSON
-object with:
+Task log 必须为 JSON Lines 格式。每个非空行必须是一个合法的 JSON 对象，包含：
 
-- `timestamp`: timezone-aware ISO 8601 timestamp;
-- `elapsed_seconds`: non-negative number;
-- `response` or `tool_calls`: non-empty Agent output content.
+- `timestamp`：带时区的 ISO 8601 时间戳；
+- `elapsed_seconds`：非负数；
+- `response` 或 `tool_calls`：非空的 Agent 输出内容。
 
-The timestamp span for one task log must not exceed 12 hours. Do not forge LLM
-logs. Local development summary logs are useful for structural validation, but
-final provenance should prefer a complete API proxy LLM log or another complete
-LLM call export when available.
+单个 task log 的时间戳跨度不得超过 12 小时。禁止伪造 LLM 日志。
+本地开发摘要日志（development summary log）可用于结构校验，
+但最终溯源应优先使用完整的 API 代理 LLM 日志或其他完整的 LLM 调用
+导出记录（当可获得时）。
 
-Validation commands:
+校验命令：
 
 ```bash
 python scripts/validate_task_logs.py
 python scripts/validate_submission.py
 ```
 
-If `validate_submission.py` reports that `outputs/submission/submission` does
-not exist, generate the dummy submission first.
+若 `validate_submission.py` 报告 `outputs/submission/submission` 不存在，
+请先生成 dummy submission。
 
-## Common Recovery Commands
+## 常见恢复命令
 
-Use these local commands to recover from common collaborator states:
+用以下本地命令从常见协作状态中恢复：
 
 ```bash
 git status --short --branch
@@ -369,25 +347,27 @@ python scripts/pre_push_audit.py
 pytest -q
 ```
 
-For already downloaded Kaggle output:
+对于已下载的 Kaggle 输出：
 
 ```bash
 python scripts/run_task1_auto_loop.py --backend kaggle --resume-from-output
 python scripts/summarize_task1_auto_loop.py
 ```
 
-## Development Hygiene
+## 开发卫生
 
-- Keep changes small and reviewable.
-- Read `AGENTS.md` and the relevant `.agents/skills/` file before editing.
-- Use configs or relative paths instead of user-specific absolute paths.
-- Keep skills generic and procedural.
-- Do not add task execution strategy, model-choice routes, or scoring advice to
-  skills, wiki pages, README, or AGENTS.
-- Run relevant validators after meaningful changes.
-- Stage intentionally and inspect staged changes before commit.
-- Do not push unless the user explicitly requests it.
+- 保持变更为小而可审查。
+- 编辑前先阅读 `AGENTS.md` 和相关 `.agents/skills/` 文件。
+- 使用 config 或相对路径，而非用户特定的绝对路径。
+- 保持 skill 为通用流程。
+- 不要向 skill、wiki 页面、README 或 AGENTS 中添加任务执行策略、
+  模型选择路线或评分建议。
+- 有意义的变更后运行相关校验器。
+- 有意识地暂存文件，提交前检查 staged diff。
+- 除非用户明确要求，否则不要 push。
 
-## Stage History Link
+## 阶段历史与审计
 
-Engineering stage history is recorded in `docs/project_stage_history.md`.
+工程阶段历史记录在 `docs/project_stage_history.md`。
+工程执行日志记录在 `docs/engineering_execution_log.md`。
+项目全面审计文档位于 `docs/project_audit/README.md`。

@@ -52,13 +52,13 @@ def test_readme_documents_collaborator_onboarding_sections() -> None:
     readme = read_text("README.md").lower()
 
     for phrase in [
-        "project overview",
-        "local setup",
-        "basic validation commands",
-        "kaggle backend quickstart",
+        "superator",
+        "python -m venv .venv",
+        "python scripts/check_text_encoding.py",
+        "kaggle backend",
         "task 1 experiment suite",
-        "collaboration workflow",
-        "stage history",
+        "collaboration_workflow.md",
+        "project_stage_history.md",
     ]:
         assert phrase in readme
 
@@ -190,7 +190,7 @@ def test_readme_documents_a6_suite_commands() -> None:
 def test_readme_documents_a7_full_auto_commands() -> None:
     readme = read_text("README.md")
 
-    assert "Task 1 Full Auto Experiment" in readme
+    assert "task 1 full auto experiment" in readme.lower()
     for command in [
         "python scripts/run_task1_full_auto_experiment.py --dry-run",
         "python scripts/run_task1_full_auto_experiment.py --backend kaggle --resume",
@@ -223,4 +223,4 @@ def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:
     assert "conda" in readme
     assert "venv" in readme
     assert "direct_python" in readme
-    assert "does not assume `conda` exists" in readme
+    assert "不假定" in readme and "conda" in readme
