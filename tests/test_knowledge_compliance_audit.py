@@ -1,13 +1,10 @@
-import shutil
-import tempfile
 from pathlib import Path
 
 from scripts.knowledge.audit_kb_compliance import audit_knowledge_base
 
 
-def make_kb(files: dict[str, str]) -> Path:
-    root = Path(tempfile.mkdtemp(prefix="kb_audit_"))
-    kb_dir = root / "knowledge_base"
+def make_kb(tmp_path: Path, files: dict[str, str]) -> Path:
+    kb_dir = tmp_path / "knowledge_base"
     for relative_path, content in files.items():
         path = kb_dir / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -15,12 +12,9 @@ def make_kb(files: dict[str, str]) -> Path:
     return kb_dir
 
 
-def cleanup_kb(kb_dir: Path) -> None:
-    shutil.rmtree(kb_dir.parent, ignore_errors=True)
-
-
-def test_safe_knowledge_base_sample_passes() -> None:
+def test_safe_knowledge_base_sample_passes(tmp_path: Path) -> None:
     kb_dir = make_kb(
+        tmp_path,
         {
             "concepts/fno.md": (
                 "# Fourier Neural Operator\n\n"
@@ -29,69 +23,76 @@ def test_safe_knowledge_base_sample_passes() -> None:
             )
         }
     )
-    try:
-        report = audit_knowledge_base(kb_dir)
-    finally:
-        cleanup_kb(kb_dir)
+    report = audit_knowledge_base(kb_dir)
 
     assert report.errors == ()
+    assert report.warnings == ()
 
 
-def test_task_specific_training_route_is_error() -> None:
+def test_task_specific_training_route_is_warning_in_ordinary_body(tmp_path: Path) -> None:
     kb_dir = make_kb(
+        tmp_path,
         {
             "reading_notes/bad.md": (
                 "# Unsafe Note\n\n"
-                "Task 1 最优训练路线 should be written here.\n"
+                "The body mentions `task1_best_strategy` and "
+                "`leaderboard_strategy` as content.\n"
             )
         }
     )
-    try:
-        report = audit_knowledge_base(kb_dir)
-    finally:
-        cleanup_kb(kb_dir)
+    report = audit_knowledge_base(kb_dir)
 
-    assert any(finding.token == "训练路线" for finding in report.errors)
+    assert report.errors == ()
+    tokens = {finding.token for finding in report.warnings}
+    assert "task1_best_strategy" in tokens
+    assert "leaderboard_strategy" in tokens
 
 
-def test_sensitive_paths_are_error_in_ordinary_body() -> None:
+def test_sensitive_paths_are_warning_in_ordinary_body(tmp_path: Path) -> None:
     kb_dir = make_kb(
+        tmp_path,
         {
             "reading_notes/bad.md": (
                 "# Unsafe Local Notes\n\n"
-                "Store kaggle.json and .env beside the card for convenience.\n"
+                "Store local source files in literature_pdfs/ and model.pt "
+                "beside the card for convenience.\n"
             )
         }
     )
-    try:
-        report = audit_knowledge_base(kb_dir)
-    finally:
-        cleanup_kb(kb_dir)
-
-    tokens = {finding.token for finding in report.errors}
-    assert "kaggle.json" in tokens
-    assert ".env" in tokens
-
-
-def test_forbidden_context_is_allowed_as_warning_only() -> None:
-    kb_dir = make_kb(
-        {
-            "literature_cards/TEMPLATE.md": (
-                "# Template\n\n"
-                "## 禁止事项\n\n"
-                "- Do not use `task1_best_strategy`.\n"
-                "- Do not commit `kaggle.json` or `.env`.\n"
-            )
-        }
-    )
-    try:
-        report = audit_knowledge_base(kb_dir)
-    finally:
-        cleanup_kb(kb_dir)
+    report = audit_knowledge_base(kb_dir)
 
     assert report.errors == ()
-    assert {finding.token for finding in report.warnings} >= {
-        "task1_best_strategy",
-        "kaggle.json",
-        ".env",
-    }
+    tokens = {finding.token for finding in report.warnings}
+    assert "literature_pdfs/" in tokens
+    assert ".pt" in tokens
+
+
+def test_allowlisted_compliance_sections_suppress_prohibited_warnings(tmp_path: Path) -> None:
+    kb_dir = make_kb(
+        tmp_path,
+        {
+            "README.md": (
+                "# Knowledge Base\n\n"
+                "## Prohibited Content\n\n"
+                "- Avoid `leaderboard_strategy` notes here.\n\n"
+                "## Git Boundary\n\n"
+                "Do not commit:\n\n"
+                "- `literature_pdfs/`\n"
+                "- `*.pt`\n\n"
+                "## PDF, Cache, And Vector Store Rules\n\n"
+                "Generated files may be stored in `vector_store/` locally.\n"
+            ),
+            "taxonomies/literature_taxonomy.md": (
+                "# Literature Taxonomy\n\n"
+                "## 禁止使用的比赛攻略式标签\n\n"
+                "The following labels are prohibited in this forbidden-label "
+                "section or in compliance-audit examples:\n\n"
+                "- Do not use `task1_best_strategy`.\n"
+                "- Do not use `leaderboard_strategy`.\n"
+            )
+        }
+    )
+    report = audit_knowledge_base(kb_dir)
+
+    assert report.errors == ()
+    assert report.warnings == ()

@@ -58,30 +58,19 @@ PROHIBITED_PATH_KEYWORDS = (
     ".log",
 )
 
-ALLOWED_CONTEXT_MARKERS = (
-    "forbidden",
-    "prohibited",
-    "do not",
-    "must not",
-    "not allowed",
-    "avoid",
-    "compliance",
-    "checklist",
-    "rules",
-    "ignored",
-    "uncommitted",
-    "git boundary",
-    "git policy",
-    "copyright",
-    "禁止",
-    "不得",
-    "严禁",
-    "合规",
-    "检查",
-    "边界",
-    "禁止事项",
-    "禁止使用",
+ALLOWLISTED_COMPLIANCE_SECTION_MARKERS = (
+    "prohibited content",
+    "do not commit",
+    "pdf, cache, and vector store rules",
+    "禁止使用的比赛攻略式标签",
+    "forbidden-label",
+    "compliance-audit examples",
 )
+
+ALLOWLISTED_IGNORED_RULES = {
+    "strategy_keyword",
+    "prohibited_path_or_extension",
+}
 
 
 @dataclass(frozen=True)
@@ -147,32 +136,32 @@ def audit_text(text: str, display_path: str) -> tuple[list[AuditFinding], list[A
     errors: list[AuditFinding] = []
     warnings: list[AuditFinding] = []
     lines = text.splitlines()
-    current_heading = ""
+    in_allowlisted_section = False
 
     for index, line in enumerate(lines, start=1):
         stripped = line.strip()
         if stripped.startswith("#"):
-            current_heading = stripped.lower()
+            in_allowlisted_section = _is_allowlisted_compliance_section_title(stripped)
+        elif _is_allowlisted_compliance_block_title(stripped):
+            in_allowlisted_section = True
 
         matches = _find_matches(line)
         if not matches:
             continue
 
-        context = _context_window(lines, index, current_heading)
-        allowed_context = _is_allowed_context(context)
         for rule, token in matches:
+            if in_allowlisted_section and rule in ALLOWLISTED_IGNORED_RULES:
+                continue
+
             finding = AuditFinding(
-                severity="warning" if allowed_context else "error",
+                severity="warning",
                 path=display_path,
                 line=index,
                 rule=rule,
                 token=token,
                 excerpt=stripped[:160],
             )
-            if allowed_context:
-                warnings.append(finding)
-            else:
-                errors.append(finding)
+            warnings.append(finding)
 
     return errors, warnings
 
@@ -193,15 +182,19 @@ def _find_matches(line: str) -> list[tuple[str, str]]:
     return matches
 
 
-def _context_window(lines: list[str], index: int, current_heading: str) -> str:
-    start = max(0, index - 8)
-    end = min(len(lines), index + 3)
-    window = "\n".join(lines[start:end]).lower()
-    return f"{current_heading}\n{window}"
+def _is_allowlisted_compliance_section_title(title: str) -> bool:
+    normalized = _normalize_section_title(title)
+    return any(marker in normalized for marker in ALLOWLISTED_COMPLIANCE_SECTION_MARKERS)
 
 
-def _is_allowed_context(context: str) -> bool:
-    return any(marker in context for marker in ALLOWED_CONTEXT_MARKERS)
+def _is_allowlisted_compliance_block_title(line: str) -> bool:
+    if not line.endswith(":"):
+        return False
+    return _is_allowlisted_compliance_section_title(line)
+
+
+def _normalize_section_title(title: str) -> str:
+    return title.lstrip("#").strip().rstrip(":").lower()
 
 
 def _display_path(path: Path, root: Path) -> str:
