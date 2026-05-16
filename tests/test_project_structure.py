@@ -286,3 +286,19 @@ def test_a93_scoring_adapter_files_exist() -> None:
         "docs/pdeagent_migration/scoring_adapter.md",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a94_baseline_adapter_files_exist() -> None:
+    for relative_path in [
+        "src/adapters/pdeagent/model_adapter.py",
+        "src/adapters/pdeagent/dataset_adapter.py",
+        "src/adapters/pdeagent/inference_adapter.py",
+        "configs/pdeagent_baseline_smoke.yaml",
+        "scripts/smoke_pdeagent_baseline_adapter.py",
+        "docs/pdeagent_migration/baseline_adapter.md",
+        "tests/test_pdeagent_model_adapter.py",
+        "tests/test_pdeagent_dataset_adapter.py",
+        "tests/test_pdeagent_inference_adapter.py",
+        "tests/test_pdeagent_baseline_smoke.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

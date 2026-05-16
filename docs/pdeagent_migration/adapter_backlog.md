@@ -19,12 +19,12 @@
 
 ---
 
-## A9.4 — ChunkedFNO1d Model Adapter
+## A9.4 — Baseline Adapter ✅ (COMPLETED 2026-05-16)
 
 **优先级**：P0  
-**目标**：将 ChunkedFNO1d 模型适配为 SuPerator 可用的正式模块  
-**来源**：`external_references/pdeagent_code_ref/code-ref/model.py`  
-**预计复杂度**：低-中（~2 天）
+**目标**：将 pdeagent baseline (model + dataset + inference) 适配为 SuPerator smoke-compatible 基线  
+**来源**：`external_references/pdeagent_code_ref/code-ref/model.py, dataset.py, infer.py`  
+**状态**：完成
 
 **交付物**：
 - `src/adapters/pdeagent/model_adapter.py`

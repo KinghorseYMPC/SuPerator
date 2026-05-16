@@ -365,3 +365,51 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.4 — Baseline Adapter Creation
+
+- stage: A9.4
+- started_at: 2026-05-16
+- purpose: create pdeagent baseline adapter (model + dataset + inference) as
+  smoke-compatible skeleton, with config and smoke script.
+- files created:
+  - `docs/pdeagent_migration/baseline_adapter.md`
+  - `src/adapters/pdeagent/model_adapter.py`
+  - `src/adapters/pdeagent/dataset_adapter.py`
+  - `src/adapters/pdeagent/inference_adapter.py`
+  - `configs/pdeagent_baseline_smoke.yaml`
+  - `scripts/smoke_pdeagent_baseline_adapter.py`
+  - `tests/test_pdeagent_model_adapter.py`
+  - `tests/test_pdeagent_dataset_adapter.py`
+  - `tests/test_pdeagent_inference_adapter.py`
+  - `tests/test_pdeagent_baseline_smoke.py`
+- files modified:
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+- implementation summary:
+  - Model adapter: SpectralConv1d + FNOBlock1d + PdeAgentBaselineModel
+    (clean-room minimal FNO, forward shape (B,Tin,X)→(B,Tout,X))
+  - Dataset adapter: make_window_indices, WindowSpec, Normalizer,
+    inspect_pdeagent_data_shape (no full training DataLoader)
+  - Inference adapter: autoregressive_predict (step-by-step rollout,
+    first 10 steps = GT, returns (B,total_steps,X))
+  - Smoke config: pdeagent_baseline_smoke.yaml (no data paths, no API keys)
+  - Smoke script: synthetic data test, graceful skip if torch unavailable
+- scope boundary:
+  - No model training
+  - No real data loaded
+  - No submission generated
+  - No replacement of SuPerator main training/inference/submission flows
+  - Model is smoke-compatible skeleton, not full ChunkedFNO1d (A9.5)
+  - No Task 2 FiLM/nu_estimator support (A9.6)
+- validation:
+  - `python scripts/smoke_pdeagent_baseline_adapter.py`: smoke script runs (skip if torch unavailable)
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending

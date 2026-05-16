@@ -23,16 +23,15 @@
 | [api_compatibility_matrix.md](api_compatibility_matrix.md) | A9.2 API 兼容性矩阵（17 项） |
 | [adapter_backlog.md](adapter_backlog.md) | A9.2 后续子阶段 backlog（A9.3 → A10） |
 | [scoring_adapter.md](scoring_adapter.md) | A9.3 Scoring Adapter 实现文档 |
+| [baseline_adapter.md](baseline_adapter.md) | A9.4 Baseline Adapter 设计文档 |
 
 ## 当前阶段状态
 
-**A9.3** — Scoring Adapter 实现 **（当前阶段）**
-- 已实现 `src/adapters/pdeagent/scoring.py`（clean-room, numpy only）
-- 完整的 3 段评分（S1/S2/S3），含 Frechet distance
-- `compare_with_supertor_proxy` 可对比 adapter 与 SuPerator proxy
-- 已通过 22 项 pytest 测试
-- **未修改 SuPerator 训练 / 推理 / submission 流程**
-- **未引入外部运行时依赖**
+**A9.4** — Baseline Adapter 创建 **（当前阶段）**
+- 已实现 3 个 adapter：model（SpectralConv1d + FNOBlock + rollout）、dataset（window indices）、inference（autoregressive rollout）
+- Smoke script 可运行（synthetic data，无 I/O）
+- **未修改 SuPerator 训练 / 推理 / submission 主流程**
+- **当前为 smoke-compatible skeleton，后续可升级为完整 ChunkedFNO1d**
 
 ## 核心原则
 
