@@ -275,3 +275,14 @@ def test_a91_pdeagent_migration_docs_exist() -> None:
         "docs/pdeagent_migration/next_steps.md",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a93_scoring_adapter_files_exist() -> None:
+    for relative_path in [
+        "src/adapters/__init__.py",
+        "src/adapters/pdeagent/__init__.py",
+        "src/adapters/pdeagent/scoring.py",
+        "tests/test_pdeagent_scoring_adapter.py",
+        "docs/pdeagent_migration/scoring_adapter.md",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

@@ -4,25 +4,18 @@
 
 ---
 
-## A9.3 — Scoring Adapter
+## A9.3 — Scoring Adapter ✅ (COMPLETED 2026-05-16)
 
 **优先级**：P0（最高）  
 **目标**：将 pdeagent `compute_segment_scores` 适配为 SuPerator 正式评分模块  
 **来源**：`external_references/pdeagent_code_ref/code-ref/utils.py`  
-**预计复杂度**：低（~1 天）
+**状态**：完成
 
-**交付物**：
-- `src/adapters/pdeagent/scoring.py` 或等效模块
-- 测试文件覆盖已知答案、NaN 边界、shape 错误
-- SuPerator `validate_submission` 不改动
-
-**验收标准**：
-- `compute_segment_scores(np_pred, np_gt)` 返回格式与 pdeagent 原版一致
-- S3 = `max(100/(1+10*RMSE), 50*exp(-FD²))` 正确
-- Rel-MSE clamp(max=5.0) 逐样本逐时间步
-- 总分 = 0.25*S1 + 0.25*S2 + 0.5*S3
-
-**依赖**：无（纯函数，无需模型或数据）
+**已交付**：
+- `src/adapters/pdeagent/scoring.py` — clean-room numpy 实现
+- `tests/test_pdeagent_scoring_adapter.py` — 22 项测试
+- `docs/pdeagent_migration/scoring_adapter.md` — 实现文档
+- 所有测试通过
 
 ---
 

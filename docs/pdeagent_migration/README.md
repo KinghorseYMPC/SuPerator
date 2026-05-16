@@ -22,18 +22,17 @@
 | [adapter_design.md](adapter_design.md) | A9.2 Adapter 接口设计（7 层） |
 | [api_compatibility_matrix.md](api_compatibility_matrix.md) | A9.2 API 兼容性矩阵（17 项） |
 | [adapter_backlog.md](adapter_backlog.md) | A9.2 后续子阶段 backlog（A9.3 → A10） |
+| [scoring_adapter.md](scoring_adapter.md) | A9.3 Scoring Adapter 实现文档 |
 
 ## 当前阶段状态
 
-**A9.2** — 静态兼容性分析与 Adapter 设计 **（当前阶段）**
-- 已完成静态 AST 分析（12 个文件，不执行）
-- 已设计 7 层 adapter 接口
-- 已建立 API 兼容性矩阵
-- 已规划后续 6 个子阶段
-- **未接入 SuPerator 主流程**
-- **未运行 pdeagent 代码**
-- **未复制代码到 src/models / src/train**
-- external_references 仍是 isolated reference
+**A9.3** — Scoring Adapter 实现 **（当前阶段）**
+- 已实现 `src/adapters/pdeagent/scoring.py`（clean-room, numpy only）
+- 完整的 3 段评分（S1/S2/S3），含 Frechet distance
+- `compare_with_supertor_proxy` 可对比 adapter 与 SuPerator proxy
+- 已通过 22 项 pytest 测试
+- **未修改 SuPerator 训练 / 推理 / submission 流程**
+- **未引入外部运行时依赖**
 
 ## 核心原则
 

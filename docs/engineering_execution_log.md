@@ -322,3 +322,46 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.3 — Scoring Adapter Implementation
+
+- stage: A9.3
+- started_at: 2026-05-16
+- purpose: implement pdeagent scoring adapter as clean-room numpy module,
+  adapting the official 3-segment competition scores with Frechet distance.
+- files created:
+  - `src/adapters/__init__.py`
+  - `src/adapters/pdeagent/__init__.py`
+  - `src/adapters/pdeagent/scoring.py`
+  - `tests/test_pdeagent_scoring_adapter.py`
+  - `docs/pdeagent_migration/scoring_adapter.md`
+- files modified:
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+- implementation summary:
+  - 7 public functions: rel_mse_by_segment, rmse, frechet_distance_1d,
+    lorentzian_score, frechet_score, segment_scores, compare_with_supertor_proxy
+  - Pure numpy — no torch, no pdeagent runtime dependency
+  - Frechet distance: lightweight mean/std proxy (matching pdeagent reference)
+  - Segment split: [0:48, 48:96, 96:190] (matching pdeagent convention)
+  - compare_with_supertor_proxy bridges adapter output with SuPerator proxy
+- test coverage:
+  - 22 pytest tests covering: perfect prediction, shape mismatch, NaN/Inf
+    guards, score range, cap behaviour, worse-pred-lower-score monotonicity,
+    compare helper
+- scope boundary:
+  - No model training or inference
+  - No modification to SuPerator training/inference/submission flows
+  - No external runtime dependencies introduced
+  - src/eval/task1_metrics.py NOT modified
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending
