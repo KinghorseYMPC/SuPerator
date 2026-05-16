@@ -14,27 +14,34 @@ compute-backend flows, compliance posture, and cleanup candidates. It does not
 cover model performance reviews, competition score trajectories, hyperparameter
 ablation studies, or leaderboard analysis.
 
-## Documents Created
+## Documents
 
 | Document | Description |
 |---|---|
 | [README.md](README.md) | This index. |
 | [task_definition.md](task_definition.md) | Project goals, route boundaries, capabilities, tools, compliance, and known limitations. |
+| [architecture_overview.md](architecture_overview.md) | Repository layout, source module map, entry-point scripts, config hierarchy, test coverage, documentation system, skill system, and route boundaries. |
+| [code_workflows.md](code_workflows.md) | All 10 project workflows: dummy submission, local training, Kaggle training, Kaggle adoption, auto loop, experiment suite, full auto, submission validation, knowledge-base metadata/card, and pre-push audit. |
+| [data_flow.md](data_flow.md) | HDF5 input placement, checkpoint lifecycle, inference output, submission packaging, Kaggle dataset flow, knowledge-base literature flow, and git boundary rules. |
+| [compute_backend_flow.md](compute_backend_flow.md) | SLURM / Kaggle / local backend capabilities, known issues, full-auto priority selection, fallback/resume mechanisms, and remaining manual intervention points. |
+| [code_inventory_and_cleanup_candidates.md](code_inventory_and_cleanup_candidates.md) | Script and module inventory with status labels, duplication analysis, test coverage gaps, and candidates for consolidation/deprecation. No code is deleted in this stage. |
+| [security_and_compliance_risks.md](security_and_compliance_risks.md) | 14 risks covering credentials, Kaggle token, SSH config, large files, task log provenance, remote execution, network failure, knowledge-base strategy, and environment stability. Each with severity and recommended actions. |
+| [improvement_plan.md](improvement_plan.md) | Prioritized engineering improvements: P0 (7 items), P1 (6 items), P2 (6 items) covering provenance, controller stability, SLURM/Kaggle reliability, knowledge-base pipeline, and Task 2 preparation. |
 
-## Planned Documents
+## A7.2 Audit Coverage
 
-The following documents are planned for future audit stages:
+The A7.2 audit has covered the following areas:
 
-1. **architecture_overview.md** — repository layout, source module map, entry-point scripts, and config hierarchy.
-2. **code_workflows.md** — Task 1 full-auto experiment flow, suite experiment flow, auto-loop flow, and dummy-submission flow.
-3. **data_flow.md** — HDF5 input placement, checkpoint lifecycle, inference output, and submission packaging flow.
-4. **compute_backend_flow.md** — SLURM / Kaggle / local backend priority, non-interactive execution, fallback, and recovery paths.
-5. **security_and_compliance_risks.md** — credential isolation, ignored-path coverage, log provenance gaps, and external-intake risk review.
-6. **code_inventory_and_cleanup_candidates.md** — dead-code detection, orphan configs, unused imports, and candidate removal list.
-7. **improvement_plan.md** — prioritized engineering improvements derived from audit findings.
-
-None of these documents are created yet. They will be added incrementally in
-future audit stages.
+| Area | Document | Status |
+|---|---|---|
+| Task definition | [task_definition.md](task_definition.md) | Completed A7.2a |
+| Architecture | [architecture_overview.md](architecture_overview.md) | Completed A7.2b |
+| Workflows | [code_workflows.md](code_workflows.md) | Completed A7.2b |
+| Data flow | [data_flow.md](data_flow.md) | Completed A7.2c |
+| Compute backend | [compute_backend_flow.md](compute_backend_flow.md) | Completed A7.2c |
+| Code inventory | [code_inventory_and_cleanup_candidates.md](code_inventory_and_cleanup_candidates.md) | Completed A7.2d |
+| Risks | [security_and_compliance_risks.md](security_and_compliance_risks.md) | Completed A7.2d |
+| Improvement plan | [improvement_plan.md](improvement_plan.md) | Completed A7.2e |
 
 ## Code-Loop vs. Knowledge-Base Boundary
 
@@ -79,5 +86,9 @@ YAML, but PDFs, caches, vector stores, and generated indexes must stay ignored.
    (A7) with SLURM/Kaggle/local fallback.
 9. The codebase carries a `development_summary_log` provenance warning that
    signals the current task log is structural, not a complete API-proxy LLM log.
-10. This audit is minimal and does not prescribe model choices, hyperparameter
-    tuning, or scoring routes.
+10. The A7.2 audit has produced 8 documents covering architecture, workflows,
+    data flow, compute backends, code inventory, risks, and an improvement plan.
+11. The highest-priority gap is the absence of an automated API-proxy LLM log
+    capture pipeline (P0).
+12. This audit does not prescribe model choices, hyperparameter tuning, or
+    scoring routes.

@@ -4,6 +4,59 @@ This document records engineering execution facts for SuPerator stages. It does
 not define model-selection advice, dataset-specific training plans, score
 optimization routes, or competition task execution strategy.
 
+## A7.2 - Project Audit Documentation
+
+- stage: A7.2
+- started_at: 2026-05-16
+- purpose: complete comprehensive project audit documentation covering
+  architecture, workflows, data flow, compute backends, code inventory,
+  security/compliance risks, and improvement planning.
+- files created:
+  - `docs/project_audit/architecture_overview.md`
+  - `docs/project_audit/code_workflows.md`
+  - `docs/project_audit/data_flow.md`
+  - `docs/project_audit/compute_backend_flow.md`
+  - `docs/project_audit/code_inventory_and_cleanup_candidates.md`
+  - `docs/project_audit/security_and_compliance_risks.md`
+  - `docs/project_audit/improvement_plan.md`
+- files modified:
+  - `docs/project_audit/README.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_audit_docs.py`
+- audit coverage:
+  - task definition (A7.2a, committed in `0fa8629`);
+  - architecture overview (A7.2b);
+  - code workflows (A7.2b);
+  - data flow (A7.2c);
+  - compute backend flow (A7.2c);
+  - code inventory and cleanup candidates (A7.2d);
+  - security and compliance risks (A7.2d);
+  - improvement plan (A7.2e).
+- scope boundary:
+  - this stage audits and documents only;
+  - no model training, no Kaggle API calls, no SLURM connections;
+  - no large-scale refactoring;
+  - no code deletion;
+  - no model optimization strategy or competition scoring advice.
+- known limitations:
+  - the audit is based on code structure and documentation review, not runtime
+    profiling or load testing;
+  - cleanup candidates are suggestions only; no code is removed;
+  - task log provenance gap (development_summary_log) is identified as the
+    highest-priority compliance risk;
+  - SLURM end-to-end training cycle has not been fully tested with non-interactive
+    SSH and queue delays;
+  - knowledge-base pipeline scripts produce placeholder content (`待补充`) for
+    most fields and require human review.
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run.
+  - `python scripts/pre_push_audit.py`: to be run.
+  - `python scripts/validate_task_logs.py`: to be run.
+  - `python scripts/validate_submission.py`: to be run.
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run.
+  - targeted pytest: to be run.
+- commit hash: pending.
+
 ## A7.1 Follow-Up - Knowledge Base Route Definition
 
 - stage: A7.1 follow-up
