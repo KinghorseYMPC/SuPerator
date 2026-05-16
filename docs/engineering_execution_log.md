@@ -271,3 +271,54 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.2 — Static Compatibility Analysis and Adapter Design
+
+- stage: A9.2
+- started_at: 2026-05-16
+- purpose: static compatibility analysis of pdeagent reference assets using AST,
+  adapter interface design, and API compatibility matrix creation.
+- files created:
+  - `scripts/analyze_pdeagent_reference_static.py`
+  - `docs/pdeagent_migration/static_analysis_summary.json`
+  - `docs/pdeagent_migration/static_compatibility_report.md`
+  - `docs/pdeagent_migration/adapter_design.md`
+  - `docs/pdeagent_migration/api_compatibility_matrix.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `tests/test_pdeagent_static_analysis.py`
+  - `tests/test_pdeagent_migration_docs.py`
+- files modified:
+  - `docs/pdeagent_migration/README.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+- analysis results:
+  - 12 files analyzed via AST (no execution)
+  - torch_dependent: 7 files (all code-ref + agent/phases.py)
+  - hdf5_dependent: 5 files
+  - api_related: 1 file (agent/llm_client.py)
+  - shell_related: 1 file (agent/tools.py)
+  - config_related: 1 file (agent/config.py)
+  - low_effort_adapter: 7 assets
+  - medium_effort_adapter: 5 assets
+  - high_risk_direct_use: 1 asset (phases.py prompt content)
+  - do_not_import_directly: 2 assets (orchestrator, config)
+- adapter design:
+  - 7 adapter layers designed (scoring, model, dataset, inference, task2, llm_log, orchestration)
+  - adapter directory proposed: src/adapters/pdeagent/ (not created yet)
+  - each adapter requires: import test, shape test, no side effect test, validator integration test
+- scope boundary:
+  - no model training
+  - no pdeagent code execution
+  - no code copied to src/models or src/train
+  - external_references remains isolated_reference_only
+  - no API keys read
+- validation:
+  - `python scripts/analyze_pdeagent_reference_static.py`: passed
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending

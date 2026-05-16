@@ -1,0 +1,625 @@
+{
+  "analysis_target": "D:\\Vibe Coding Project\\SuPerator\\external_references\\pdeagent_code_ref",
+  "code_ref_files": 6,
+  "agent_files": 6,
+  "total_files": 12,
+  "files": [
+    {
+      "path": "code-ref\\dataset.py",
+      "imports": [
+        "__future__.annotations",
+        "dataclasses.dataclass",
+        "h5py",
+        "numpy",
+        "os",
+        "torch",
+        "torch.Tensor",
+        "torch.utils.data.ConcatDataset",
+        "torch.utils.data.DataLoader",
+        "torch.utils.data.Dataset",
+        "torch.utils.data.Subset",
+        "torch.utils.data.random_split",
+        "typing.Dict",
+        "typing.List",
+        "typing.Optional",
+        "typing.Sequence",
+        "typing.Tuple",
+        "typing.Union"
+      ],
+      "classes": [
+        "Normalizer",
+        "BurgersDataset",
+        "WindowedBurgersDataset"
+      ],
+      "functions": [
+        "encode",
+        "decode",
+        "as_dict",
+        "__init__",
+        "mean",
+        "std",
+        "__len__",
+        "_maybe_shift",
+        "_nu_embedding",
+        "__getitem__",
+        "denormalize",
+        "__init__",
+        "normalizer",
+        "__len__",
+        "__getitem__",
+        "_get_base_dataset",
+        "get_dataset_stats",
+        "_loader_kwargs",
+        "get_dataloaders",
+        "get_test_loader"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [],
+      "path_references": [
+        "task1_test.hdf5",
+        "task1_val.hdf5",
+        "task2_part0_train.h5",
+        "task2_part1_train.h5",
+        "task2_part2_train.h5",
+        "task2_test.h5",
+        "task2_val.h5"
+      ]
+    },
+    {
+      "path": "code-ref\\eval_checkpoint.py",
+      "imports": [
+        "__future__.annotations",
+        "argparse",
+        "dataset.BurgersDataset",
+        "dataset.Normalizer",
+        "dataset.get_dataloaders",
+        "dataset.get_dataset_stats",
+        "h5py",
+        "json",
+        "model.build_model",
+        "numpy",
+        "os",
+        "torch",
+        "torch.Tensor",
+        "torch.nn",
+        "types.SimpleNamespace",
+        "typing.Any",
+        "typing.Dict",
+        "typing.Optional",
+        "typing.Tuple",
+        "utils.compute_segment_scores",
+        "utils.save_metrics"
+      ],
+      "classes": [],
+      "functions": [
+        "parse_args",
+        "_checkpoint_normalizer",
+        "_ensure_cfg_defaults",
+        "_unpack_batch",
+        "_predict",
+        "_rebuild_task1_val_loader_with_normalizer",
+        "evaluate",
+        "main"
+      ],
+      "has_main": true,
+      "sensitive_patterns": [
+        "call to model.eval",
+        "string references eval: Entry point for checkpoint evaluation.",
+        "string references eval: Standalone checkpoint evaluator for Burgers neural operators.\n\nThis script fills the main diagnostic gap left by total v",
+        "string references eval: Warning: reconstructed split normalizer differs from checkpoint normalizer; rerun with --use_checkpoint_normalizer if ev",
+        "string references eval: eval_metrics.json"
+      ],
+      "path_references": [
+        "Standalone checkpoint evaluator for Burgers neural operators.\n\nThis script fills the main diagnostic gap left by total validation score alone.\nIt loads a saved checkpoint, reconstructs the same validation split used by\n``train.py``, performs full 190-step rollout, and prints/saves detailed segment\nmetrics: ``score1/2/3``, ``total``, ``rel_mse_1/2/3``, ``rmse_1/2/3``,\n``fd_1/2/3`` and spectrum diagnostics.\n",
+        "eval_metrics.json",
+        "task1_val.hdf5"
+      ]
+    },
+    {
+      "path": "code-ref\\infer.py",
+      "imports": [
+        "__future__.annotations",
+        "argparse",
+        "dataset.Normalizer",
+        "dataset.get_test_loader",
+        "h5py",
+        "json",
+        "model.build_model",
+        "numpy",
+        "os",
+        "torch",
+        "torch.Tensor",
+        "torch.nn",
+        "types.SimpleNamespace",
+        "typing.Any",
+        "typing.Dict",
+        "typing.Optional",
+        "utils.Timer",
+        "utils.save_hdf5"
+      ],
+      "classes": [],
+      "functions": [
+        "parse_args",
+        "_checkpoint_normalizer",
+        "_load_initial_tensor",
+        "_ensure_cfg_defaults",
+        "_predict_future",
+        "main"
+      ],
+      "has_main": true,
+      "sensitive_patterns": [
+        "call to model.eval"
+      ],
+      "path_references": [
+        "Inference script producing HDF5 submissions for Burgers neural-operator tasks.\n\nThe script loads a checkpoint saved by ``train.py``, normalises the official test\ninitial conditions with the checkpoint statistics, predicts the 190 unobserved\nfuture frames, and writes a submission-compatible HDF5 file containing the first\n10 input frames followed by the predicted future frames: ``[N, 200, 256]``.\n\nBoth long option names and short aliases are supported for compatibility with\nprevious experiment notes, e.g. ``--checkpoint/--ckpt`` and ``--output/--out``.\n",
+        "task1_test.hdf5",
+        "task2_test.h5",
+        "time.json"
+      ]
+    },
+    {
+      "path": "code-ref\\model.py",
+      "imports": [
+        "__future__.annotations",
+        "math",
+        "torch",
+        "torch.Tensor",
+        "torch.nn",
+        "torch.nn.functional",
+        "typing.Any",
+        "typing.Optional",
+        "typing.Tuple"
+      ],
+      "classes": [
+        "SpectralConv1d",
+        "FNOBlock1d",
+        "FiLM",
+        "FNOForecast1d",
+        "ResidualFNO1d",
+        "ChunkedFNO1d"
+      ],
+      "functions": [
+        "__init__",
+        "forward",
+        "__init__",
+        "forward",
+        "__init__",
+        "forward",
+        "__init__",
+        "_coord",
+        "forward",
+        "__init__",
+        "rollout",
+        "__init__",
+        "forward",
+        "rollout_no_grad",
+        "rollout",
+        "build_model",
+        "burgers_residual"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [],
+      "path_references": []
+    },
+    {
+      "path": "code-ref\\train.py",
+      "imports": [
+        "__future__.annotations",
+        "argparse",
+        "dataset.Normalizer",
+        "dataset.get_dataloaders",
+        "dataset.get_dataset_stats",
+        "json",
+        "model.build_model",
+        "model.burgers_residual",
+        "os",
+        "random",
+        "torch",
+        "torch.Tensor",
+        "torch.cuda.amp.GradScaler",
+        "torch.cuda.amp.autocast",
+        "torch.nn",
+        "torch.optim",
+        "typing.Dict",
+        "typing.List",
+        "typing.Optional",
+        "typing.Tuple",
+        "utils.Logger",
+        "utils.Timer",
+        "utils.compute_segment_scores",
+        "utils.save_metrics",
+        "utils.set_seed",
+        "utils.spectral_gradient_loss",
+        "utils.temporal_difference_loss"
+      ],
+      "classes": [],
+      "functions": [
+        "parse_args",
+        "weighted_mse",
+        "scheduled_probability",
+        "_unpack_batch",
+        "model_predict",
+        "multi_step_rollout_loss",
+        "train_epoch",
+        "validate",
+        "_load_resume",
+        "_save_checkpoint",
+        "main"
+      ],
+      "has_main": true,
+      "sensitive_patterns": [
+        "call to model.eval",
+        "call to torch.compile",
+        "string references compile: --compile",
+        "string references compile: Compiling model with torch.compile",
+        "string references compile: compile",
+        "string references compile: use torch.compile when available",
+        "string references eval: Compute differentiable multi-step rollout loss with scheduled sampling.\n\n    At each chunk boundary the next history is "
+      ],
+      "path_references": [
+        "metrics.json",
+        "time.json"
+      ]
+    },
+    {
+      "path": "code-ref\\utils.py",
+      "imports": [
+        "__future__.annotations",
+        "h5py",
+        "json",
+        "math",
+        "numpy",
+        "os",
+        "random",
+        "time",
+        "torch",
+        "torch.Tensor",
+        "typing.Any",
+        "typing.Dict",
+        "typing.List",
+        "typing.Mapping"
+      ],
+      "classes": [
+        "Timer",
+        "Logger"
+      ],
+      "functions": [
+        "set_seed",
+        "compute_rel_mse",
+        "compute_rmse",
+        "compute_frechet_distance",
+        "compute_spectrum_distance",
+        "_segment_stats",
+        "compute_segment_scores",
+        "spectral_gradient_loss",
+        "temporal_difference_loss",
+        "ensure_dir",
+        "save_hdf5",
+        "save_metrics",
+        "__init__",
+        "elapsed",
+        "reset",
+        "__init__",
+        "log",
+        "log_metrics"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [],
+      "path_references": [
+        "Utility functions for Burgers neural-operator experiments.\n\nThe scoring utilities mirror the local validation protocol used by ``train.py``:\nthe model predicts the 190 future frames, while inference/submission copies the\nfirst 10 observed frames into the output HDF5 file.  In addition to the official\nstyle segment scores, this module provides small diagnostics that are useful for\nBurgers shocks: spatial-gradient loss, temporal-increment loss and low-order\nenergy-spectrum distance.\n"
+      ]
+    },
+    {
+      "path": "agent\\config.py",
+      "imports": [
+        "dataclasses.dataclass",
+        "dataclasses.field",
+        "os",
+        "typing.List",
+        "typing.Optional",
+        "yaml"
+      ],
+      "classes": [
+        "LLMConfig",
+        "ResearchConfig",
+        "ModelConfig",
+        "AgentConfig"
+      ],
+      "functions": [
+        "load_config",
+        "save_config"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [
+        "string contains 'OPENAI_API_KEY': OPENAI_API_KEY",
+        "string contains 'api_key': <YOUR_API_KEY>",
+        "string contains 'api_key': OPENAI_API_KEY",
+        "string contains 'api_key': api_key",
+        "string contains 'config.yaml': config.yaml"
+      ],
+      "path_references": [
+        "config.yaml"
+      ]
+    },
+    {
+      "path": "agent\\llm_client.py",
+      "imports": [
+        "datetime.datetime",
+        "datetime.timezone",
+        "httpx",
+        "json",
+        "os",
+        "time",
+        "typing.Any",
+        "typing.Dict",
+        "typing.Generator",
+        "typing.List",
+        "typing.Optional"
+      ],
+      "classes": [
+        "LLMClient"
+      ],
+      "functions": [
+        "__init__",
+        "_log",
+        "_send_request",
+        "chat",
+        "chat_stream",
+        "close",
+        "__enter__",
+        "__exit__"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [
+        "import httpx"
+      ],
+      "path_references": []
+    },
+    {
+      "path": "agent\\memory.py",
+      "imports": [
+        "dataclasses.asdict",
+        "dataclasses.dataclass",
+        "dataclasses.field",
+        "datetime.datetime",
+        "json",
+        "os",
+        "typing.Any",
+        "typing.Dict",
+        "typing.List",
+        "typing.Optional"
+      ],
+      "classes": [
+        "ExperimentRecord",
+        "ResearchMemory"
+      ],
+      "functions": [
+        "to_dict",
+        "save",
+        "load",
+        "add_experiment",
+        "get_experiment",
+        "get_context"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [],
+      "path_references": [
+        "research_memory.json"
+      ]
+    },
+    {
+      "path": "agent\\orchestrator.py",
+      "imports": [
+        "datetime.datetime",
+        "datetime.timedelta",
+        "fpdf.FPDF",
+        "json",
+        "llm_client.LLMClient",
+        "markdown",
+        "memory.ResearchMemory",
+        "os",
+        "phases.DesignPhase",
+        "phases.DiagnosisPhase",
+        "phases.ExperimentPhase",
+        "phases.LiteraturePhase",
+        "pypandoc",
+        "shutil",
+        "time",
+        "traceback",
+        "weasyprint.HTML",
+        "zipfile"
+      ],
+      "classes": [
+        "ResearchOrchestrator",
+        "SimplePDF"
+      ],
+      "functions": [
+        "__init__",
+        "should_stop",
+        "run_phase",
+        "run",
+        "_finalize",
+        "_collect_current_task_results",
+        "_copy_code",
+        "_generate_methodology",
+        "_generate_methodology_md",
+        "_md_to_pdf",
+        "_md_to_pdf_fpdf",
+        "header",
+        "footer",
+        "_write_submission_json",
+        "_pack_submission",
+        "close"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [
+        "call to shutil.rmtree",
+        "string references exec: [Warning] Phase execution failed, will retry or pivot..."
+      ],
+      "path_references": [
+        "  Generated submission.json",
+        "/pred.hdf5",
+        "/submission.json",
+        "/time.json",
+        "_pred.hdf5",
+        "code/train.py",
+        "research_memory.json",
+        "submission.json",
+        "生成 submission.json"
+      ]
+    },
+    {
+      "path": "agent\\phases.py",
+      "imports": [
+        "datetime.datetime",
+        "json",
+        "llm_client.LLMClient",
+        "memory.ExperimentRecord",
+        "memory.ResearchMemory",
+        "os",
+        "re",
+        "sys",
+        "tools.registry",
+        "torch",
+        "typing.Any"
+      ],
+      "classes": [
+        "Phase",
+        "LiteraturePhase",
+        "DiagnosisPhase",
+        "DesignPhase",
+        "ExperimentPhase"
+      ],
+      "functions": [
+        "__init__",
+        "run",
+        "_chat",
+        "_tool_call_loop",
+        "_format_tool_result",
+        "run",
+        "run",
+        "_parse_diagnosis",
+        "run",
+        "run"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [],
+      "path_references": [
+        "\n\n### 决策树（严格按顺序执行，匹配到即停止）\n\n**Step A — CLI/参数错误检测（最高优先级）**\n\n如果输出包含以下任一关键字，这是代码接口问题，不是模型问题：\n- `error: unrecognized arguments`\n- `error: the following arguments are required`\n- `can't open file` (returncode=2)\n\n→ **必须立即修复**: 检查 train.py/infer.py 的 argparse，确保 `--task`, `--output_dir/--output-dir`, `--data_dir/--data-dir` 全部支持，且 checkpoint 命名为 `best_checkpoint.pt`\n→ 决策: `CONTINUE` (修复 CLI 后重跑)\n→ **不要分析不存在的训练结果，不要提出模型架构修改**\n\n**Step B — 数据/环境错误检测**\n\n如果输出包含:\n- `FileNotFoundError` 或 `HDF5 file not found`\n- `ImportError` 或 `ModuleNotFoundError`\n\n→ 检查 dataset.py 的默认 data_dir 和所有 import\n→ 决策: `CONTINUE` (修复后重跑)\n\n**Step C — 训练正常进行（有 loss 曲线和 val 指标）**\n\n按以下框架分析:\n\n1. **收敛状态**: loss 是否稳定下降？是否过拟合（train loss << val loss）？\n2. **分段表现**: S1(短期), S2(中期), S3(长期:50%权重) 各自的健康度？\n3. **与历史最优对比**: 本次 total=",
+        "\n\n### 操作指南\n\n**如果 code/ 为空或缺少核心文件**: 请使用 write_file 工具**逐一**创建全部 5 个核心文件。\n不要只在回复中输出代码——必须调用 write_file 工具将代码真正写入磁盘！\n\n**如果 code/ 已有代码**: 请基于当前假设进行针对性修改。\n先 read_file 读取需要修改的文件，再 write_file 覆盖写入完整代码。\n\n### 必须创建的 5 个核心文件\n\n| 文件 | 核心内容 | 关键约束 |\n|------|---------|---------|\n| code/model.py | SpectralConv1d, FNOBlock1d, FiLM, ChunkedFNO1d, build_model, burgers_residual | Task2 需 FiLM + nu_estimator；forward 返回 (pred, cond) |\n| code/dataset.py | Normalizer, BurgersDataset, WindowedBurgersDataset, get_dataloaders, get_test_loader | 归一化在训练集上计算并共享；Task1/2 HDF5 key 不同 |\n| code/train.py | parse_args, train_epoch, validate, main | argparse 支持 --task/--output_dir/--data_dir；checkpoint=best_checkpoint.pt；validate 必须完整 rollout |\n| code/infer.py | parse_args, main | 加载 checkpoint → 预测 → HDF5；前 10 步复制 GT 并 assert；支持 --checkpoint/--output |\n| code/utils.py | compute_segment_scores, spectral_gradient_loss, temporal_difference_loss, save_hdf5, Timer, Logger | compute_segment_scores 接受 [B,190,256]；Rel-MSE clamp(5.0)；S3=max(Lorentzian,Frechet) |\n\n### CLI 参数模板 (train.py)\n\n```python\nparser.add_argument(\"--task\", default=\"task1\", choices=[\"task1\", \"task2\"])\nparser.add_argument(\"--output-dir\", \"--output_dir\", dest=\"output_dir\", default=\"./output\")\nparser.add_argument(\"--data-dir\", \"--data_dir\", dest=\"data_dir\",\n                    default=\"./data_and_sample_submission/train_val_test_init\")\nparser.add_argument(\"--epochs\", type=int, default=100)\nparser.add_argument(\"--batch_size\", type=int, default=16)\nparser.add_argument(\"--device\", default=\"cuda\" if torch.cuda.is_available() else \"cpu\")\n```\n\n### 设计约束\n\n- **代码必须完整且可执行** — 不能有 TODO 或 pass 占位符\n- **所有 imports 必须明确** — 使用 `import torch; from torch import nn`\n- **每写完一个文件** → 立即调用 validate_code 检查语法\n- **全部写完后** → 调用 quick_test_model 做 smoke test\n- **最后** → 调用 list_files code/ 确认目录结构\n\n### 参考学习\n\n你可以阅读 code-ref/ 中的参考代码来学习设计思路：\n- read_file code-ref/model.py (limit=200) — 学习 SpectralConv1d 和 ChunkedFNO1d 的写法\n- read_file code-ref/train.py (limit=150) — 学习训练循环的结构\n\n但这些是**学习参考**，你最终写入 `code/` 的代码必须在理解吸收后用自己的方式表达，而不是逐字复制。\n\n请现在开始。如果你已理解以上要求，请直接调用工具开始工作。\n",
+        "\n- list_files data_and_sample_submission/train_val_test_init/\n\n**步骤 3: 分析参考代码** (如 code-ref/ 存在)\n- summarize_code code-ref/model.py\n- summarize_code code-ref/train.py\n- read_file code-ref/utils.py — 重点关注 compute_segment_scores\n\n**步骤 4: 综合输出**\n\n基于以上信息，输出结构化的文献综述，包含：\n1. **核心科学问题**: 本任务要解决什么 PDE 问题？有哪些困难？\n2. **数据特征**: 训练/验证/测试数据的规模、维度、物理含义\n3. **基线架构**: FNO 的核心数学原理和工程实现要点\n4. **评分影响**: 3 段评分规则的权重要求（S3 占 50%）对模型设计意味着什么？\n5. **已知优化方向**: 长时稳定性、物理一致性、泛化能力的改进策略\n\n### 关键数据路径\n- 数据目录: ./data_and_sample_submission/train_val_test_init/\n- 参考代码: ./code-ref/\n- 一旦确定设计方向，将在实验阶段使用 code/train.py 等进行训练\n",
+        "\" code/infer.py --task ",
+        "\" code/train.py --task ",
+        "# PDE Neural Operator Research Agent\n\n你是一个自主科研智能体，目标是零人工干预下完成 1D Burgers 方程神经算子的研究、改进与验证。\n\n## 身份与原则\n\n- **严谨**: 每个假设必须有理论依据或数据支撑\n- **务实**: 优先选择工程可行、效果可验证的方案\n- **记录**: 完整记录思考链路与实验轨迹\n- **迭代**: 从失败中提取信息指导下一步尝试\n- **工具优先**: 所有操作必须通过工具调用完成，不要只输出计划而不执行\n\n## 输出规范\n\n每次回复末尾必须包含以下标记之一（用于阶段流转决策）：\n\n```\nDECISION: CONTINUE|PIVOT|STOP\nREASON: <一句话原因>\n```\n\n- CONTINUE: 当前方向有潜力，继续迭代\n- PIVOT:   遇到瓶颈，切换假设或架构\n- STOP:    结果已达预期或资源耗尽\n\n## 技术参考\n\n### 评分规则\n- 190 个预测步分为 3 段: S1(0-47步,权重25%), S2(47-95步,权重25%), S3(95-190步,权重50%)\n- S1 = 100*exp(-20*Rel-MSE),  S2 = 100*exp(-10*Rel-MSE)\n- S3 = max(100/(1+10*RMSE), 50*exp(-FD^2))\n- Rel-MSE 逐样本逐时间步计算，单样本上限 clamp(max=5.0)\n- 总分 = 0.25*S1 + 0.25*S2 + 0.5*S3\n\n### 数据约定\n- Task1: task1_val.hdf5 (训练/验证), task1_test.hdf5 (测试) — key: \"tensor\", \"x-coordinate\", \"t-coordinate\"\n- Task2: task2_part{0,1,2}_train.h5 (训练, 含 nu), task2_val.h5, task2_test.h5 (测试, 无 nu) — key: \"tensor\", \"x_coordinate\", \"t_coordinate\", \"nu\"\n- 输入 [B,10,256] → 输出 [B,190,256] → 提交 [B,200,256] (前10步=GT)\n\n### 模型架构\n- ChunkedFNO1d: SpectralConv1d(modes=24) + FNOBlock1d(width=64,depth=4)\n- Lift: Conv1d(t_in+1→width), Project: Conv1d(width→t_out)\n- 残差: last_frame.expand + project(features)\n- Task2: FiLM conditioning + nu_estimator (Conv1d→AvgPool→Linear)\n- 验证: 完整 190 步自回归 rollout, 非 teacher forcing\n\n### CLI 参数接口 (train.py / infer.py)\n- `--task` (task1|task2), `--output_dir`, `--data_dir` 必须支持\n- argparse 别名: `--output-dir/--output_dir`, `--data-dir/--data_dir`\n- device 默认: `\"cuda\" if torch.cuda.is_available() else \"cpu\"`\n- checkpoint 命名: `best_checkpoint.pt`\n- 所有参数必须有合理默认值, 不可设 required=True\n\n### 必须生成的 5 个文件\n- code/model.py: SpectralConv1d, FNOBlock1d, FiLM, ChunkedFNO1d, build_model\n- code/dataset.py: Normalizer, BurgersDataset, WindowedBurgersDataset, get_dataloaders\n- code/train.py: 训练循环 + 验证 + 早停 + LR调度 + 保存 checkpoint\n- code/infer.py: 加载 checkpoint → 预测 → HDF5 输出 (前10步=GT)\n- code/utils.py: compute_segment_scores, spectral_gradient_loss, temporal_difference_loss\n",
+        "/best_checkpoint.pt --output ",
+        "/metrics.json",
+        "/pred.hdf5 --data_dir ",
+        "code/dataset.py",
+        "code/infer.py",
+        "code/model.py",
+        "code/train.py",
+        "code/utils.py",
+        "task1_test.hdf5",
+        "task1_val.hdf5",
+        "task2_part0_train.h5",
+        "task2_test.h5"
+      ]
+    },
+    {
+      "path": "agent\\tools.py",
+      "imports": [
+        "h5py",
+        "importlib.util",
+        "io",
+        "json",
+        "numpy",
+        "os",
+        "py_compile",
+        "re",
+        "subprocess",
+        "sys",
+        "traceback",
+        "typing.Any",
+        "typing.Dict",
+        "typing.List",
+        "typing.Optional"
+      ],
+      "classes": [
+        "ToolRegistry",
+        "DummyCfg"
+      ],
+      "functions": [
+        "__init__",
+        "register",
+        "decorator",
+        "call",
+        "get_schemas",
+        "read_file",
+        "write_file",
+        "append_file",
+        "list_files",
+        "run_shell",
+        "run_python",
+        "validate_code",
+        "quick_test_model",
+        "analyze_log",
+        "inspect_hdf5",
+        "visit",
+        "summarize_code"
+      ],
+      "has_main": false,
+      "sensitive_patterns": [
+        "call to exec",
+        "call to py_compile.compile",
+        "call to re.compile",
+        "import subprocess",
+        "string references compile: 检查Python代码的语法正确性，运行py_compile进行验证。"
+      ],
+      "path_references": [
+        "code/model.py",
+        "模型定义文件路径，默认 code/model.py"
+      ]
+    }
+  ],
+  "summary": {
+    "torch_dependent": [
+      "code-ref\\dataset.py",
+      "code-ref\\eval_checkpoint.py",
+      "code-ref\\infer.py",
+      "code-ref\\model.py",
+      "code-ref\\train.py",
+      "code-ref\\utils.py",
+      "agent\\phases.py"
+    ],
+    "hdf5_dependent": [
+      "code-ref\\dataset.py",
+      "code-ref\\eval_checkpoint.py",
+      "code-ref\\infer.py",
+      "code-ref\\utils.py",
+      "agent\\tools.py"
+    ],
+    "api_related": [
+      "agent\\llm_client.py"
+    ],
+    "shell_related": [
+      "agent\\tools.py"
+    ],
+    "config_related": [
+      "agent\\config.py"
+    ],
+    "adapter_candidates": [
+      "code-ref\\dataset.py",
+      "code-ref\\eval_checkpoint.py",
+      "code-ref\\infer.py",
+      "code-ref\\model.py",
+      "code-ref\\train.py",
+      "code-ref\\utils.py"
+    ]
+  },
+  "notes": [
+    "Static AST analysis only — no code executed",
+    "No pdeagent original directory read",
+    "No training or inference performed",
+    "No API keys read"
+  ]
+}
