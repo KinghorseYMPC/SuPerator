@@ -24,14 +24,17 @@
 | [adapter_backlog.md](adapter_backlog.md) | A9.2 后续子阶段 backlog（A9.3 → A10） |
 | [scoring_adapter.md](scoring_adapter.md) | A9.3 Scoring Adapter 实现文档 |
 | [baseline_adapter.md](baseline_adapter.md) | A9.4 Baseline Adapter 设计文档 |
+| [task1_adapter.md](task1_adapter.md) | A9.5 Task 1 Adapter 实现文档 |
 
 ## 当前阶段状态
 
-**A9.4** — Baseline Adapter 创建 **（当前阶段）**
-- 已实现 3 个 adapter：model（SpectralConv1d + FNOBlock + rollout）、dataset（window indices）、inference（autoregressive rollout）
-- Smoke script 可运行（synthetic data，无 I/O）
+**A9.5** — Task 1 Adapter 完整实现 **（当前阶段）**
+- 完整 ChunkedFNO1d 模型（Conv1d lift + coord + FNO blocks + residual + chunk rollout）
+- PdeAgentTask1WindowDataset（滑动窗口 HDF5 数据集）
+- 训练循环（train_one_epoch / evaluate_one_step / checkpoint）
+- 推理（autoregressive rollout + checkpoint predict）
+- Smoke 脚本（真实数据或 synthetic fallback）
 - **未修改 SuPerator 训练 / 推理 / submission 主流程**
-- **当前为 smoke-compatible skeleton，后续可升级为完整 ChunkedFNO1d**
 
 ## 核心原则
 

@@ -1,17 +1,20 @@
-"""PDE baseline model adapter — smoke-compatible minimal ChunkedFNO1d skeleton.
+"""PDE Task 1 model adapter — ChunkedFNO1d-style neural operator.
 
 Adapted from pdeagent code-ref/model.py (external_references/).
 Clean-room implementation — no import from external_references.
 
-Provides a minimal working 1D Fourier Neural Operator that supports:
-  - SpectralConv1d (learned complex weights for low Fourier modes)
-  - FNOBlock1d (residual block with spectral + pointwise convs)
-  - PdeAgentBaselineModel (stacked FNO blocks with lift/project)
-  - build_pdeagent_baseline_model factory
+Provides:
+  - SpectralConv1d: 1D Fourier convolution with learned complex-mode weights
+  - FNOBlock1d: residual FNO block (spectral + pointwise + GroupNorm + GELU)
+  - FiLM: Feature-wise Linear Modulation (for Task 2, disabled in Task 1)
+  - FNOForecast1d: core forecast module (Conv1d lift + coord + FNO blocks + project)
+  - ChunkedFNO1d: autoregressive chunked rollout wrapper
+  - PdeAgentTask1Model: named alias for Task 1 use
+  - build_pdeagent_task1_model: factory function
 
-Architecture sketch:
-  input (B, Tin, X) → permute → lift (Linear) → pad → Nx FNOBlock1d
-  → unpad → permute → project (MLP) → output (B, Tout, X)
+Architecture:
+  input (B, Tin, X) → concat coord → Conv1d lift → Nx FNOBlock1d
+  → Conv1d project → add last-frame residual → output (B, Tout, X)
 
 Reference: external_references/pdeagent_code_ref/code-ref/model.py
 """
@@ -35,22 +38,26 @@ class PdeAgentBaselineConfig:
 
     Attributes:
         input_steps: Number of input time steps (default 10).
-        output_steps: Number of output time steps (default 1 for step-by-step).
+        output_steps: Number of output time steps per forward pass.
         width: Hidden feature dimension in FNO blocks.
         modes: Number of Fourier modes to keep.
         depth: Number of FNO spectral blocks.
-        spatial_points: Spatial grid size (not used in forward, for reference).
-        padding: Fourier padding for spatial domain.
+        spatial_points: Spatial grid size (for reference, not used in forward).
+        padding: Fourier padding for spatial domain (not used in Conv1d-based version).
         dropout: Dropout rate inside FNO blocks.
+        chunk_size: Chunk size for ChunkedFNO1d rollout.
+        use_film: Whether to use FiLM conditioning (False for Task 1).
     """
     input_steps: int = 10
-    output_steps: int = 1
+    output_steps: int = 10
     width: int = 32
     modes: int = 16
     depth: int = 4
     spatial_points: int = 256
-    padding: int = 8
+    padding: int = 0
     dropout: float = 0.0
+    chunk_size: int = 10
+    use_film: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -86,7 +93,7 @@ class SpectralConv1d(nn.Module):
 
 
 class FNOBlock1d(nn.Module):
-    """Residual FNO block: spectral conv + pointwise conv + group norm + GELU."""
+    """Residual FNO block: spectral conv + pointwise conv + GroupNorm + GELU."""
 
     def __init__(self, width: int, modes: int, dropout: float = 0.0) -> None:
         super().__init__()
@@ -102,84 +109,172 @@ class FNOBlock1d(nn.Module):
         )))
 
 
+class FiLM(nn.Module):
+    """Feature-wise Linear Modulation: inject a scalar condition into features."""
+
+    def __init__(self, cond_dim: int, feature_dim: int) -> None:
+        super().__init__()
+        self.gamma = nn.Linear(cond_dim, feature_dim)
+        self.beta = nn.Linear(cond_dim, feature_dim)
+
+    def forward(self, x: torch.Tensor, cond: torch.Tensor) -> torch.Tensor:
+        g = self.gamma(cond).unsqueeze(-1)
+        b = self.beta(cond).unsqueeze(-1)
+        return g * x + b
+
+
 # ---------------------------------------------------------------------------
-# Composite model
+# Core forecast module (pdeagent FNOForecast1d equivalent)
 # ---------------------------------------------------------------------------
 
-class PdeAgentBaselineModel(nn.Module):
-    """Minimal FNO-like 1D neural operator for Burgers forecasting.
+class FNOForecast1d(nn.Module):
+    """Core FNO forecast module.
 
-    Input:  (B, input_steps, Nx)
-    Output: (B, output_steps, Nx)
+    Input:  (B, Tin, Nx)  normalised velocity
+    Output: (B, Tout, Nx)  normalised velocity prediction
+    Uses Conv1d lift + spatial coordinate concatenation + residual from last frame.
     """
 
     def __init__(self, config: PdeAgentBaselineConfig) -> None:
         super().__init__()
-        self.input_steps = config.input_steps
-        self.output_steps = config.output_steps
-        self.width = config.width
-        self.modes = config.modes
-        self.depth = config.depth
-        self.padding = config.padding
+        t_in = config.input_steps
+        t_out = config.output_steps
+        width = config.width
+        modes = config.modes
+        depth = config.depth
+        dropout = config.dropout
+        self.use_film = config.use_film
+        self.t_in = t_in
+        self.t_out = t_out
 
-        self.lift = nn.Linear(self.input_steps, self.width)
-        self.blocks = nn.ModuleList([
-            FNOBlock1d(self.width, self.modes, config.dropout)
-            for _ in range(self.depth)
-        ])
-        self.project = nn.Sequential(
-            nn.Linear(self.width, self.width),
+        # Lift: (Tin + 1 coord) → width via two Conv1d
+        self.lift = nn.Sequential(
+            nn.Conv1d(t_in + 1, width, kernel_size=1),
             nn.GELU(),
-            nn.Linear(self.width, self.output_steps),
+            nn.Conv1d(width, width, kernel_size=1),
+        )
+        self.blocks = nn.ModuleList([
+            FNOBlock1d(width, modes, dropout) for _ in range(depth)
+        ])
+        self.films = nn.ModuleList(
+            [FiLM(1, width) for _ in range(depth)]
+        ) if self.use_film else None
+
+        # Project: width → 2*width → Tout
+        self.project = nn.Sequential(
+            nn.Conv1d(width, 2 * width, kernel_size=1),
+            nn.GELU(),
+            nn.Conv1d(2 * width, t_out, kernel_size=1),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def _coord(self, x: torch.Tensor) -> torch.Tensor:
+        """Spatial coordinate grid [0, 1] matching input batch/spatial size."""
+        b, _, n = x.shape
+        return torch.linspace(0.0, 1.0, n, device=x.device, dtype=x.dtype).view(1, 1, n).expand(b, -1, -1)
+
+    def forward(self, x: torch.Tensor, cond: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor | None]:
         """Forward pass.
 
         Args:
-            x: (B, input_steps, Nx) input window.
+            x: (B, Tin, Nx) input window.
+            cond: Optional (B, 1) condition tensor (unused for Task 1).
 
         Returns:
-            (B, output_steps, Nx) prediction.
+            (pred, cond) where pred is (B, Tout, Nx).
         """
         if x.ndim != 3:
-            raise ValueError(f"Expected [B, T, X] input, got {tuple(x.shape)}")
-        if x.shape[1] != self.input_steps:
-            raise ValueError(f"Expected {self.input_steps} input steps, got {x.shape[1]}")
+            raise ValueError(f"model input must be [B,T,Nx], got {tuple(x.shape)}")
+        if x.shape[1] != self.t_in:
+            raise ValueError(f"expected {self.t_in} input steps, got {x.shape[1]}")
 
-        # (B, T, X) → (B, X, T) → lift → (B, X, width) → (B, width, X)
-        y = x.permute(0, 2, 1)                     # (B, X, T)
-        y = self.lift(y)                             # (B, X, W)
-        y = y.permute(0, 2, 1)                      # (B, W, X)
+        # Concat coordinate → Conv1d lift
+        h = self.lift(torch.cat([x, self._coord(x)], dim=1))
 
-        if self.padding > 0:
-            y = nn.functional.pad(y, (0, self.padding))
+        for i, block in enumerate(self.blocks):
+            h = block(h)
+            if self.use_film and cond is not None and self.films is not None:
+                h = self.films[i](h, cond)
 
-        for block in self.blocks:
-            y = block(y)
+        # Residual: last input frame expanded + projection
+        return x[:, -1:, :].expand(-1, self.t_out, -1) + self.project(h), cond
 
-        if self.padding > 0:
-            y = y[..., : -self.padding]
 
-        # (B, W, X) → (B, X, W) → project → (B, X, Tout) → (B, Tout, X)
-        y = y.permute(0, 2, 1)                      # (B, X, W)
-        y = self.project(y)                          # (B, X, Tout)
-        return y.permute(0, 2, 1)                    # (B, Tout, X)
+# ---------------------------------------------------------------------------
+# Chunked rollout model
+# ---------------------------------------------------------------------------
+
+class PdeAgentTask1Model(nn.Module):
+    """Chunked autoregressive FNO for Task 1 Burgers forecasting.
+
+    Uses FNOForecast1d as core and rolls out chunk-by-chunk to the full horizon.
+    """
+
+    def __init__(self, config: PdeAgentBaselineConfig) -> None:
+        super().__init__()
+        if config.chunk_size <= 0:
+            raise ValueError("chunk_size must be positive")
+        self.t_in = config.input_steps
+        self.chunk_size = config.chunk_size
+        self.core = FNOForecast1d(config)
+
+    def forward(self, x: torch.Tensor, cond: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor | None]:
+        """Single-step forward: predict one chunk from input window."""
+        return self.core(x, cond)
+
+    @torch.no_grad()
+    def rollout_no_grad(self, x: torch.Tensor, horizon: int = 190, cond: torch.Tensor | None = None) -> torch.Tensor:
+        """No-grad rollout for validation/inference."""
+        return self.rollout(x, horizon=horizon, cond=cond)
+
+    def rollout(self, x: torch.Tensor, horizon: int = 190, cond: torch.Tensor | None = None) -> torch.Tensor:
+        """Autoregressive chunked rollout.
+
+        Args:
+            x: (B, Tin, Nx) initial-condition window.
+            horizon: Total future steps to predict.
+            cond: Optional condition tensor.
+
+        Returns:
+            (B, horizon, Nx) prediction.
+        """
+        if horizon <= 0:
+            raise ValueError("horizon must be positive")
+        history = x
+        chunks: list[torch.Tensor] = []
+        produced = 0
+        while produced < horizon:
+            pred, _ = self.forward(history[:, -self.t_in:, :], cond)
+            take = min(pred.shape[1], horizon - produced)
+            chunk = pred[:, :take, :]
+            chunks.append(chunk)
+            history = torch.cat([history, chunk], dim=1)
+            produced += take
+        return torch.cat(chunks, dim=1)
+
+
+# ---------------------------------------------------------------------------
+# Alias for backward compatibility
+# ---------------------------------------------------------------------------
+
+# Keep old class for A9.4 backward compatibility
+class PdeAgentBaselineModel(PdeAgentTask1Model):
+    """Backward-compatible alias — delegates to PdeAgentTask1Model."""
+    pass
 
 
 # ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
 
-def build_pdeagent_baseline_model(config: PdeAgentBaselineConfig | None = None, **kwargs: Any) -> PdeAgentBaselineModel:
-    """Build a pdeagent-compatible baseline model.
+def build_pdeagent_task1_model(config: PdeAgentBaselineConfig | None = None, **kwargs: Any) -> PdeAgentTask1Model:
+    """Build a pdeagent-style Task 1 model.
 
     Args:
-        config: PdeAgentBaselineConfig instance. If None, a default config is used.
+        config: PdeAgentBaselineConfig. If None, defaults are used.
         **kwargs: Override config fields.
 
     Returns:
-        PdeAgentBaselineModel instance.
+        PdeAgentTask1Model instance.
     """
     if config is None:
         config = PdeAgentBaselineConfig()
@@ -188,4 +283,8 @@ def build_pdeagent_baseline_model(config: PdeAgentBaselineConfig | None = None, 
             setattr(config, key, val)
         else:
             raise TypeError(f"Unknown config field: {key}")
-    return PdeAgentBaselineModel(config)
+    return PdeAgentTask1Model(config)
+
+
+# Backward-compatible alias
+build_pdeagent_baseline_model = build_pdeagent_task1_model

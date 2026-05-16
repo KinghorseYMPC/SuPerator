@@ -42,12 +42,12 @@
 
 ---
 
-## A9.5 — Dataset / Inference Adapter
+## A9.5 — Dataset / Inference / Training Adapter ✅ (COMPLETED 2026-05-16)
 
-**优先级**：P1  
-**目标**：适配 WindowedBurgersDataset 和推理流程  
-**来源**：`external_references/pdeagent_code_ref/code-ref/dataset.py`, `infer.py`  
-**预计复杂度**：中（~3 天）
+**优先级**：P1
+**目标**：完整迁移 pdeagent Task 1 baseline（model + dataset + training + inference）
+**来源**：`external_references/pdeagent_code_ref/code-ref/model.py, dataset.py, train.py, infer.py`
+**状态**：完成
 
 **交付物**：
 - `src/adapters/pdeagent/dataset_adapter.py` — Normalizer + WindowedBurgersDataset + get_dataloaders

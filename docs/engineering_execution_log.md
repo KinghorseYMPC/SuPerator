@@ -413,3 +413,55 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.5 — Task 1 Adapter Complete Implementation
+
+- stage: A9.5
+- started_at: 2026-05-16
+- purpose: complete migration of pdeagent Task 1 baseline into SuPerator adapters,
+  including full ChunkedFNO1d model, windowed dataset, training loop, and
+  checkpoint-based inference.
+- files created:
+  - `src/adapters/pdeagent/task1_training.py`
+  - `configs/pdeagent_task1_adapter_smoke.yaml`
+  - `scripts/smoke_pdeagent_task1_adapter.py`
+  - `docs/pdeagent_migration/task1_adapter.md`
+  - `tests/test_pdeagent_task1_training_adapter.py`
+  - `tests/test_pdeagent_task1_smoke_script.py`
+- files modified:
+  - `src/adapters/pdeagent/model_adapter.py` (upgraded to full ChunkedFNO1d)
+  - `src/adapters/pdeagent/dataset_adapter.py` (added PdeAgentTask1WindowDataset)
+  - `src/adapters/pdeagent/inference_adapter.py` (added predict_task1_from_checkpoint)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_pdeagent_model_adapter.py`
+  - `tests/test_pdeagent_dataset_adapter.py`
+  - `tests/test_pdeagent_inference_adapter.py`
+  - `tests/test_project_structure.py`
+- implementation summary:
+  - Model: FNOForecast1d (Conv1d lift + spatial coord + FNOBlock stack + residual)
+    wrapped in ChunkedFNO1d with chunked autoregressive rollout
+  - Dataset: PdeAgentTask1WindowDataset with lazy HDF5 access, sliding windows,
+    normalizer, safe close/__del__
+  - Training: train_one_epoch / evaluate_one_step / checkpoint save-load /
+    train_pdeagent_task1_baseline entry point
+  - Inference: autoregressive_predict (chunked rollout or step-by-step fallback) +
+    predict_task1_from_checkpoint
+  - Smoke: synthetic or real data, 1 epoch / 2 batches max
+- scope boundary:
+  - Task 1 only (no FiLM, no nu_estimator)
+  - Smoke-level config (epochs=1, batches=2)
+  - No replacement of SuPerator main flows
+  - No submission generation
+  - outputs/checkpoints and outputs/pdeagent_task1 git-ignored
+- validation:
+  - `python scripts/smoke_pdeagent_task1_adapter.py`: to be run
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending

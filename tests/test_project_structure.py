@@ -302,3 +302,15 @@ def test_a94_baseline_adapter_files_exist() -> None:
         "tests/test_pdeagent_baseline_smoke.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a95_task1_adapter_files_exist() -> None:
+    for relative_path in [
+        "src/adapters/pdeagent/task1_training.py",
+        "configs/pdeagent_task1_adapter_smoke.yaml",
+        "scripts/smoke_pdeagent_task1_adapter.py",
+        "docs/pdeagent_migration/task1_adapter.md",
+        "tests/test_pdeagent_task1_training_adapter.py",
+        "tests/test_pdeagent_task1_smoke_script.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
