@@ -80,11 +80,35 @@ python scripts/pre_push_audit.py
 
 ## 本地环境准备
 
+### 轻量环境（文档 / 测试 / 校验）
+
 创建并激活本地虚拟环境，然后安装轻量项目依赖：
 
 ```bash
 python -m venv .venv
 python -m pip install -r requirements.txt
+```
+
+### GPU 训练环境（Task 1 / Task 2）
+
+本地 GPU backend 推荐使用与 pdeagent 项目相同的 conda 环境 `pdeagent`
+（Python 3.9 + PyTorch 2.6.0+cu124 + CUDA 12.4）。
+
+检查当前环境：
+
+```bash
+python scripts/check_local_pdeagent_env.py
+```
+
+启用 GPU 环境：
+
+```bash
+conda activate pdeagent
+```
+
+详见 [docs/pdeagent_migration/local_pdeagent_env_runbook.md](docs/pdeagent_migration/local_pdeagent_env_runbook.md)。
+
+如果只做文档 / 知识库工作，不需要该环境。
 ```
 
 根据目标 CUDA 或 CPU 环境单独安装 `torch`。本项目不在 `requirements.txt` 中锁定

@@ -324,3 +324,13 @@ def test_a96_suite_integration_files_exist() -> None:
         "tests/test_run_pdeagent_task1_adapter.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a97_env_files_exist() -> None:
+    for relative_path in [
+        "configs/local_pdeagent_env.yaml",
+        "scripts/check_local_pdeagent_env.py",
+        "docs/pdeagent_migration/local_pdeagent_env_runbook.md",
+        "tests/test_check_local_pdeagent_env.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

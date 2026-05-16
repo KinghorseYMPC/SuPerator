@@ -19,6 +19,7 @@ env/
 .env.*
 configs/compute_backend.local.yaml
 configs/*local*.yaml
+!configs/local_pdeagent_env.yaml
 
 # External source review caches
 .external_research/

@@ -1,0 +1,19 @@
+local_backend:
+  preferred_env_name: pdeagent
+  python_executable_hint: python
+  require_conda_env_for_local_gpu: true
+  allow_cpu_fallback: true
+
+checks:
+  expected_env_name: pdeagent
+  require_torch: true
+  require_cuda_for_gpu: true
+  required_packages:
+    - torch
+    - numpy
+    - h5py
+    - yaml
+
+notes:
+  - "This file contains no secrets."
+  - "Use `conda activate pdeagent` before local GPU runs."

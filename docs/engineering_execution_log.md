@@ -501,3 +501,36 @@ optimization routes, or competition task execution strategy.
   - all validators: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.7 — Local pdeagent Environment Setup
+
+- stage: A9.7
+- started_at: 2026-05-16
+- purpose: adapt SuPerator local GPU backend to use the same conda env as pdeagent,
+  create environment check script and runbook.
+- files created:
+  - `configs/local_pdeagent_env.yaml`
+  - `scripts/check_local_pdeagent_env.py`
+  - `docs/pdeagent_migration/local_pdeagent_env_runbook.md`
+  - `tests/test_check_local_pdeagent_env.py`
+- files modified:
+  - `scripts/run_pdeagent_task1_adapter.py` (env info in dry-run, --require-pdeagent-env flag)
+  - `README.md` (GPU environment section)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_run_pdeagent_task1_adapter.py`
+  - `tests/test_project_structure.py`
+  - `tests/test_project_docs_publication.py`
+- scope boundary:
+  - No training performed
+  - No remote execution
+  - No Kaggle/SLURM API calls
+  - No modification to SuPerator main flows
+  - Environment checks are advisory (non-strict by default)
+- validation:
+  - `python scripts/check_local_pdeagent_env.py`: to be run
+  - `python scripts/run_pdeagent_task1_adapter.py --dry-run`: to be run
+  - all validators: to be run
+  - targeted pytest: to be run
+- commit hash: pending

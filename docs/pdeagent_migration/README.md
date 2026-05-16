@@ -26,14 +26,15 @@
 | [baseline_adapter.md](baseline_adapter.md) | A9.4 Baseline Adapter 设计文档 |
 | [task1_adapter.md](task1_adapter.md) | A9.5 Task 1 Adapter 实现文档 |
 | [task1_experiment_suite_integration.md](task1_experiment_suite_integration.md) | A9.6 Experiment Suite 集成文档 |
+| [local_pdeagent_env_runbook.md](local_pdeagent_env_runbook.md) | A9.7 本地 pdeagent 环境 Runbook |
 
 ## 当前阶段状态
 
-**A9.6** — Experiment Suite 集成 **（当前阶段）**
-- pdeagent Task 1 adapter 已注册为 experiment suite 候选
-- `run_pdeagent_task1_adapter.py` 支持 dry-run / train / predict
-- Generated config 已生成
-- Result comparison 可读取 pdeagent 输出
+**A9.7** — 本地 pdeagent 环境适配 **（当前阶段）**
+- `configs/local_pdeagent_env.yaml` — 环境配置
+- `scripts/check_local_pdeagent_env.py` — 环境检查脚本
+- `run_pdeagent_task1_adapter.py` 增强：显示 env 信息 + `--require-pdeagent-env` 参数
+- README 已更新 GPU 环境说明
 - **未修改 SuPerator 训练 / 推理 / submission 主流程**
 
 ## 核心原则

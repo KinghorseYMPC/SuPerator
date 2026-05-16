@@ -71,7 +71,13 @@
 **目标**：将 pdeagent Task 1 adapter 接入 experiment suite / full auto controller
 **状态**：完成
 
-## A9.7 — Task 2 Adapter Design
+## A9.7 — Local pdeagent Environment Setup ✅ (COMPLETED 2026-05-16)
+
+**优先级**：P1
+**目标**：本地 GPU 环境适配 pdeagent conda 环境，环境检查与 runbook
+**状态**：完成
+
+## A9.8 — Task 2 Adapter Design
 
 **优先级**：P1  
 **目标**：确保 Task 2（FiLM + nu estimator）在 SuPerator 中可工作  
@@ -94,7 +100,7 @@
 
 ---
 
-## A9.7 — LLM Log Provenance Adapter
+## A9.9 — LLM Log Provenance Adapter
 
 **优先级**：P1  
 **目标**：引入 pdeagent llm_client JSONL 机制，解决 SuPerator provenance gap  

@@ -73,14 +73,24 @@ def run_dry(config: dict[str, Any]) -> dict[str, Any]:
         "outputs": output_cfg,
         "torch_available": _check_torch(),
     }
+    # Add CUDA info if torch available
+    if summary["torch_available"]:
+        import torch
+        summary["cuda_available"] = torch.cuda.is_available()
+    # Add env info
+    import os as _os
+    summary["conda_env"] = _os.environ.get("CONDA_DEFAULT_ENV")
+    summary["expected_conda_env"] = "pdeagent"
+    summary["env_match"] = summary.get("conda_env") == "pdeagent"
 
     print("[DRY-RUN] Config summary:")
     for section, items in summary.items():
         if isinstance(items, dict):
             for k, v in items.items():
                 print(f"  {section}.{k}: {v}")
-        elif section == "torch_available":
-            print(f"  torch_available: {items}")
+        elif section in ("torch_available", "conda_env", "expected_conda_env", "env_match",
+                         "cuda_available"):
+            print(f"  {section}: {items}")
 
     if not summary["torch_available"]:
         print("[INFO] torch not available — training/prediction will skip gracefully.")
@@ -133,6 +143,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--predict", action="store_true")
     parser.add_argument("--checkpoint", default="")
+    parser.add_argument("--require-pdeagent-env", action="store_true")
     parser.add_argument("--output-summary", default="outputs/pdeagent_task1/run_summary.json")
     args = parser.parse_args(argv)
 
@@ -148,6 +159,16 @@ def main(argv: list[str] | None = None) -> int:
     do_train = args.train
     do_predict = args.predict
     do_dry = args.dry_run or (not do_train and not do_predict)
+    require_env = args.require_pdeagent_env
+
+    if (do_train or do_predict) and require_env:
+        import os as _os
+        env_name = _os.environ.get("CONDA_DEFAULT_ENV")
+        if env_name != "pdeagent":
+            print(f"[ERROR] --require-pdeagent-env is set but current conda env is "
+                  f"'{env_name or '<none>'}', expected 'pdeagent'.")
+            print("Hint: conda activate pdeagent")
+            return 1
 
     summary: dict[str, Any] = {"started_at": now(), "config": str(config_path)}
 
@@ -164,6 +185,12 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         pred_result = run_predict(config, args.checkpoint)
         summary["predict"] = pred_result
+
+    # Environment info
+    import os
+    summary["conda_env"] = os.environ.get("CONDA_DEFAULT_ENV")
+    summary["expected_conda_env"] = "pdeagent"
+    summary["env_match"] = summary["conda_env"] == "pdeagent"
 
     summary["finished_at"] = now()
 

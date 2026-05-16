@@ -174,6 +174,14 @@ def test_readme_allows_rule_format_language() -> None:
     assert "submission" in readme.lower()
 
 
+def test_local_pdeagent_env_runbook_exists() -> None:
+    path = ROOT / "docs" / "pdeagent_migration" / "local_pdeagent_env_runbook.md"
+    assert path.is_file(), "local_pdeagent_env_runbook.md should exist"
+    text = path.read_text(encoding="utf-8")
+    assert "conda activate pdeagent" in text
+    assert "outputs/pdeagent_task1" in text
+
+
 def test_readme_documents_a6_suite_commands() -> None:
     readme = read_text("README.md")
 
