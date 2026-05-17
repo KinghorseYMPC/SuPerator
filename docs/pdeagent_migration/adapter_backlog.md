@@ -83,7 +83,13 @@
 **目标**：pdeagent Task 1 quick train/predict 闭环（pdeagent conda 环境）
 **状态**：完成
 
-## A9.9 — Task 2 Adapter Design
+## A9.9 — Task 1 Submission Finalizer (COMPLETED 2026-05-17)
+
+**优先级**：P1
+**目标**：从 quick-cycle checkpoint 生成 Task 1 submission.zip
+**状态**：完成
+
+## A9.10 — Task 2 Adapter Design
 
 **优先级**：P1  
 **目标**：确保 Task 2（FiLM + nu estimator）在 SuPerator 中可工作  

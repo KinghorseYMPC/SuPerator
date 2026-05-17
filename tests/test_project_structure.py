@@ -343,3 +343,13 @@ def test_a98_quick_run_files_exist() -> None:
         "tests/test_parse_pdeagent_task1_run.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a99_submission_files_exist() -> None:
+    for relative_path in [
+        "scripts/finalize_pdeagent_task1_submission.py",
+        "src/submission/make_pdeagent_task1_submission.py",
+        "docs/pdeagent_migration/task1_submission_adapter.md",
+        "tests/test_finalize_pdeagent_task1_submission.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

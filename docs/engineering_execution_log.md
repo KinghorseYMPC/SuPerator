@@ -563,3 +563,12 @@ optimization routes, or competition task execution strategy.
   - all validators: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A9.9 - Task 1 Submission Finalizer
+- stage: A9.9
+- started_at: 2026-05-17
+- purpose: generate validated Task 1 submission from pdeagent adapter checkpoint
+- files created: scripts/finalize_pdeagent_task1_submission.py, src/submission/make_pdeagent_task1_submission.py, docs/pdeagent_migration/task1_submission_adapter.md, tests/test_finalize_pdeagent_task1_submission.py
+- scope: uses existing A9.8 checkpoint, dry-run passed, development_summary_log provenance
+- validation: dry-run OK, all validators to be run, pytest to be run
+- commit hash: pending
