@@ -124,6 +124,60 @@ class TestSubmissionHelper:
             assert (sub_dir / "task1_time.csv").is_file()
             assert (sub_dir / "task1_logs.log").is_file()
 
+    def test_validate_passes_test_path(self, tmp_path):
+        """validate=True should pass test_path to validate_task_submission."""
+        try:
+            import torch  # noqa: F401
+        except (ImportError, OSError):
+            pytest.skip("torch not available (DLL issue)")
+        from unittest.mock import patch, MagicMock
+
+        with patch("src.adapters.pdeagent.inference_adapter.predict_task1_from_checkpoint") as mp, \
+             patch("src.submission.make_pdeagent_task1_submission.copy_code_bundle") as mc, \
+             patch("src.submission.make_pdeagent_task1_submission.package_submission") as mkg, \
+             patch("src.submission.make_pdeagent_task1_submission.validate_task_submission") as mv, \
+             patch("src.submission.make_pdeagent_task1_submission.validate_task_log") as mvl:
+            mp.return_value = {
+                "prediction": np.zeros((4, 200, 256), dtype=np.float32),
+                "summary": {"max_initial_error": 0.0, "device": "cpu",
+                             "checkpoint_path": "test.pt", "test_path": "test.h5",
+                             "pred_shape": [4, 200, 256]},
+            }
+            mc.return_value = None
+            mkg.return_value = str(tmp_path / "submission.zip")
+            mv.return_value = {"passed": True, "max_initial_error": 0.0}
+            mvl.return_value = {"passed": True, "errors": [], "warnings": []}
+
+            from src.submission.make_pdeagent_task1_submission import create_pdeagent_task1_submission
+
+            ckpt = tmp_path / "fake.pt"
+            torch.save({"model_state": {}}, str(ckpt))
+
+            config_path = tmp_path / "config.yaml"
+            import yaml
+            config_path.write_text(yaml.safe_dump({
+                "data": {"test_path": str(tmp_path / "test.h5"), "total_steps": 200, "input_steps": 10},
+                "model": {"input_steps": 10, "output_steps": 10, "width": 8, "modes": 4, "depth": 2,
+                           "dropout": 0.0, "use_film": False},
+            }), encoding="utf-8")
+
+            sub_dir = tmp_path / "submission" / "submission"
+            summary = create_pdeagent_task1_submission(
+                checkpoint_path=str(ckpt),
+                config_path=str(config_path),
+                submission_dir=str(sub_dir),
+                train_time=2.5,
+                validate=True,
+                package=False,
+            )
+
+            # Verify validate_task_submission was called with test_path
+            mv.assert_called_once()
+            call_kwargs = mv.call_args.kwargs
+            assert "test_path" in call_kwargs, (
+                f"validate_task_submission should receive test_path, got kwargs: {list(call_kwargs)}"
+            )
+
     def test_provenance_mode_in_log(self, tmp_path):
         """Log should contain development_summary_log provenance."""
         from src.submission.make_pdeagent_task1_submission import _write_pdeagent_task1_log

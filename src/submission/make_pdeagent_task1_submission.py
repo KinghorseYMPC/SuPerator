@@ -208,9 +208,11 @@ def create_pdeagent_task1_submission(
 
     validation_summary = None
     if validate:
+        test_path = ROOT / config["data"]["test_path"]
         validation_summary = validate_task_submission(
             submission_dir=str(submission),
             task_id=1,
+            test_path=str(test_path),
         )
 
     # Package
