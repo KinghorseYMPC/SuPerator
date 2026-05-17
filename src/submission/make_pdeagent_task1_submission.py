@@ -206,9 +206,10 @@ def create_pdeagent_task1_submission(
             strict=True,
         )
 
+    test_path = ROOT / config["data"]["test_path"]
+
     validation_summary = None
     if validate:
-        test_path = ROOT / config["data"]["test_path"]
         validation_summary = validate_task_submission(
             submission_dir=str(submission),
             task_id=1,
@@ -219,7 +220,12 @@ def create_pdeagent_task1_submission(
     zip_path = None
     if package:
         zip_path = str(submission.parent / "submission.zip")
-        package_submission(str(submission), zip_path)
+        package_submission(
+            submission_dir=str(submission),
+            task_id=1,
+            test_path=str(test_path),
+            zip_path=zip_path,
+        )
 
     return {
         "pred_key": pred_key,

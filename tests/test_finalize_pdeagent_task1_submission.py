@@ -124,6 +124,17 @@ class TestSubmissionHelper:
             assert (sub_dir / "task1_time.csv").is_file()
             assert (sub_dir / "task1_logs.log").is_file()
 
+            # Verify package_submission got keyword args, not positional zip-as-task_id
+            mkg.assert_called_once()
+            call_kwargs = mkg.call_args.kwargs
+            assert "zip_path" in call_kwargs, (
+                f"package_submission should receive zip_path kwarg, got: {list(call_kwargs)}"
+            )
+            assert "task_id" in call_kwargs, (
+                f"package_submission should receive task_id kwarg, got: {list(call_kwargs)}"
+            )
+            assert call_kwargs["task_id"] == 1, f"task_id should be 1, not a path: {call_kwargs['task_id']}"
+
     def test_validate_passes_test_path(self, tmp_path):
         """validate=True should pass test_path to validate_task_submission."""
         try:
