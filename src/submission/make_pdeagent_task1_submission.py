@@ -15,11 +15,8 @@ import h5py
 import numpy as np
 import pandas as pd
 
-from src.data.hdf5_utils import find_main_array_key
 from src.submission.make_dummy_task1_submission import (
-    choose_output_dataset_key,
     copy_code_bundle,
-    normalize_hdf5_key,
 )
 from src.submission.package_submission import package_submission
 from src.submission.validate_submission import validate_task_submission
@@ -166,10 +163,8 @@ def create_pdeagent_task1_submission(
     with h5py.File(str(pred_path), "w") as f:
         f.create_dataset("tensor", data=pred.astype(np.float32))
 
-    # Determine test key for validation
-    test_path = ROOT / config["data"]["test_path"]
-    test_key = find_main_array_key(test_path)
-    pred_key = choose_output_dataset_key(test_key, test_path)
+    # Pred key is always "tensor" — pdeagent adapter writes this key
+    pred_key = "tensor"
 
     # Write time.csv
     time_csv_path = submission / "task1_time.csv"

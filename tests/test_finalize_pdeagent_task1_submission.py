@@ -119,6 +119,7 @@ class TestSubmissionHelper:
             assert summary["pred_shape"] == [4, 200, 256]
             assert summary["train_time"] == 2.5
             assert summary["inference_time"] >= 0
+            assert summary["pred_key"] == "tensor"
             assert (sub_dir / "task1_pred.hdf5").is_file()
             assert (sub_dir / "task1_time.csv").is_file()
             assert (sub_dir / "task1_logs.log").is_file()
