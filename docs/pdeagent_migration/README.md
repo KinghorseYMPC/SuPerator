@@ -29,14 +29,16 @@
 | [local_pdeagent_env_runbook.md](local_pdeagent_env_runbook.md) | A9.7 本地 pdeagent 环境 Runbook |
 | [task1_quick_local_run.md](task1_quick_local_run.md) | A9.8 Task 1 Quick Local Run Runbook |
 | [task1_submission_adapter.md](task1_submission_adapter.md) | A9.9 Task 1 Submission Adapter 文档 |
+| [task2_adapter.md](task2_adapter.md) | A10.1 Task 2 Adapter 文档 |
 
 ## 当前阶段状态
 
-**A9.9** — Task 1 Submission 生成 **（当前阶段）**
-- `scripts/finalize_pdeagent_task1_submission.py` — dry-run / validate / package
-- `src/submission/make_pdeagent_task1_submission.py` — reusable submission helper
-- 从 quick-cycle checkpoint 生成完整 submission.zip
-- **未修改 SuPerator 训练 / 推理 / submission 主流程**
+**A10.1** — Task 2 Adapter Smoke **（当前阶段）**
+- Task 2 model adapter（FiLM + NuEstimator1d + PdeAgentTask2Model）
+- Task 2 dataset adapter（Nu-aware windowed HDF5）
+- Task 2 inference adapter（Nu-free test rollout）
+- Smoke 配置与脚本
+- 本阶段只做 adapter smoke，不训练
 
 ## 核心原则
 

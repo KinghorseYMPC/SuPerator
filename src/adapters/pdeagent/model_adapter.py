@@ -1,4 +1,4 @@
-"""PDE Task 1 model adapter — ChunkedFNO1d-style neural operator.
+"""PDE model adapter — ChunkedFNO1d-style neural operator for Task 1 and Task 2.
 
 Adapted from pdeagent code-ref/model.py (external_references/).
 Clean-room implementation — no import from external_references.
@@ -6,14 +6,15 @@ Clean-room implementation — no import from external_references.
 Provides:
   - SpectralConv1d: 1D Fourier convolution with learned complex-mode weights
   - FNOBlock1d: residual FNO block (spectral + pointwise + GroupNorm + GELU)
-  - FiLM: Feature-wise Linear Modulation (for Task 2, disabled in Task 1)
+  - FiLM: Feature-wise Linear Modulation (for Task 2 conditioning)
+  - NuEstimator1d: lightweight Nu estimator from initial conditions (Task 2)
   - FNOForecast1d: core forecast module (Conv1d lift + coord + FNO blocks + project)
-  - ChunkedFNO1d: autoregressive chunked rollout wrapper
-  - PdeAgentTask1Model: named alias for Task 1 use
-  - build_pdeagent_task1_model: factory function
+  - PdeAgentTask1Model: ChunkedFNO1d for Task 1
+  - PdeAgentTask2Model: FiLM-conditioned FNO with Nu estimation for Task 2
+  - build_pdeagent_task1_model / build_pdeagent_task2_model: factories
 
 Architecture:
-  input (B, Tin, X) → concat coord → Conv1d lift → Nx FNOBlock1d
+  input (B, Tin, X) → concat coord → Conv1d lift → Nx FNOBlock1d (± FiLM)
   → Conv1d project → add last-frame residual → output (B, Tout, X)
 
 Reference: external_references/pdeagent_code_ref/code-ref/model.py
@@ -47,6 +48,8 @@ class PdeAgentBaselineConfig:
         dropout: Dropout rate inside FNO blocks.
         chunk_size: Chunk size for ChunkedFNO1d rollout.
         use_film: Whether to use FiLM conditioning (False for Task 1).
+        condition_source: "provided_nu" (train, external Nu) or "estimated_nu" (infer, NuEstimator1d).
+        nu_dim: Dimensionality of Nu condition vector.
     """
     input_steps: int = 10
     output_steps: int = 10
@@ -58,6 +61,8 @@ class PdeAgentBaselineConfig:
     dropout: float = 0.0
     chunk_size: int = 10
     use_film: bool = False
+    condition_source: str = "provided_nu"
+    nu_dim: int = 1
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +128,33 @@ class FiLM(nn.Module):
         return g * x + b
 
 
+class NuEstimator1d(nn.Module):
+    """Lightweight Nu estimator from initial-condition frames.
+
+    Input:  (B, input_steps, X) velocity frames
+    Output: (B, nu_dim) estimated Nu value
+
+    Uses Conv1d lift → GELU → AdaptiveAvgPool1d → Flatten → MLP.
+    No file I/O, no dependency on real data.
+    """
+
+    def __init__(self, input_steps: int = 10, nu_dim: int = 1, hidden: int = 32) -> None:
+        super().__init__()
+        self.conv = nn.Conv1d(input_steps, hidden, kernel_size=1)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, nu_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """x: (B, input_steps, X) → (B, nu_dim)"""
+        h = torch.nn.functional.gelu(self.conv(x))
+        h = self.pool(h).squeeze(-1)
+        return self.mlp(h)
+
+
 # ---------------------------------------------------------------------------
 # Core forecast module (pdeagent FNOForecast1d equivalent)
 # ---------------------------------------------------------------------------
@@ -133,6 +165,10 @@ class FNOForecast1d(nn.Module):
     Input:  (B, Tin, Nx)  normalised velocity
     Output: (B, Tout, Nx)  normalised velocity prediction
     Uses Conv1d lift + spatial coordinate concatenation + residual from last frame.
+
+    For Task 2 with use_film=True:
+      - condition_source="provided_nu": expects external cond tensor in forward(x, cond)
+      - condition_source="estimated_nu": if cond is None, uses internal NuEstimator1d
     """
 
     def __init__(self, config: PdeAgentBaselineConfig) -> None:
@@ -144,6 +180,8 @@ class FNOForecast1d(nn.Module):
         depth = config.depth
         dropout = config.dropout
         self.use_film = config.use_film
+        self.condition_source = config.condition_source
+        self.nu_dim = config.nu_dim
         self.t_in = t_in
         self.t_out = t_out
 
@@ -157,8 +195,11 @@ class FNOForecast1d(nn.Module):
             FNOBlock1d(width, modes, dropout) for _ in range(depth)
         ])
         self.films = nn.ModuleList(
-            [FiLM(1, width) for _ in range(depth)]
+            [FiLM(config.nu_dim, width) for _ in range(depth)]
         ) if self.use_film else None
+
+        if self.use_film:
+            self.nu_estimator = NuEstimator1d(t_in, config.nu_dim)
 
         # Project: width → 2*width → Tout
         self.project = nn.Sequential(
@@ -177,7 +218,9 @@ class FNOForecast1d(nn.Module):
 
         Args:
             x: (B, Tin, Nx) input window.
-            cond: Optional (B, 1) condition tensor (unused for Task 1).
+            cond: Optional (B, nu_dim) condition tensor.
+                  If None and use_film and condition_source="estimated_nu",
+                  estimated internally via NuEstimator1d.
 
         Returns:
             (pred, cond) where pred is (B, Tout, Nx).
@@ -186,6 +229,14 @@ class FNOForecast1d(nn.Module):
             raise ValueError(f"model input must be [B,T,Nx], got {tuple(x.shape)}")
         if x.shape[1] != self.t_in:
             raise ValueError(f"expected {self.t_in} input steps, got {x.shape[1]}")
+
+        # Resolve condition
+        if self.use_film and cond is None and self.condition_source == "estimated_nu":
+            cond = self.nu_estimator(x)
+
+        # Ensure cond is 2D (B, nu_dim)
+        if cond is not None and cond.ndim == 1:
+            cond = cond[:, None]
 
         # Concat coordinate → Conv1d lift
         h = self.lift(torch.cat([x, self._coord(x)], dim=1))
@@ -263,7 +314,119 @@ class PdeAgentBaselineModel(PdeAgentTask1Model):
 
 
 # ---------------------------------------------------------------------------
-# Factory
+# Task 2 model
+# ---------------------------------------------------------------------------
+
+class PdeAgentTask2Model(nn.Module):
+    """Chunked autoregressive FNO with FiLM conditioning for Task 2 forecasting.
+
+    Wraps FNOForecast1d with FiLM + NuEstimator1d for multi-Nu Burgers dynamics.
+    Supports:
+      - use_film=True with condition_source="provided_nu" (training with given Nu)
+      - use_film=True with condition_source="estimated_nu" (inference, estimate Nu)
+    """
+
+    def __init__(self, config: PdeAgentBaselineConfig) -> None:
+        super().__init__()
+        if config.chunk_size <= 0:
+            raise ValueError("chunk_size must be positive")
+        if not config.use_film:
+            raise ValueError("PdeAgentTask2Model requires use_film=True")
+        self.t_in = config.input_steps
+        self.chunk_size = config.chunk_size
+        self.condition_source = config.condition_source
+        self.core = FNOForecast1d(config)
+
+    def forward(self, x: torch.Tensor, nu: torch.Tensor | None = None,
+                cond: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor | None]:
+        """Single-step forward: predict one chunk from input window.
+
+        Args:
+            x: (B, Tin, Nx) input window.
+            nu: Alias for cond — (B, nu_dim) condition tensor.
+            cond: Synonym for nu for backward compatibility.
+
+        Returns:
+            (pred, cond_or_nu) where pred is (B, Tout, Nx).
+        """
+        # Resolve nu/cond alias
+        if nu is not None:
+            cond = nu
+        return self.core(x, cond)
+
+    @torch.no_grad()
+    def rollout_no_grad(self, x: torch.Tensor, horizon: int = 190,
+                        nu: torch.Tensor | None = None,
+                        cond: torch.Tensor | None = None) -> torch.Tensor:
+        """No-grad rollout for validation/inference."""
+        return self.rollout(x, horizon=horizon, nu=nu, cond=cond)
+
+    def rollout(self, x: torch.Tensor, horizon: int = 190,
+                nu: torch.Tensor | None = None,
+                cond: torch.Tensor | None = None) -> torch.Tensor:
+        """Autoregressive chunked rollout.
+
+        Args:
+            x: (B, Tin, Nx) initial-condition window.
+            horizon: Total future steps to predict.
+            nu: Optional (B, nu_dim) condition tensor.
+                If None and condition_source="estimated_nu", estimated once
+                from the initial window and reused.
+            cond: Synonym for nu.
+
+        Returns:
+            (B, horizon, Nx) prediction.
+        """
+        if horizon <= 0:
+            raise ValueError("horizon must be positive")
+
+        # Resolve nu/cond alias
+        if nu is not None:
+            cond = nu
+
+        # If cond not provided and model estimates, do it once from initial
+        if cond is None and self.condition_source == "estimated_nu":
+            cond = self.core.nu_estimator(x)
+
+        history = x
+        chunks: list[torch.Tensor] = []
+        produced = 0
+        while produced < horizon:
+            pred, _ = self.forward(history[:, -self.t_in:, :], cond=cond)
+            take = min(pred.shape[1], horizon - produced)
+            chunk = pred[:, :take, :]
+            chunks.append(chunk)
+            history = torch.cat([history, chunk], dim=1)
+            produced += take
+        return torch.cat(chunks, dim=1)
+
+
+# ---------------------------------------------------------------------------
+# Task 2 factory
+# ---------------------------------------------------------------------------
+
+def build_pdeagent_task2_model(config: PdeAgentBaselineConfig | None = None, **kwargs: Any) -> PdeAgentTask2Model:
+    """Build a pdeagent-style Task 2 model with FiLM + NuEstimator1d.
+
+    Args:
+        config: PdeAgentBaselineConfig. If None, defaults with use_film=True.
+        **kwargs: Override config fields.
+
+    Returns:
+        PdeAgentTask2Model instance.
+    """
+    if config is None:
+        config = PdeAgentBaselineConfig(use_film=True)
+    for key, val in kwargs.items():
+        if hasattr(config, key):
+            setattr(config, key, val)
+        else:
+            raise TypeError(f"Unknown config field: {key}")
+    return PdeAgentTask2Model(config)
+
+
+# ---------------------------------------------------------------------------
+# Task 1 factory
 # ---------------------------------------------------------------------------
 
 def build_pdeagent_task1_model(config: PdeAgentBaselineConfig | None = None, **kwargs: Any) -> PdeAgentTask1Model:

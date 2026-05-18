@@ -1,0 +1,33 @@
+project_name: SuPerator
+stage: A10_1_pdeagent_task2_adapter
+task: task2
+experiment_id: exp_a10_1_pdeagent_task2_smoke
+
+data:
+  train_paths:
+    - data_and_sample_submission/train_val_test_init/task2_part0_train.h5
+    - data_and_sample_submission/train_val_test_init/task2_part1_train.h5
+    - data_and_sample_submission/train_val_test_init/task2_part2_train.h5
+  val_path: data_and_sample_submission/train_val_test_init/task2_val.h5
+  test_path: data_and_sample_submission/train_val_test_init/task2_test.h5
+  input_steps: 10
+  output_steps: 1
+  total_steps: 200
+  spatial_points: 256
+
+model:
+  name: pdeagent_task2
+  input_steps: 10
+  output_steps: 1
+  width: 32
+  modes: 16
+  depth: 4
+  padding: 8
+  dropout: 0.0
+  use_film: true
+  condition_source: estimated_nu
+  nu_dim: 1
+
+smoke:
+  batch_size: 2
+  device: cpu

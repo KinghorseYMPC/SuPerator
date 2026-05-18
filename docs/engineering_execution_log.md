@@ -564,6 +564,51 @@ optimization routes, or competition task execution strategy.
   - targeted pytest: to be run
 - commit hash: pending
 
+## A10.1 - Task 2 Adapter Smoke
+
+- stage: A10.1
+- started_at: 2026-05-18
+- purpose: migrate pdeagent Task 2 baseline adapter structure (FiLM + NuEstimator1d),
+  complete shape smoke, config, tests, and documentation. No training.
+- files created:
+  - `src/adapters/pdeagent/task2_dataset_adapter.py`
+  - `src/adapters/pdeagent/task2_inference_adapter.py`
+  - `configs/pdeagent_task2_adapter_smoke.yaml`
+  - `scripts/smoke_pdeagent_task2_adapter.py`
+  - `docs/pdeagent_migration/task2_adapter.md`
+  - `tests/test_pdeagent_task2_model_adapter.py`
+  - `tests/test_pdeagent_task2_dataset_adapter.py`
+  - `tests/test_pdeagent_task2_inference_adapter.py`
+  - `tests/test_pdeagent_task2_smoke_script.py`
+- files modified:
+  - `src/adapters/pdeagent/model_adapter.py` (extended: NuEstimator1d, PdeAgentTask2Model, build_pdeagent_task2_model)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/pdeagent_migration/adapter_backlog.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+- scope boundary:
+  - no model training
+  - no real inference on test set
+  - no Kaggle/SLURM/LLM API calls
+  - no Task 1 checkpoint use
+  - no Task 1 data use
+  - no submission generation
+- key constraints enforced:
+  - Task 2 training data provides Nu; test data does not
+  - Inference uses NuEstimator1d from initial conditions, not test Nu
+  - FiLM conditioning supports condition_source: "provided_nu" / "estimated_nu"
+  - Task 1 model interface intact
+- validation:
+  - `python scripts/smoke_pdeagent_task2_adapter.py`: to be run
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending
+
 ## A9.9 - Task 1 Submission Finalizer
 - stage: A9.9
 - started_at: 2026-05-17

@@ -353,3 +353,18 @@ def test_a99_submission_files_exist() -> None:
         "tests/test_finalize_pdeagent_task1_submission.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a101_task2_adapter_files_exist() -> None:
+    for relative_path in [
+        "src/adapters/pdeagent/task2_dataset_adapter.py",
+        "src/adapters/pdeagent/task2_inference_adapter.py",
+        "configs/pdeagent_task2_adapter_smoke.yaml",
+        "scripts/smoke_pdeagent_task2_adapter.py",
+        "docs/pdeagent_migration/task2_adapter.md",
+        "tests/test_pdeagent_task2_model_adapter.py",
+        "tests/test_pdeagent_task2_dataset_adapter.py",
+        "tests/test_pdeagent_task2_inference_adapter.py",
+        "tests/test_pdeagent_task2_smoke_script.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
