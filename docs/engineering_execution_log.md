@@ -716,3 +716,53 @@ optimization routes, or competition task execution strategy.
 - scope: uses existing A9.8 checkpoint, dry-run passed, development_summary_log provenance
 - validation: dry-run OK, all validators to be run, pytest to be run
 - commit hash: pending
+
+## A10.6 - Quick Baseline Platform Acceptance
+
+- stage: A10.6
+- started_at: 2026-05-18
+- purpose: quick baseline accepted by competition platform
+- commands manually verified:
+  - `python scripts/run_pdeagent_all_quick_submission.py --skip-task1-train --skip-task2-train`
+  - `python scripts/validate_submission.py --all-present`
+  - `python scripts/validate_task_logs.py`
+  - methodology.pdf presence check
+  - write_file tool_calls presence check in task1_logs.log and task2_logs.log
+- competition result:
+  - accepted: true
+  - score: 77.874956
+- known limitation:
+  - score lower than pdeagent long / latest score, likely due to quick training;
+  - log provenance still development_summary_log, although code-log consistency passed;
+- next stage:
+  - prepare longer controlled training / official provenance work
+- files modified:
+  - `docs/engineering_execution_log.md`
+  - `docs/project_stage_history.md`
+  - `README.md`
+  - `docs/project_audit/improvement_plan.md`
+  - `docs/project_audit/security_and_compliance_risks.md`
+  - `docs/pdeagent_migration/quick_submission_scripts.md`
+  - `docs/pdeagent_migration/code_log_consistency_requirement.md`
+  - `docs/pdeagent_migration/methodology_pdf_requirement.md`
+- files created:
+  - `docs/submission_acceptance/task1_task2_quick_baseline_accepted.md`
+  - `tests/test_submission_acceptance_docs.py`
+- files modified (tests):
+  - `tests/test_project_docs_publication.py`
+  - `tests/test_project_structure.py`
+  - `tests/test_project_audit_docs.py`
+- scope boundary:
+  - no model training
+  - no Kaggle / SLURM / LLM API calls
+  - no new submission generation
+  - documentation, audit, and test updates only
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py --all-present`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending

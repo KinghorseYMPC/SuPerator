@@ -336,6 +336,43 @@ python scripts/validate_submission.py --all-present
 
 详见 `docs/pdeagent_migration/quick_submission_scripts.md`。
 
+## 当前状态 / Quick baseline
+
+SuPerator 已能一键生成 Task 1 + Task 2 quick submission，并在比赛官网验收通过。
+
+**命令：**
+
+```bash
+conda activate pdeagent
+python scripts/run_pdeagent_all_quick_submission.py --skip-task1-train --skip-task2-train
+```
+
+**生成产物：**
+
+```
+outputs/submission/submission.zip
+```
+
+**本地验证：**
+
+```bash
+python scripts/validate_submission.py --all-present
+python scripts/validate_task_logs.py
+```
+
+**官网验收：**
+
+- score: 77.874956
+- accepted: yes
+
+**说明：**
+
+- 这是 quick baseline，不是高分训练配置；
+- outputs/ 不进 Git；
+- 当前日志仍是 development_summary_log，但 code-log consistency 已通过官网检测。
+
+详见 `docs/submission_acceptance/task1_task2_quick_baseline_accepted.md`。
+
 ## 协作方式
 
 合作者应阅读：

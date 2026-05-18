@@ -420,3 +420,13 @@ def test_a103_quick_submission_scripts_exist() -> None:
         "tests/test_validate_submission_cli.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a106_acceptance_doc_exists() -> None:
+    path = ROOT / "docs" / "submission_acceptance" / "task1_task2_quick_baseline_accepted.md"
+    assert path.is_file(), "missing docs/submission_acceptance/task1_task2_quick_baseline_accepted.md"
+
+
+def test_a106_acceptance_test_exists() -> None:
+    path = ROOT / "tests" / "test_submission_acceptance_docs.py"
+    assert path.is_file(), "missing tests/test_submission_acceptance_docs.py"

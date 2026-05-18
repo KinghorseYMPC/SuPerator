@@ -195,3 +195,26 @@ training plans, or score optimization routes.
 - limitations: private backend configuration remains local-only and ignored;
   generated outputs, returned artifacts, checkpoints, runtime logs, and
   submission packages remain ignored local material.
+
+## A10.6 - Quick Baseline Platform Acceptance
+
+- stage: A10.6
+- purpose: quick baseline documentation, audit, and acceptance record for the
+  pdeagent Task 1 + Task 2 quick submission that passed competition platform
+  validation.
+- key facts:
+  - Task 1 + Task 2 quick submission accepted by competition platform;
+  - methodology.pdf missing issue resolved;
+  - code-log consistency issue resolved;
+  - current score: 77.874956;
+  - current limitation: quick baseline only;
+  - future work: higher-quality training and provenance.
+- completed artifacts:
+  - `docs/submission_acceptance/task1_task2_quick_baseline_accepted.md`
+  - updated engineering execution log, project stage history, README, and audit docs
+  - updated pdeagent migration docs reflecting platform acceptance
+  - updated test coverage for acceptance docs
+- validation result: pending A10.6 audit and test execution.
+- commit hash: pending.
+- limitations: score is lower than longer-training runs; log provenance remains
+  development_summary_log but code-log consistency passed platform checks.

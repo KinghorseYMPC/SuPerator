@@ -131,3 +131,39 @@ def test_improvement_plan_has_p0_p1_p2() -> None:
     assert "P0" in text, "improvement_plan.md missing P0 section"
     assert "P1" in text, "improvement_plan.md missing P1 section"
     assert "P2" in text, "improvement_plan.md missing P2 section"
+
+
+def test_improvement_plan_methodology_pdf_resolved() -> None:
+    text = _read(IMPROVEMENT_PLAN_PATH)
+    assert "methodology.pdf" in text.lower()
+    # methodology.pdf should be marked as mitigated or resolved, not purely unresolved
+    assert "resolved" in text.lower() or "mitigated" in text.lower(), (
+        "improvement_plan.md should mark methodology.pdf as resolved/mitigated"
+    )
+
+
+def test_improvement_plan_code_log_consistency_acknowledged() -> None:
+    text = _read(IMPROVEMENT_PLAN_PATH)
+    assert "code-log consistency" in text.lower() or "code_log_consistency" in text.lower()
+    # should not claim code-log consistency is completely unaddressed
+    assert "A10.5" in text or "A10.6" in text, (
+        "improvement_plan.md should reference code-log consistency resolution stages"
+    )
+
+
+def test_security_risks_code_log_consistency_updated() -> None:
+    text = _read(SECURITY_RISKS_PATH)
+    # code-log consistency write_file tool_calls should be noted as resolved
+    assert "code-log consistency" in text.lower() or "A10.5" in text or "A10.6" in text, (
+        "security_and_compliance_risks.md should reference code-log consistency resolution"
+    )
+
+
+def test_security_risks_still_flags_full_llm_provenance_gap() -> None:
+    text = _read(SECURITY_RISKS_PATH)
+    assert "development_summary_log" in text, (
+        "security_and_compliance_risks.md should still mention development_summary_log provenance gap"
+    )
+    assert "API-proxy" in text or "api_proxy" in text.lower(), (
+        "security_and_compliance_risks.md should still mention full LLM provenance gap"
+    )

@@ -12,13 +12,11 @@ and free of task execution strategy.
 
 ## Current Stage
 
-A7.1: collaborator readiness and non-interactive remote execution hardening.
-This stage keeps README / AGENTS / collaboration docs current, preserves
-repository hygiene, and prevents automated remote commands from waiting for an
-interactive auth prompt.
-
-This stage does not train models, call the Kaggle API, connect to SLURM, or
-generate large artifacts.
+A10.6: quick baseline platform acceptance. Task 1 + Task 2 quick submission has
+been accepted by the competition platform (score: 77.874956). This stage focuses
+on documentation, audit updates, and test coverage for the acceptance record.
+It does not train models, call the Kaggle API, connect to SLURM, or generate
+large artifacts.
 
 ## Required Reading Order
 

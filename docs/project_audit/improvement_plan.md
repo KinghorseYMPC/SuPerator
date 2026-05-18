@@ -166,6 +166,10 @@ hyperparameter values, training strategies, or competition scoring routes.
 
 - **Problem**: No automated LLM log capture exists. The `development_summary_log`
   is written by project code, not captured from an LLM API proxy.
+  **Note (A10.6):** code-log consistency has passed platform checks via
+  `src/submission/code_log_consistency.py`. However, this does not replace
+  full LLM API provenance — the code snapshot records are structured
+  development summaries, not real LLM tool calls.
 - **Action**: Integrate an API proxy (e.g., OpenAI-compatible proxy) that
   captures complete request/response pairs into JSONL format. Validate captured
   logs with `validate_task_logs.py`.
@@ -174,11 +178,12 @@ hyperparameter values, training strategies, or competition scoring routes.
 
 ### 5. methodology.pdf Generation
 
-- **Problem**: No methodology documentation pipeline exists for the final
-  submission.
-- **Action**: Design a workflow that generates a methodology description from
-  experiment records, architecture configs, and training logs.
-- **Why P2**: Required for competition submission documentation.
+- **Problem**: ~~No methodology documentation pipeline exists for the final
+  submission.~~ **Resolved (A10.4/A10.6):** methodology.pdf generation is
+  implemented in `src/submission/methodology_pdf.py` and wired into all
+  submission helpers. Platform acceptance confirmed at A10.6.
+- **Status**: Mitigated.
+- **Why was P2**: Required for competition submission documentation.
 
 ### 6. Task 2 Preparation (No Strategy)
 
@@ -191,10 +196,23 @@ hyperparameter values, training strategies, or competition scoring routes.
   engineering preparation reduces later rush without violating the "no strategy"
   boundary.
 
+## Post-A10.6 Engineering Items
+
+### Quick Baseline Accepted, Score Low Due to Quick Run
+
+- **Fact**: Task 1 + Task 2 quick baseline accepted by competition platform
+  with score 77.874956.
+- **Context**: Score is lower than longer-training pdeagent runs; this is
+  expected for a quick (low-epoch) training configuration.
+- **Action**: Prepare longer controlled training runs and official LLM log
+  provenance for higher-quality submissions. Do not over-optimize based on
+  the quick baseline score.
+- **Priority**: P1 (next engineering stage).
+
 ## Summary
 
 | Priority | Count | Focus |
 |---|---|---|
 | **P0** | 7 | Provenance, controller stability, path consistency, test isolation, branch hardening |
 | **P1** | 6 | Experiment matrix, SLURM stability, knowledge-base pipeline, audit extension |
-| **P2** | 6 | Literature automation, log capture, methodology, Task 2 preparation |
+| **P2** | 6 | Literature automation, log capture, methodology (mitigated), Task 2 preparation |

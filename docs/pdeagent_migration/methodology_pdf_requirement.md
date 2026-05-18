@@ -49,6 +49,11 @@ submission/methodology.pdf
 task1_logs.log 和 task2_logs.log 使用 `development_summary_log` provenance mode。
 不等同于完整 API-proxy LLM log。
 
+## 平台验收状态 (A10.6)
+
+Methodology.pdf 检测已通过比赛官网。2026-05-18 的 quick baseline submission 中，
+`methodology.pdf` 被正确打包到 `submission.zip`，通过 platform validation。
+
 ## 安全说明
 
 - 不采用 pdeagent 原版 pack_submission.py 的合成日志逻辑

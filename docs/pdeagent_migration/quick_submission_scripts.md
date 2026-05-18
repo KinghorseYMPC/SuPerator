@@ -87,6 +87,17 @@ python scripts/validate_submission.py --all-present
 python scripts/validate_task_logs.py
 ```
 
+## 官网验收记录 (A10.6)
+
+- **accepted**: yes
+- **score**: 77.874956
+- **submission type**: Task 1 + Task 2 quick baseline
+- **environment**: pdeagent conda env
+- **command**: `python scripts/run_pdeagent_all_quick_submission.py --skip-task1-train --skip-task2-train`
+- **date**: 2026-05-18
+
+**Quick baseline 低分限制**：77.87 是 quick（低训练轮次）baseline 分数。pdeagent 更长训练的最高分在 200+，差异主要来自训练强度、模型容量和优化程度。当前分数用于验证 submission 流程完整性，不反映模型上限。
+
 ## 注意事项
 
 - 不提交 `outputs/` 目录

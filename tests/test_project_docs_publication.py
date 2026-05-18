@@ -174,6 +174,16 @@ def test_readme_allows_rule_format_language() -> None:
     assert "submission" in readme.lower()
 
 
+def test_readme_documents_quick_baseline_accepted() -> None:
+    readme = read_text("README.md")
+
+    assert "当前状态" in readme or "Quick baseline" in readme
+    assert "run_pdeagent_all_quick_submission.py" in readme
+    assert "77.874956" in readme
+    assert "quick baseline" in readme.lower()
+    assert "development_summary_log" in readme.lower()
+
+
 def test_local_pdeagent_env_runbook_exists() -> None:
     path = ROOT / "docs" / "pdeagent_migration" / "local_pdeagent_env_runbook.md"
     assert path.is_file(), "local_pdeagent_env_runbook.md should exist"

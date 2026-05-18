@@ -67,6 +67,15 @@ code snapshot 记录仍使用 `development_summary_log` provenance mode。
 | LLM 调用溯源 | ❌ | ✅ |
 | timestamp 意义 | 快照时间 | 真实 API 调用时间 |
 
+## 平台验收状态 (A10.6)
+
+Code-log consistency 检测已通过比赛官网。SubSuperor 的 `write_file` code snapshot 方案在
+2026-05-18 的 quick baseline submission 中成功通过 platform validation。
+
+**仍须区分 code-log consistency 与 full LLM API provenance：**
+- code-log consistency（已通过）：code/ 文件内容与 log 中 write_file 记录逐字节一致
+- full LLM provenance（未完成）：log 记录来自真实 LLM API 代理，而非 submission 时快照
+
 ## 后续改进
 
 如需完整 LLM provenance，需：
