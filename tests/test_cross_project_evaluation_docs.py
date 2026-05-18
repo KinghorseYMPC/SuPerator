@@ -21,6 +21,13 @@ REQUIRED_DOCS = [
     "migration_plan.md",
 ]
 
+SECOND_PASS_DOCS = [
+    "second_pass_after_quick_acceptance.md",
+    "remaining_pdeagent_assets_matrix.md",
+    "training_performance_gap_analysis.md",
+    "updated_migration_recommendation.md",
+]
+
 
 class TestAllDocsExist:
     @pytest.mark.parametrize("doc", REQUIRED_DOCS)
@@ -139,3 +146,83 @@ class TestDocSizes:
             path = EVAL_DIR / doc_name
             size = path.stat().st_size
             assert size >= 500, f"{doc_name} is only {size} bytes, expected >= 500"
+
+
+class TestSecondPassDocs:
+    """A11 second pass evaluation documents."""
+
+    @pytest.mark.parametrize("doc", SECOND_PASS_DOCS)
+    def test_doc_exists(self, doc: str) -> None:
+        path = EVAL_DIR / doc
+        assert path.is_file(), f"Missing second pass doc: {doc}"
+        assert path.stat().st_size > 0, f"Second pass doc is empty: {doc}"
+
+    def test_remaining_assets_matrix_contains_required_assets(self) -> None:
+        path = EVAL_DIR / "remaining_pdeagent_assets_matrix.md"
+        text = path.read_text(encoding="utf-8")
+        required_assets = [
+            "run_baseline",
+            "eval_checkpoint",
+            "ResearchMemory",
+            "LLM client",
+            "physics_loss",
+        ]
+        for asset in required_assets:
+            assert asset in text, f"remaining_assets_matrix must mention {asset}"
+
+    def test_updated_migration_recommendation_favors_supertor(self) -> None:
+        path = EVAL_DIR / "updated_migration_recommendation.md"
+        text = path.read_text(encoding="utf-8")
+        assert "SuPerator 为主" in text or "以 SuPerator 为主" in text, (
+            "updated_migration_recommendation must favor SuPerator as primary project"
+        )
+
+    def test_training_performance_gap_contains_score(self) -> None:
+        path = EVAL_DIR / "training_performance_gap_analysis.md"
+        text = path.read_text(encoding="utf-8")
+        assert "77.874956" in text, (
+            "training_performance_gap_analysis must reference the quick baseline score"
+        )
+
+    def test_training_performance_gap_does_not_contain_tuning_guide(self) -> None:
+        path = EVAL_DIR / "training_performance_gap_analysis.md"
+        text = path.read_text(encoding="utf-8")
+        # Must mention training epochs as a limiting factor
+        assert "训练轮次" in text or "epochs" in text.lower(), (
+            "training_performance_gap_analysis should mention training epochs as a factor"
+        )
+        # Must not prescribe specific parameter values
+        forbidden = [
+            "epochs=220",
+            "lr=",
+            "batch_size=",
+            "width=",
+        ]
+        for phrase in forbidden:
+            assert phrase not in text, (
+                f"training_performance_gap_analysis must not prescribe {phrase}"
+            )
+
+    def test_second_pass_docs_no_strategy_phrases(self) -> None:
+        """A11 docs must not contain obvious competition strategy phrases."""
+        strategy_phrases = [
+            "提升得分",
+            "time-weighted loss",
+            "优先优化 Task",
+            "评分规则优化",
+            "调参路线",
+            "提分攻略",
+        ]
+        for doc_name in SECOND_PASS_DOCS:
+            path = EVAL_DIR / doc_name
+            text = path.read_text(encoding="utf-8")
+            for phrase in strategy_phrases:
+                assert phrase not in text, (
+                    f"{doc_name} must not contain strategy phrase '{phrase}'"
+                )
+
+    def test_readme_links_second_pass_docs(self) -> None:
+        readme = EVAL_DIR / "README.md"
+        text = readme.read_text(encoding="utf-8")
+        for doc in SECOND_PASS_DOCS:
+            assert doc in text, f"README.md must link to {doc}"

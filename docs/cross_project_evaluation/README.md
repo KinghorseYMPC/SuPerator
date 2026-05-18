@@ -8,6 +8,8 @@
 
 ## 文档列表
 
+### 首次评估（A8）
+
 | 文档 | 内容 |
 |---|---|
 | [README.md](README.md) | 本索引 |
@@ -21,57 +23,42 @@
 | [decision_recommendation.md](decision_recommendation.md) | 4 个候选方案的对比分析和最终推荐 |
 | [migration_plan.md](migration_plan.md) | 方案 A 和方案 B 的详细迁移步骤和优先级 |
 
+### 二次评估（A11 — quick baseline 验收后）
+
+| 文档 | 内容 |
+|---|---|
+| [second_pass_after_quick_acceptance.md](second_pass_after_quick_acceptance.md) | 为什么需要二次对比、当前已吸收能力、验收结果、本阶段范围 |
+| [remaining_pdeagent_assets_matrix.md](remaining_pdeagent_assets_matrix.md) | 15 项仍未充分吸收的 pdeagent 资产及迁移优先级 |
+| [training_performance_gap_analysis.md](training_performance_gap_analysis.md) | SuPerator 77.87 vs pdeagent 200+ 的工程差距分析（不含调参建议） |
+| [updated_migration_recommendation.md](updated_migration_recommendation.md) | 更新后的迁移建议和 A11 子阶段路线 |
+
 ## Executive Summary
 
-### 核心发现
+### 首次评估核心发现（A8, 2026-05-16）
 
-1. **pdeagent 在模型和 Agent 闭环上领先**：有完整的四阶段科研 Agent、ChunkedFNO1d + FiLM + nu_estimator、正确的评分函数、已获比赛官网基础分（Task 1 ~66.3, Task 2 ~62.9）。
+1. **pdeagent 在模型和 Agent 闭环上领先**：有完整的四阶段科研 Agent、ChunkedFNO1d + FiLM + nu_estimator、正确的评分函数、已获比赛官网基础分。
 
 2. **SuPerator 在工程治理上领先**：有完整的 pre_push_audit、validate_task_logs（含 provenance detection）、180+ tests、多后端（SLURM/Kaggle/local）支持、知识库路线、协作文档。
 
-3. **pdeagent 存在严重风险**：
-   - `config.yaml` 硬编码 DeepSeek API key（`sk-d79e...`）— 已在审计中曝光
-   - `pack_submission.py` 生成合成日志而非使用 Agent 真实运行产物
-   - code-log 一致性检查存在循环论证
-   - 缺乏 Git hygiene 和测试
+3. **首次评估识别了 17 项风险和 P0→P3 的迁移优先级**。
 
-4. **SuPerator 存在严重缺口**：
-   - 不支持 Task 2（无 FiLM、无 nu_estimator、无 Task 2 数据加载）
-   - 模型仅为基本 FNO1D（无 ChunkedFNO、无滑动窗口训练）
-   - 日志为 `development_summary_log`（非完整 LLM API 日志）
-   - 缺少 Agent 编排器和 LLM client
+### 当前状态（A11, 2026-05-18）
 
-### 当前推荐
+- **SuPerator 已平台验收通过** quick baseline（score: 77.874956）
+- **A9-A10 阶段已吸收 pdeagent 关键能力**：ChunkedFNO1d、FiLM/nu_estimator、
+  scoring adapter、windowed data、inference、submission packaging、methodology.pdf、
+  code-log consistency
+- **仍以 SuPerator 为主工程治理项目**
+- **剩余差距**主要集中在：完整训练配置、eval_checkpoint、LLM provenance
 
-**方案 A：以 SuPerator 为主，吸收 pdeagent 的模型、Agent 和评分代码。**
+### 当前推荐（A11 更新）
 
-理由：工程治理基础设施（Git hygiene、tests、合规边界）是长期竞争力的基础，迁移成本高；模型和 Agent 代码是资产，迁移成本低。从"在合规的治理框架中运行最好的模型"的角度，这是风险最低的路径。
+仍推荐以 SuPerator 为主。详细更新见 [updated_migration_recommendation.md](updated_migration_recommendation.md)。
 
-### 关键迁移优先级
+### 下一步围绕
 
-| 优先级 | 资产 | 来源 |
-|---|---|---|
-| P0 | ChunkedFNO1d + FiLM + nu_estimator + scoring | pdeagent code-ref |
-| P0 | llm_client.py（合规日志） | pdeagent agent |
-| P0 | agent orchestrator + phases + tools | pdeagent agent |
-| P0 | 重写 pack_submission.py（真实日志版本） | 新开发 |
-| P1 | 合并 validate_submission（code-log 一致性） | 两者合并 |
-| P1 | pre_push_audit.py | SuPerator（保留） |
-| P2 | Kaggle/SLURM 多后端 | SuPerator（保留） |
-| P2 | knowledge-base route | SuPerator（保留） |
+1. 性能差距（longer controlled training）
+2. LLM log provenance（真实 API 调用日志）
 
-### 下一步建议
-
-1. **立即**：Revoke pdeagent config.yaml 中曝光的 API key
-2. **3 天内**：做出方案 A/B 的最终决定（本评估推荐 A）
-3. **1 周内**：完成 Phase 0 安全检查 + Phase 1 模型迁移
-4. **2 周内**：完成 Phase 2 Agent 迁移 + Phase 3 日志修复
-5. **持续**：在 SuPerator 的 git 治理下迭代优化模型和 Agent
-
-### 注意
-
-- 本阶段未修改 pdeagent 任何文件
-- 本阶段未迁移任何代码
-- 本阶段未训练模型、未调用 Kaggle/SLURM API
-- pdeagent config.yaml 中的 API key 仅在此次只读审计中被读取，未打印、未复制、未传播
-- 所有评估基于 2026-05-16 的代码状态
+详见 [training_performance_gap_analysis.md](training_performance_gap_analysis.md) 和
+[remaining_pdeagent_assets_matrix.md](remaining_pdeagent_assets_matrix.md)。

@@ -242,3 +242,42 @@ def test_readme_documents_slurm_env_types_without_conda_assumption() -> None:
     assert "venv" in readme
     assert "direct_python" in readme
     assert "不假定" in readme and "conda" in readme
+
+
+def test_cross_project_evaluation_second_pass_docs_exist() -> None:
+    eval_dir = ROOT / "docs" / "cross_project_evaluation"
+    for doc in [
+        "second_pass_after_quick_acceptance.md",
+        "remaining_pdeagent_assets_matrix.md",
+        "training_performance_gap_analysis.md",
+        "updated_migration_recommendation.md",
+    ]:
+        path = eval_dir / doc
+        assert path.is_file(), f"missing second pass doc: {doc}"
+
+
+def test_second_pass_docs_no_strategy_phrases() -> None:
+    eval_dir = ROOT / "docs" / "cross_project_evaluation"
+    second_pass_docs = [
+        "second_pass_after_quick_acceptance.md",
+        "remaining_pdeagent_assets_matrix.md",
+        "training_performance_gap_analysis.md",
+        "updated_migration_recommendation.md",
+    ]
+    strategy_fragments = [
+        "提升得分",
+        "优先优化 Task",
+        "评分规则优化",
+        "调参路线",
+        "提分攻略",
+        "increase leaderboard",
+        "best model for Task",
+        "optimize competition score",
+    ]
+    for doc_name in second_pass_docs:
+        path = eval_dir / doc_name
+        text = path.read_text(encoding="utf-8")
+        for phrase in strategy_fragments:
+            assert phrase not in text, (
+                f"{doc_name} contains prohibited strategy phrase: {phrase}"
+            )

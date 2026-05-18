@@ -717,6 +717,52 @@ optimization routes, or competition task execution strategy.
 - validation: dry-run OK, all validators to be run, pytest to be run
 - commit hash: pending
 
+## A11 — Second Pass Cross-Project Evaluation After Platform Acceptance
+
+- stage: A11
+- started_at: 2026-05-18
+- purpose: gap-driven second pass comparison between SuPerator (post-A10.6 quick baseline
+  acceptance) and pdeagent, identifying remaining high-value assets for migration.
+- scope boundary:
+  - static evaluation, documentation, and testing only
+  - no code migration performed
+  - no model training
+  - no pdeagent execution
+  - no remote service calls
+  - no LLM API calls
+  - no Kaggle / SLURM connections
+- files created:
+  - `docs/cross_project_evaluation/second_pass_after_quick_acceptance.md` — 二次对比入口
+  - `docs/cross_project_evaluation/remaining_pdeagent_assets_matrix.md` — 15 项剩余资产矩阵
+  - `docs/cross_project_evaluation/training_performance_gap_analysis.md` — 训练性能差距分析
+  - `docs/cross_project_evaluation/updated_migration_recommendation.md` — 更新后的迁移建议
+- files modified:
+  - `docs/cross_project_evaluation/README.md` — 加入二次评估链接和当前状态
+  - `docs/engineering_execution_log.md` — 本记录
+- tests modified:
+  - `tests/test_cross_project_evaluation_docs.py` — 新增二次评估文档检查
+  - `tests/test_project_docs_publication.py` — 新增策略短语检查
+  - `tests/test_project_structure.py` — 新增 A11 文件存在性检查
+- key findings:
+  - SuPerator has absorbed most P0-P1 assets from pdeagent during A9-A10
+  - Remaining high-value assets: full training config, eval_checkpoint, LLM provenance
+  - Score gap (77.87 vs 200+) primarily attributed to quick training epochs
+  - Recommendation unchanged: continue with SuPerator as primary project
+- recommended next sub-stages:
+  - A11.1: pdeagent run_baseline / train config static migration assessment
+  - A11.2: controlled longer quick training config
+  - A11.3: eval_checkpoint adapter
+  - A11.4: LLM provenance adapter
+- validation commands:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py --all-present`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - targeted pytest: to be run
+- commit hash: pending
+
 ## A10.6 - Quick Baseline Platform Acceptance
 
 - stage: A10.6

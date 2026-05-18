@@ -430,3 +430,27 @@ def test_a106_acceptance_doc_exists() -> None:
 def test_a106_acceptance_test_exists() -> None:
     path = ROOT / "tests" / "test_submission_acceptance_docs.py"
     assert path.is_file(), "missing tests/test_submission_acceptance_docs.py"
+
+
+def test_a11_second_pass_docs_exist() -> None:
+    eval_dir = ROOT / "docs" / "cross_project_evaluation"
+    for doc in [
+        "second_pass_after_quick_acceptance.md",
+        "remaining_pdeagent_assets_matrix.md",
+        "training_performance_gap_analysis.md",
+        "updated_migration_recommendation.md",
+    ]:
+        path = eval_dir / doc
+        assert path.is_file(), f"missing A11 second pass doc: {doc}"
+
+    # Verify README was updated
+    readme = (eval_dir / "README.md").read_text(encoding="utf-8")
+    assert "second_pass_after_quick_acceptance.md" in readme
+    assert "remaining_pdeagent_assets_matrix.md" in readme
+    assert "training_performance_gap_analysis.md" in readme
+    assert "updated_migration_recommendation.md" in readme
+
+    # Verify engineering_execution_log has A11 entry
+    eng_log = (ROOT / "docs" / "engineering_execution_log.md").read_text(encoding="utf-8")
+    assert "A11" in eng_log
+    assert "second_pass_after_quick_acceptance" in eng_log
