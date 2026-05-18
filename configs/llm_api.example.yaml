@@ -1,0 +1,45 @@
+# =============================================================================
+# SuPerator LLM API example configuration
+# =============================================================================
+# This file contains ONLY placeholder values. No real API key, token, or secret
+# is stored here. Copy this file to a private location (e.g. llm_api.local.yaml,
+# which is gitignored) and replace placeholders before use.
+#
+# All sensitive values MUST be sourced from environment variables at runtime.
+# Never write real keys into any committed file.
+# =============================================================================
+
+llm:
+  # OpenAI-compatible base URL (e.g. https://api.openai.com/v1)
+  base_url: "<SET_BY_ENVIRONMENT>"
+
+  # Model identifier string (e.g. gpt-4o, deepseek-chat, moonshot-v1-8k)
+  model: "<SET_BY_ENVIRONMENT>"
+
+  # Name of the environment variable that holds the API key.
+  # The preflight script and LLM client read the key from this env var at
+  # runtime. Do NOT set the key value here.
+  api_key_env: "LLM_API_KEY"
+
+  # Request timeout in seconds (including retries)
+  timeout_seconds: 120
+
+  # Maximum retries on transient errors (rate limiting, connection reset)
+  max_retries: 3
+
+  # Optional: temperature for completions (0.0 - 2.0). Omit or set null for
+  # provider default.
+  # temperature: 0.7
+
+  # Optional: max output tokens. Omit or set null for provider default.
+  # max_tokens: 4096
+
+# Provenance / logging settings
+provenance:
+  # Where task logs are written. The LLM client writes JSONL records here.
+  log_dir: "./outputs/llm_logs"
+
+  # Provenance mode for log records. One of:
+  #   development_summary_log  - curated summary (current default in SuPerator)
+  #   api_proxy_llm_log        - captured from real LLM API responses
+  provenance_mode: "development_summary_log"

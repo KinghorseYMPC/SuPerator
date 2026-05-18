@@ -812,3 +812,45 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - targeted pytest: to be run
 - commit hash: pending
+
+## A11.1 — LLM API / Provenance Preflight Hardening
+
+- stage: A11.1
+- started_at: 2026-05-18
+- purpose: establish safe LLM API call and provenance log infrastructure without
+  reading, printing, or committing any API key/token/secret.
+- files created:
+  - `docs/llm_provenance/a11_1_llm_api_preflight_analysis.md`
+  - `docs/llm_provenance/README.md`
+  - `configs/llm_api.example.yaml`
+  - `scripts/check_llm_api_config.py`
+  - `tests/test_llm_api_preflight.py`
+- files modified:
+  - `AGENTS.md` (current stage updated to A11.1)
+  - `docs/engineering_execution_log.md` (this entry)
+- scope boundary:
+  - configuration, preflight, documentation, and testing only
+  - no real LLM API calls without explicit --allow-live-ping
+  - no API keys read from pdeagent config.yaml
+  - no API keys printed or logged
+  - no submission generation
+  - no model training
+  - no Kaggle/SLURM/remote calls
+  - no modification to validate_task_logs.py or validate_submission.py
+- key design decisions:
+  - example config uses placeholder values only (<SET_BY_ENVIRONMENT>)
+  - API key sourced from environment variable (api_key_env), never from file
+  - preflight script defaults to dry-run; --allow-live-ping required for live test
+  - preflight reports env var presence/absence only, never prints values or derived information
+  - even live ping output omits API key, full request headers, and full response body
+  - structured JSON output mode for CI/CD integration
+  - distinct exit codes for different failure modes
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py --all-present`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - `pytest tests/test_llm_api_preflight.py tests/test_project_docs_publication.py tests/test_project_structure.py`: to be run
+- commit hash: pending

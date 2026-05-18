@@ -12,11 +12,11 @@ and free of task execution strategy.
 
 ## Current Stage
 
-A10.6: quick baseline platform acceptance. Task 1 + Task 2 quick submission has
-been accepted by the competition platform (score: 77.874956). This stage focuses
-on documentation, audit updates, and test coverage for the acceptance record.
-It does not train models, call the Kaggle API, connect to SLURM, or generate
-large artifacts.
+A11.1: LLM API / provenance preflight hardening. Building safe config,
+preflight script, tests, and analysis documentation for the LLM API call and
+provenance log infrastructure. No real API keys read or printed. No live LLM
+calls without explicit opt-in. No model training, no submission generation,
+no Kaggle/SLURM/remote calls.
 
 ## Required Reading Order
 
