@@ -29,6 +29,7 @@ def package_submission(
     with zipfile.ZipFile(output_zip, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
         required_paths = [
             directory / "submission.json",
+            directory / "methodology.pdf",
             directory / f"task{task_id}_pred.hdf5",
             directory / f"task{task_id}_time.csv",
             directory / f"task{task_id}_logs.log",
@@ -37,6 +38,10 @@ def package_submission(
             if path.is_file():
                 archive_path = Path("submission") / path.relative_to(directory)
                 zip_file.write(path, archive_path.as_posix())
+            elif path.name == "methodology.pdf":
+                raise FileNotFoundError(
+                    f"methodology.pdf is required but not found at {path}"
+                )
         for path in sorted((directory / "code").rglob("*")):
             if path.is_file():
                 archive_path = Path("submission") / path.relative_to(directory)

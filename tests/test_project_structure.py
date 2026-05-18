@@ -388,6 +388,16 @@ def test_a102_task2_quick_adapter_files_exist() -> None:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
 
 
+def test_a104_methodology_pdf_files_exist() -> None:
+    for relative_path in [
+        "src/submission/methodology_pdf.py",
+        "docs/pdeagent_migration/methodology_pdf_migration.md",
+        "docs/pdeagent_migration/methodology_pdf_requirement.md",
+        "tests/test_methodology_pdf.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
 def test_a103_quick_submission_scripts_exist() -> None:
     for relative_path in [
         "scripts/run_pdeagent_task1_quick_submission.py",

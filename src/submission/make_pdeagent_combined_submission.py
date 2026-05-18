@@ -85,6 +85,7 @@ def package_combined_submission(
 
     required_files = [
         "submission.json",
+        "methodology.pdf",
         "task1_pred.hdf5",
         "task1_time.csv",
         "task1_logs.log",
@@ -180,6 +181,14 @@ def create_pdeagent_combined_submission(
     code_dir = submission / "code"
     if not code_dir.is_dir() or not any(code_dir.iterdir()):
         copy_code_bundle(code_dir)
+
+    # Generate methodology.pdf for combined submission
+    from src.submission.methodology_pdf import create_methodology_pdf
+    create_methodology_pdf(
+        submission / "methodology.pdf",
+        submission_id="SuPerator",
+        tasks=["task1", "task2"],
+    )
 
     # Validate
     validation_result = None

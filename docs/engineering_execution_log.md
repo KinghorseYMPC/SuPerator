@@ -646,6 +646,37 @@ optimization routes, or competition task execution strategy.
   - validate_submission.py: --task-id 1/2, --all-present
   - make_pdeagent_combined_submission.py: temp dir isolation, both tasks
 - validation: to be run
+- commit hash: 3a25f6b
+
+## A10.4 - Methodology PDF Generation
+
+- stage: A10.4
+- started_at: 2026-05-18
+- purpose: add methodology.pdf to all submissions (required by competition platform)
+- files created:
+  - `src/submission/methodology_pdf.py`
+  - `docs/pdeagent_migration/methodology_pdf_migration.md`
+  - `docs/pdeagent_migration/methodology_pdf_requirement.md`
+  - `tests/test_methodology_pdf.py`
+- files modified:
+  - `src/submission/make_pdeagent_task1_submission.py` (add methodology.pdf generation)
+  - `src/submission/make_pdeagent_task2_submission.py` (add methodology.pdf generation)
+  - `src/submission/make_pdeagent_combined_submission.py` (add methodology.pdf generation + zip)
+  - `src/submission/validate_submission.py` (add validate_methodology_pdf + wire in)
+  - `src/submission/package_submission.py` (include methodology.pdf in zip + validate)
+  - `scripts/run_pdeagent_task1_quick_submission.py` (report methodology.pdf)
+  - `scripts/run_pdeagent_task2_quick_submission.py` (report methodology.pdf)
+  - `docs/pdeagent_migration/quick_submission_scripts.md`
+  - `docs/pdeagent_migration/README.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+- key features:
+  - create_methodology_pdf(): fpdf2 priority, raw PDF fallback
+  - raw PDF fallback uses no external dependencies
+  - validate_methodology_pdf(): checks existence, size, header
+  - methodology.pdf included in all submission.zip packages
+  - No API key, no config.yaml, no LLM, no remote calls
+- validation: to be run
 - commit hash: pending
 
 ## A9.9 - Task 1 Submission Finalizer

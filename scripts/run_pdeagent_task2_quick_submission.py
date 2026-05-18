@@ -130,6 +130,7 @@ def main(argv: list[str] | None = None) -> int:
         summary["max_initial_error"] = parsed.get("first10_max_error")
         summary["inference_time"] = parsed.get("inference_time")
 
+    summary["methodology_pdf"] = "outputs/submission/submission/methodology.pdf"
     summary["zip_path"] = "outputs/submission/submission.zip"
     summary["finished_at"] = now()
 

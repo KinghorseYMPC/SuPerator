@@ -52,6 +52,36 @@ def _read_numeric_csv_value(frame: pd.DataFrame, column: str) -> float:
     return value
 
 
+def validate_methodology_pdf(submission_dir: str | Path) -> dict:
+    """Check that methodology.pdf exists and is a valid PDF file.
+
+    Returns a dict with keys: passed, path, size, starts_with_pdf, errors.
+    """
+    directory = resolve_path(submission_dir)
+    pdf_path = directory / "methodology.pdf"
+    errors: list[str] = []
+
+    if not pdf_path.is_file():
+        errors.append("Missing methodology.pdf in submission directory")
+    else:
+        size = pdf_path.stat().st_size
+        if size < 100:
+            errors.append(f"methodology.pdf is too small: {size} bytes (min 100)")
+        else:
+            with open(pdf_path, "rb") as f:
+                header = f.read(4)
+            if header != b"%PDF":
+                errors.append(f"methodology.pdf does not start with %PDF, got {header!r}")
+
+    return {
+        "passed": len(errors) == 0,
+        "path": str(pdf_path),
+        "size": pdf_path.stat().st_size if pdf_path.is_file() else 0,
+        "starts_with_pdf": True if not errors else False,
+        "errors": errors,
+    }
+
+
 def validate_code_bundle(code_dir: str | Path, strict: bool = True) -> dict:
     """Check that submission code/ excludes project governance and large artifact roots."""
 
@@ -104,6 +134,11 @@ def validate_task_submission(
     sample_log_path = ROOT / "task_log_sample" / f"{task_prefix}_logs.log"
 
     _require(submission_json_path.is_file(), f"Missing submission.json: {submission_json_path}")
+
+    # Check methodology.pdf
+    methodology_check = validate_methodology_pdf(directory)
+    _require(methodology_check["passed"], "; ".join(methodology_check["errors"]))
+
     code_validation = validate_code_bundle(code_dir, strict=strict)
     _require(pred_path.is_file(), f"Missing prediction file: {pred_path}")
     _require(time_path.is_file(), f"Missing time CSV: {time_path}")
@@ -171,6 +206,7 @@ def validate_task_submission(
         "test_key": test_key,
         "test_shape": test_shape,
         "max_initial_error": max_initial_error,
+        "methodology_pdf": methodology_check,
         "train_time": train_time,
         "inference_time": inference_time,
         "log_validation": {

@@ -129,6 +129,7 @@ def main(argv: list[str] | None = None) -> int:
         summary["pred_shape"] = parsed.get("rollout_shape")
         summary["max_initial_error"] = parsed.get("first10_max_error")
 
+    summary["methodology_pdf"] = "outputs/submission/submission/methodology.pdf"
     summary["zip_path"] = "outputs/submission/submission.zip"
     summary["finished_at"] = now()
 

@@ -200,6 +200,14 @@ def create_pdeagent_task2_submission(
     if not code_dir.is_dir() or not any(code_dir.iterdir()):
         copy_code_bundle(code_dir)
 
+    # Generate methodology.pdf (if not already present from Task 1)
+    from src.submission.methodology_pdf import create_methodology_pdf
+    methodology_path = create_methodology_pdf(
+        submission / "methodology.pdf",
+        submission_id="SuPerator",
+        tasks=["task2"],
+    )
+
     # Validate
     log_validation = None
     validation_summary = None

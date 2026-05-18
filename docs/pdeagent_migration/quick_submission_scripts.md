@@ -70,6 +70,7 @@ python scripts/run_pdeagent_all_quick_submission.py --validate-only
 | `task2_logs.log` | 2 |
 | `submission.json` | shared |
 | `code/` | shared |
+| `methodology.pdf` | required |
 | `submission.zip` | final package |
 
 ## Validate 命令

@@ -33,15 +33,16 @@
 | [task2_quick_local_run.md](task2_quick_local_run.md) | A10.2 Task 2 Quick Local Run Runbook |
 | [task2_submission_adapter.md](task2_submission_adapter.md) | A10.2 Task 2 Submission Adapter 文档 |
 | [quick_submission_scripts.md](quick_submission_scripts.md) | A10.3 Quick Submission Scripts 文档 |
+| [methodology_pdf_migration.md](methodology_pdf_migration.md) | A10.4 Methodology PDF 迁移审查 |
+| [methodology_pdf_requirement.md](methodology_pdf_requirement.md) | A10.4 Methodology PDF 要求 |
 
 ## 当前阶段状态
 
-**A10.3** — Quick Submission Scripts **（当前阶段）**
-- Task 1 一键 quick submission 脚本
-- Task 2 一键 quick submission 脚本
-- Combined Task 1 + Task 2 一键脚本
-- validate_submission CLI 扩展（--task-id, --all-present）
-- Combined submission helper
+**A10.4** — Methodology PDF Generation **（当前阶段）**
+- dependency-free methodology.pdf 生成（fpdf2 优先，raw PDF fallback）
+- 接入所有 submission helper（Task 1 / Task 2 / Combined）
+- validate_submission 和 package_submission 检查 methodology.pdf
+- submission.zip 包含 submission/methodology.pdf
 
 ## 核心原则
 
