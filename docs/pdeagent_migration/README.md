@@ -32,14 +32,16 @@
 | [task2_adapter.md](task2_adapter.md) | A10.1 Task 2 Adapter 文档 |
 | [task2_quick_local_run.md](task2_quick_local_run.md) | A10.2 Task 2 Quick Local Run Runbook |
 | [task2_submission_adapter.md](task2_submission_adapter.md) | A10.2 Task 2 Submission Adapter 文档 |
+| [quick_submission_scripts.md](quick_submission_scripts.md) | A10.3 Quick Submission Scripts 文档 |
 
 ## 当前阶段状态
 
-**A10.2** — Task 2 Quick Adapter Workflow **（当前阶段）**
-- Task 2 quick training（FiLM + NuEstimator1d + provided_nu）
-- Task 2 quick inference（estimated_nu, no test Nu）
-- Task 2 submission finalizer（validate + package）
-- 本阶段允许 quick/smoke 训练，不进行完整训练
+**A10.3** — Quick Submission Scripts **（当前阶段）**
+- Task 1 一键 quick submission 脚本
+- Task 2 一键 quick submission 脚本
+- Combined Task 1 + Task 2 一键脚本
+- validate_submission CLI 扩展（--task-id, --all-present）
+- Combined submission helper
 
 ## 核心原则
 

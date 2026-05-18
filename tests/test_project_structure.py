@@ -386,3 +386,17 @@ def test_a102_task2_quick_adapter_files_exist() -> None:
         "tests/test_finalize_pdeagent_task2_submission.py",
     ]:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
+def test_a103_quick_submission_scripts_exist() -> None:
+    for relative_path in [
+        "scripts/run_pdeagent_task1_quick_submission.py",
+        "scripts/run_pdeagent_task2_quick_submission.py",
+        "scripts/run_pdeagent_all_quick_submission.py",
+        "src/submission/make_pdeagent_combined_submission.py",
+        "docs/pdeagent_migration/quick_submission_scripts.md",
+        "tests/test_run_pdeagent_quick_submission_scripts.py",
+        "tests/test_pdeagent_combined_submission.py",
+        "tests/test_validate_submission_cli.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"

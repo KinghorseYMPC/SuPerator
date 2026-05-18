@@ -190,18 +190,75 @@ def validate_task_submission(
     return summary
 
 
+def _detect_present_tasks(submission_dir: Path) -> list[int]:
+    """Detect which task prediction files exist in the submission directory."""
+    present: list[int] = []
+    for task_id in (1, 2):
+        pred = submission_dir / f"task{task_id}_pred.hdf5"
+        if pred.is_file():
+            present.append(task_id)
+    return present
+
+
+def validate_all_present(submission_dir: str | Path) -> dict:
+    """Validate all task prediction files found in the submission directory.
+
+    Returns a dict mapping task_id → validation result.
+    """
+    directory = resolve_path(submission_dir)
+    present = _detect_present_tasks(directory)
+    if not present:
+        raise FileNotFoundError(f"No task pred files found in {directory}")
+
+    test_paths = {
+        1: ROOT / "data_and_sample_submission/train_val_test_init/task1_test.hdf5",
+        2: ROOT / "data_and_sample_submission/train_val_test_init/task2_test.h5",
+    }
+
+    results: dict[str, Any] = {}
+    for task_id in present:
+        test_path = test_paths.get(task_id)
+        if test_path is None or not test_path.is_file():
+            results[f"task{task_id}"] = {"error": f"Test file not found for task {task_id}"}
+            continue
+        try:
+            results[f"task{task_id}"] = validate_task_submission(
+                directory, task_id, test_path, strict=True,
+            )
+        except Exception as exc:
+            results[f"task{task_id}"] = {"error": str(exc)}
+
+    return results
+
+
 def main(argv: list[str] | None = None) -> dict:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--submission-dir", default="outputs/submission/submission")
     parser.add_argument("--task-id", type=int, default=1)
     parser.add_argument(
         "--test-path",
-        default="data_and_sample_submission/train_val_test_init/task1_test.hdf5",
+        default="",
     )
     parser.add_argument("--strict", dest="strict", action="store_true", default=True)
     parser.add_argument("--no-strict", dest="strict", action="store_false")
+    parser.add_argument("--all-present", action="store_true",
+                        help="Validate all task pred files found in submission dir")
     args = parser.parse_args(argv)
-    return validate_task_submission(args.submission_dir, args.task_id, args.test_path, strict=args.strict)
+
+    if args.all_present:
+        return validate_all_present(args.submission_dir)
+
+    task_id = args.task_id
+    test_path = args.test_path
+    if not test_path:
+        if task_id == 1:
+            test_path = "data_and_sample_submission/train_val_test_init/task1_test.hdf5"
+        elif task_id == 2:
+            test_path = "data_and_sample_submission/train_val_test_init/task2_test.h5"
+        else:
+            raise ValueError(f"Unknown task_id {task_id} — provide --test-path manually")
+
+    return validate_task_submission(args.submission_dir, task_id, test_path, strict=args.strict)
 
 
 if __name__ == "__main__":

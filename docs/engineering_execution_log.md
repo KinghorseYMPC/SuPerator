@@ -611,6 +611,40 @@ optimization routes, or competition task execution strategy.
   - make_pdeagent_task2_submission.py + finalize for Task 2 submission
   - checkpoint metadata: task=task2, uses_task1_checkpoint=false
   - validation: validate_task_submission(task_id=2)
+- validation: passed
+- commit hash: 43b06ea
+
+## A10.3 - Quick Submission Scripts
+
+- stage: A10.3
+- started_at: 2026-05-18
+- purpose: create one-click submission scripts for Task 1, Task 2, and combined Task 1+2
+- files created:
+  - `scripts/run_pdeagent_task1_quick_submission.py`
+  - `scripts/run_pdeagent_task2_quick_submission.py`
+  - `scripts/run_pdeagent_all_quick_submission.py`
+  - `src/submission/make_pdeagent_combined_submission.py`
+  - `docs/pdeagent_migration/quick_submission_scripts.md`
+  - `tests/test_run_pdeagent_quick_submission_scripts.py`
+  - `tests/test_pdeagent_combined_submission.py`
+  - `tests/test_validate_submission_cli.py`
+- files modified:
+  - `src/submission/validate_submission.py` (extended CLI: --task-id, --all-present)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/engineering_execution_log.md`
+  - `README.md`
+  - `tests/test_project_structure.py`
+- scope boundary:
+  - scripts enforce pdeagent conda env check
+  - no Kaggle/SLURM/LLM API calls
+  - combined submission uses temp dirs to prevent file overwrite
+  - outputs written to git-ignored outputs/
+- key features:
+  - Task 1 one-click: train → parse → finalize → validate
+  - Task 2 one-click: train → parse → finalize → validate (task_id=2)
+  - Combined: Task 1 train + Task 2 train → merged finalize → validate all
+  - validate_submission.py: --task-id 1/2, --all-present
+  - make_pdeagent_combined_submission.py: temp dir isolation, both tasks
 - validation: to be run
 - commit hash: pending
 
