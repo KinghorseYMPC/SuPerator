@@ -39,6 +39,12 @@
 | [a11_2_pdeagent_train_config_static_eval.md](a11_2_pdeagent_train_config_static_eval.md) | pdeagent train.py / eval_checkpoint.py / utils.py 静态审查，已迁移/未迁移清单，迁移优先级 |
 | [a11_2_training_config_mapping.md](a11_2_training_config_mapping.md) | 逐字段训练配置映射表：pdeagent → SuPerator gap → proposed config key |
 
+### A11.3 — Checkpoint 评估 Adapter
+
+| 文档 | 内容 |
+|---|---|
+| [a11_3_eval_checkpoint_adapter.md](a11_3_eval_checkpoint_adapter.md) | eval_checkpoint adapter 设计、checkpoint selection 基础设施、dry-run/runtime 边界 |
+
 ## Executive Summary
 
 ### 首次评估核心发现（A8, 2026-05-16）

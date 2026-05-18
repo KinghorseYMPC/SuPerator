@@ -903,3 +903,51 @@ optimization routes, or competition task execution strategy.
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - `pytest tests/test_a11_2_train_config_static_eval.py tests/test_cross_project_evaluation_docs.py tests/test_project_docs_publication.py tests/test_project_structure.py`: to be run
 - commit hash: pending
+
+## A11.3 — Eval Checkpoint Adapter and Checkpoint Selection Infrastructure
+
+- stage: A11.3
+- started_at: 2026-05-18
+- purpose: build checkpoint evaluation adapter and best-checkpoint selection
+  infrastructure as prerequisite for controlled longer-training experiments.
+- files created:
+  - `src/eval/checkpoint_selection.py`
+  - `src/adapters/pdeagent/eval_checkpoint_adapter.py`
+  - `scripts/evaluate_pdeagent_checkpoint.py`
+  - `docs/cross_project_evaluation/a11_3_eval_checkpoint_adapter.md`
+  - `tests/test_a11_3_eval_checkpoint_adapter.py`
+- files modified:
+  - `docs/cross_project_evaluation/README.md` (A11.3 section)
+  - `docs/engineering_execution_log.md` (this entry)
+  - `AGENTS.md` (current stage updated to A11.3)
+- scope boundary:
+  - code infrastructure, documentation, and testing only
+  - no training runs
+  - no real checkpoint evaluation against live data
+  - no submission generation
+  - no Kaggle/SLURM/LLM API calls
+  - dry-run is the default; real eval requires explicit --no-dry-run
+  - no modification to validate_task_logs.py or validate_submission.py
+- key deliverables:
+  - `checkpoint_selection.py`: pure data selection module (no torch, no I/O)
+    with configurable metric_key + maximize/minimize + ranking + error handling
+  - `eval_checkpoint_adapter.py`: wraps model loading, data reconstruction,
+    autoregressive rollout, and scoring via existing SuPerator adapters
+  - `evaluate_pdeagent_checkpoint.py`: CLI with --no-dry-run gate,
+    --json output, and safety refusal for outputs/experiments/ write targets
+  - 31 pytest tests covering selection logic, CLI dry-run, secret scan, docs
+- known limitations:
+  - Task 2 checkpoint evaluation not yet implemented (requires FiLM + multi-Nu
+    validation design)
+  - does not use pdeagent's --use_checkpoint_normalizer feature
+  - validation split uses sequential indices (not random_split); random split
+    deferred to A11.4+
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py --all-present`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - `pytest tests/test_a11_3_eval_checkpoint_adapter.py tests/test_a11_2_train_config_static_eval.py tests/test_cross_project_evaluation_docs.py tests/test_project_docs_publication.py tests/test_project_structure.py`: to be run
+- commit hash: pending

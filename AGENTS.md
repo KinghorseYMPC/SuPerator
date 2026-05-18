@@ -12,11 +12,10 @@ and free of task execution strategy.
 
 ## Current Stage
 
-A11.2: pdeagent training config static migration evaluation. Static review of
-pdeagent train.py, eval_checkpoint.py, utils.py and comparison against SuPerator
-adapters. Mapping training config fields from pdeagent to SuPerator, identifying
-migrate-now / migrate-later / reference-only candidates. No training runs, no
-API calls, no submission generation.
+A11.3: eval checkpoint adapter and checkpoint selection infrastructure.
+Building checkpoint evaluation adapter, best-checkpoint selection by
+configurable metric, and CLI with dry-run safety defaults. No training,
+no submission generation, no large artifact output.
 
 ## Required Reading Order
 
