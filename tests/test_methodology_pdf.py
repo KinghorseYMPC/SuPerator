@@ -137,3 +137,114 @@ class TestValidateMethodologyPDF:
             result = validate_methodology_pdf(tmpdir)
             assert result["passed"] is False
             assert "does not start with %PDF" in "; ".join(result["errors"])
+
+
+class TestSanitizePdfText:
+    def test_em_dash_replaced(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        result = sanitize_pdf_text("hello — world")
+        assert "—" not in result
+        assert "-" in result
+
+    def test_right_arrow_replaced(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        result = sanitize_pdf_text("a → b")
+        assert "→" not in result
+        assert "->" in result
+
+    def test_multiplication_replaced(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        result = sanitize_pdf_text("2 × 3")
+        assert "×" not in result
+        assert "x" in result
+
+    def test_smart_quotes_replaced(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        result = sanitize_pdf_text("“hello”")
+        assert "“" not in result
+        assert "”" not in result
+        assert '"' in result
+
+    def test_ascii_unchanged(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        text = "Hello World 123"
+        assert sanitize_pdf_text(text) == text
+
+    def test_mixed_unicode(self):
+        from src.submission.methodology_pdf import sanitize_pdf_text
+        text = "Task — arrow → multiply × test"
+        result = sanitize_pdf_text(text)
+        assert all(ord(c) < 128 or (160 <= ord(c) <= 255) for c in result)
+
+
+class TestUnicodeFallback:
+    """Test that Unicode text in methodology content doesn't break PDF generation."""
+
+    def test_pdf_with_em_dash_in_external_text(self):
+        from src.submission.methodology_pdf import create_methodology_pdf
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "methodology.pdf")
+            create_methodology_pdf(
+                path,
+                tasks=["task1", "task2"],
+                log_provenance_note="test — em dash",
+            )
+            with open(path, "rb") as f:
+                data = f.read()
+            assert data[:4] == b"%PDF"
+            assert len(data) > 100
+
+    def test_pdf_with_arrow_in_backend_summary(self):
+        from src.submission.methodology_pdf import create_methodology_pdf
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "methodology.pdf")
+            create_methodology_pdf(
+                path,
+                backend_summary={"flow": "train → predict → submit"},
+            )
+            with open(path, "rb") as f:
+                data = f.read()
+            assert data[:4] == b"%PDF"
+
+    def test_pdf_with_all_unicode_at_once(self):
+        from src.submission.methodology_pdf import create_methodology_pdf
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "methodology.pdf")
+            create_methodology_pdf(
+                path,
+                tasks=["task1"],
+                log_provenance_note="dash — arrow → mul × quote “test”",
+                backend_summary={"note": "val ≤ 10"},
+            )
+            with open(path, "rb") as f:
+                data = f.read()
+            assert data[:4] == b"%PDF"
+            assert len(data) > 100
+
+    def test_fallback_on_fpdf_runtime_error(self):
+        """Even if fpdf2 raises an error, raw PDF fallback should succeed."""
+        import sys
+        from unittest import mock
+        from src.submission.methodology_pdf import create_methodology_pdf
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "methodology.pdf")
+
+            # Only mock if fpdf is importable; otherwise fallback already works
+            try:
+                import fpdf  # noqa: F401
+            except ImportError:
+                # fpdf not available — fallback is the default path, already tested
+                return
+
+            # Mock _create_pdf_fpdf to simulate a Unicode font error
+            with mock.patch(
+                "src.submission.methodology_pdf._create_pdf_fpdf",
+                side_effect=RuntimeError("Character '—' unsupported by font"),
+            ):
+                result = create_methodology_pdf(path, tasks=["task1"])
+                assert os.path.isfile(result)
+                with open(result, "rb") as f:
+                    data = f.read()
+                assert data[:4] == b"%PDF"
+                assert len(data) > 100

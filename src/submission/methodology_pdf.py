@@ -11,6 +11,51 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 
+# ---------------------------------------------------------------------------
+# Unicode → ASCII sanitization
+# ---------------------------------------------------------------------------
+
+_UNICODE_REPLACEMENTS: dict[int, str] = {
+    0x2014: "-",   # — (em dash)
+    0x2013: "-",   # – (en dash)
+    0x2018: "'",   # ' (left single quote)
+    0x2019: "'",   # ' (right single quote)
+    0x201C: '"',   # " (left double quote)
+    0x201D: '"',   # " (right double quote)
+    0x2192: "->",  # → (right arrow)
+    0x00D7: "x",   # × (multiplication)
+    0x2264: "<=",  # ≤
+    0x2265: ">=",  # ≥
+    0x2026: "...", # …
+    0x00B7: "*",   # · (middle dot)
+    0x2212: "-",   # − (minus sign)
+    0x00A0: " ",   # non-breaking space
+}
+
+
+def sanitize_pdf_text(text: str) -> str:
+    """Replace Unicode characters unsupported by PDF built-in fonts with ASCII.
+
+    Helvetica/Courier fonts only support WinAnsiEncoding (cp1252 subset).
+    Characters outside this range cause fpdf2 to raise an error.
+    """
+    result: list[str] = []
+    for ch in text:
+        cp = ord(ch)
+        if cp in _UNICODE_REPLACEMENTS:
+            result.append(_UNICODE_REPLACEMENTS[cp])
+        elif cp < 128:
+            result.append(ch)
+        elif 160 <= cp <= 255:
+            # cp1252 upper range — may or may not be in the font
+            # Keep them if printable
+            result.append(ch)
+        else:
+            # Drop characters outside the safe range
+            result.append("?")
+    return "".join(result)
+
+
 _METHODOLOGY_CONTENT_EN = [
     ("SuPerator Methodology Summary", "h1"),
     ("", "blank"),
@@ -24,13 +69,13 @@ _METHODOLOGY_CONTENT_EN = [
      "checkpoint-based inference, and automated submission packaging. "
      "All training and inference runs locally without remote compute backends.", "p"),
     ("", "blank"),
-    ("Task 1 — Fixed Nu Burgers", "h2"),
+    ("Task 1 - Fixed Nu Burgers", "h2"),
     ("Burgers equation with fixed viscosity nu=0.001. ChunkedFNO1d model (SpectralConv1d + "
      "FNOBlock1d stack) with autoregressive chunk rollout. "
      "Sliding-window training on official Task 1 validation data. "
      "Prediction shape: (N, 200, 256). 3-segment scoring.", "p"),
     ("", "blank"),
-    ("Task 2 — Varying Nu Burgers", "h2"),
+    ("Task 2 - Varying Nu Burgers", "h2"),
     ("Burgers equation with varying viscosity. ChunkedFNO1d + FiLM conditioning "
      "+ NuEstimator1d for test-time viscosity inference from initial conditions. "
      "Training uses provided Nu values; inference estimates Nu without test Nu dependency. "
@@ -102,17 +147,18 @@ def _create_pdf_fpdf(
     pdf.add_page()
 
     for text, style in lines:
+        safe_text = sanitize_pdf_text(text)
         if style == "h1":
             pdf.set_font("Helvetica", "B", 16)
-            pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf.cell(0, 10, safe_text, new_x="LMARGIN", new_y="NEXT", align="C")
         elif style == "h2":
             pdf.set_font("Helvetica", "B", 12)
-            pdf.cell(0, 8, text, new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 8, safe_text, new_x="LMARGIN", new_y="NEXT")
         elif style == "blank":
             pdf.ln(3)
         else:
             pdf.set_font("Helvetica", "", 10)
-            pdf.multi_cell(0, 5, text)
+            pdf.multi_cell(0, 5, safe_text)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pdf.output(str(output_path))
@@ -285,7 +331,12 @@ def create_methodology_pdf(
         return path
     except (ImportError, ModuleNotFoundError):
         pass
+    except Exception:
+        # Any runtime error (e.g. font encoding) → fallback to raw PDF
+        import traceback
+        traceback.print_exc()
+        print("[WARN] fpdf2 generation failed, falling back to raw PDF")
 
-    # Fallback: raw PDF bytes
+    # Fallback: raw PDF bytes (always works, no external deps)
     _create_pdf_raw(path, lines, submission_id)
     return path
