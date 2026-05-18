@@ -17,7 +17,7 @@ def tmp_path(request):
 
     base = ROOT / "outputs" / "test_tmp"
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", request.node.nodeid)
-    safe_name = f"{safe_name}_{uuid.uuid4().hex}"
+    safe_name = f"{safe_name[:32]}_{uuid.uuid4().hex[:12]}"
     target = (base / safe_name).resolve()
     base_resolved = base.resolve()
     if base_resolved not in target.parents:

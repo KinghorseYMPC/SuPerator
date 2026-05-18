@@ -151,6 +151,22 @@ model-choice guidance for those tasks, step-by-step model adjustment guidance,
 inference shortcuts, submission tricks, score-improvement guidance, forged
 Agent / LLM logs, or hidden action routes.
 
+## Manual Ingestion Workflow
+
+The default workflow is deliberately manual and offline:
+
+1. Create metadata from user-supplied title, identifiers, URLs, and tags.
+2. Validate metadata schema and compliance fields.
+3. Generate a draft literature card with unknown content left as `待补充`.
+4. Generate concept entries only from manually supplied concept names and
+   source URLs.
+5. Validate taxonomy usage.
+6. Run the knowledge-base compliance audit.
+
+The workflow may record `pdf_url` as source metadata, but it must not download
+the PDF by default. It may record local ignored paths as provenance when a
+future download step exists, but those files remain outside Git.
+
 ## Collaboration Boundary
 
 SLURM, Kaggle, HDF5 engineering details, Git workflow, submission packaging,

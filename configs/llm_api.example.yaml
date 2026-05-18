@@ -10,6 +10,13 @@
 # =============================================================================
 
 llm:
+  # Provider profile. Supported values:
+  #   openai              - OpenAI API profile
+  #   deepseek            - DeepSeek API profile
+  #   openai_compatible   - any OpenAI-compatible endpoint with explicit base_url
+  #   local_stub          - offline placeholder profile for dry-run checks only
+  provider: "local_stub"
+
   # OpenAI-compatible base URL (e.g. https://api.openai.com/v1)
   base_url: "<SET_BY_ENVIRONMENT>"
 
@@ -27,6 +34,14 @@ llm:
   # Maximum retries on transient errors (rate limiting, connection reset)
   max_retries: 3
 
+  # Live ping is disabled by default. A live ping may run only when BOTH this
+  # config value is true and the CLI is invoked with --allow-live-ping.
+  allow_live_ping: false
+
+  # Provenance mode for later LLM records. This preflight check does not write
+  # provenance logs and does not create fake LLM records.
+  provenance_mode: "development_summary_log"
+
   # Optional: temperature for completions (0.0 - 2.0). Omit or set null for
   # provider default.
   # temperature: 0.7
@@ -43,3 +58,23 @@ provenance:
   #   development_summary_log  - curated summary (current default in SuPerator)
   #   api_proxy_llm_log        - captured from real LLM API responses
   provenance_mode: "development_summary_log"
+
+# Built-in provider profile reference. These are endpoint defaults and env var
+# names only; no API key value may appear in this file.
+provider_profiles:
+  openai:
+    base_url: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+    compatible_api: "openai_chat_completions"
+  deepseek:
+    base_url: "https://api.deepseek.com/v1"
+    api_key_env: "DEEPSEEK_API_KEY"
+    compatible_api: "openai_chat_completions"
+  openai_compatible:
+    base_url: "<SET_BY_ENVIRONMENT>"
+    api_key_env: "LLM_API_KEY"
+    compatible_api: "openai_chat_completions"
+  local_stub:
+    base_url: "<SET_BY_ENVIRONMENT>"
+    api_key_env: "LLM_API_KEY"
+    compatible_api: "offline_no_network"

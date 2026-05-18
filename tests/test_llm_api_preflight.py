@@ -72,12 +72,15 @@ class TestExampleYamlNoSecrets:
         data = yaml.safe_load(EXAMPLE_CONFIG.read_text(encoding="utf-8"))
         llm = data["llm"]
 
+        assert llm["provider"] == "local_stub"
         assert llm["base_url"] == "<SET_BY_ENVIRONMENT>", (
             f"base_url should be placeholder, got {llm['base_url']!r}"
         )
         assert llm["model"] == "<SET_BY_ENVIRONMENT>", (
             f"model should be placeholder, got {llm['model']!r}"
         )
+        assert llm["allow_live_ping"] is False
+        assert llm["provenance_mode"] == "development_summary_log"
 
     def test_no_api_key_field_in_config(self):
         """The config must NOT have a field that directly holds an API key."""
@@ -148,6 +151,18 @@ class TestPreflightDefaultDryRun:
         assert "live_ping" not in parsed["checks"], (
             "live_ping should not be in checks when not requested"
         )
+        assert parsed["checks"]["live_ping_gate"]["performed"] is False
+
+    def test_live_ping_cli_flag_requires_config_gate(self):
+        """Passing --allow-live-ping alone must not perform a network call."""
+        result = _run_preflight("--config", str(EXAMPLE_CONFIG), "--allow-live-ping", "--json")
+        assert result.returncode != 0
+        import json
+        parsed = json.loads(result.stdout)
+        assert parsed["checks"]["live_ping_gate"]["cli_allows"] is True
+        assert parsed["checks"]["live_ping_gate"]["config_allows"] is False
+        assert parsed["checks"]["live_ping_gate"]["performed"] is False
+        assert "live_ping" not in parsed["checks"]
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +198,8 @@ class TestEnvVarCheckNoLeak:
     def test_absent_reports_not_set(self):
         """When an env var is absent, report it clearly."""
         # Use a deliberately non-existent env var name
-        with mock.patch.dict(os.environ, {}, clear=True):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("LLM_API_KEY", None)
             result = _run_preflight(
                 "--config", str(EXAMPLE_CONFIG),
                 "--json",
@@ -230,7 +246,8 @@ class TestRequireKey:
 
     def test_fails_when_key_missing(self):
         """With --require-key and no env var set, exit code must be non-zero."""
-        with mock.patch.dict(os.environ, {}, clear=True):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("LLM_API_KEY", None)
             result = _run_preflight(
                 "--config", str(EXAMPLE_CONFIG),
                 "--require-key",
@@ -254,7 +271,8 @@ class TestRequireKey:
 
     def test_failure_message_does_not_leak(self):
         """Even on failure, no secret should appear in output."""
-        with mock.patch.dict(os.environ, {}, clear=True):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("LLM_API_KEY", None)
             result = _run_preflight(
                 "--config", str(EXAMPLE_CONFIG),
                 "--require-key",
@@ -364,6 +382,48 @@ class TestNoRegressionOnValidators:
 # Additional edge cases
 # ---------------------------------------------------------------------------
 
+class TestProviderProfiles:
+    """Provider profile validation and no-secret behaviour."""
+
+    def test_config_declares_supported_provider_profiles(self):
+        data = yaml.safe_load(EXAMPLE_CONFIG.read_text(encoding="utf-8"))
+        profiles = data["provider_profiles"]
+
+        for provider in ("openai", "deepseek", "openai_compatible", "local_stub"):
+            assert provider in profiles
+            assert "api_key_env" in profiles[provider]
+            assert "base_url" in profiles[provider]
+
+    def test_unknown_provider_fails_without_leaking_env_value(self, tmp_path: Path):
+        data = yaml.safe_load(EXAMPLE_CONFIG.read_text(encoding="utf-8"))
+        data["llm"]["provider"] = "unknown_provider"
+        config = tmp_path / "bad_provider.yaml"
+        config.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+
+        secret_value = "secret-provider-test-value"
+        with mock.patch.dict(os.environ, {"LLM_API_KEY": secret_value}):
+            result = _run_preflight("--config", str(config), "--json")
+
+        assert result.returncode != 0
+        assert secret_value not in result.stdout
+        assert secret_value not in result.stderr
+        assert "unknown_provider" in result.stdout
+
+    def test_api_key_env_that_looks_like_key_is_rejected_without_echo(self, tmp_path: Path):
+        data = yaml.safe_load(EXAMPLE_CONFIG.read_text(encoding="utf-8"))
+        bad_env_name = "sk-test-secret-like-value-abcdef123456"
+        data["llm"]["api_key_env"] = bad_env_name
+        config = tmp_path / "bad_env_name.yaml"
+        config.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+
+        result = _run_preflight("--config", str(config), "--json")
+
+        assert result.returncode != 0
+        assert bad_env_name not in result.stdout
+        assert bad_env_name not in result.stderr
+        assert "environment variable name" in result.stdout
+
+
 class TestEdgeCases:
     """Additional edge case coverage."""
 
@@ -372,15 +432,12 @@ class TestEdgeCases:
         result = _run_preflight("--config", "configs/nonexistent_abc123.yaml")
         assert result.returncode != 0
 
-    def test_config_with_bad_yaml_syntax(self):
+    def test_config_with_bad_yaml_syntax(self, tmp_path: Path):
         """Bad YAML should produce clear error."""
-        bad_yaml = ROOT / "configs" / "__test_bad.yaml"
+        bad_yaml = tmp_path / "bad.yaml"
         bad_yaml.write_text("llm: {\n  base_url: [unclosed\n", encoding="utf-8")
-        try:
-            result = _run_preflight("--config", str(bad_yaml))
-            assert result.returncode != 0
-        finally:
-            bad_yaml.unlink(missing_ok=True)
+        result = _run_preflight("--config", str(bad_yaml))
+        assert result.returncode != 0
 
     def test_env_var_name_in_output_without_value_or_length(self):
         """Env var name appears in output for diagnostics, but never value or length."""

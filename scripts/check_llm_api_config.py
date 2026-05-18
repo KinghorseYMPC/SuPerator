@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -32,11 +33,14 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_LLM_KEYS = {
+    "provider": str,
     "base_url": str,
     "model": str,
     "api_key_env": str,
     "timeout_seconds": (int, float),
     "max_retries": int,
+    "allow_live_ping": bool,
+    "provenance_mode": str,
 }
 
 REQUIRED_PROVENANCE_KEYS = {
@@ -44,11 +48,37 @@ REQUIRED_PROVENANCE_KEYS = {
     "provenance_mode": str,
 }
 
-SENSITIVE_VALUE_PATTERNS = [
-    # Common API key patterns (check example yaml does not contain real-looking keys)
-    "sk-",
-    "sk-",
-]
+ALLOWED_PROVIDER_PROFILES = {
+    "openai": {
+        "base_url": "https://api.openai.com/v1",
+        "api_key_env": "OPENAI_API_KEY",
+        "live_ping_supported": True,
+    },
+    "deepseek": {
+        "base_url": "https://api.deepseek.com/v1",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "live_ping_supported": True,
+    },
+    "openai_compatible": {
+        "base_url": "",
+        "api_key_env": "LLM_API_KEY",
+        "live_ping_supported": True,
+    },
+    "local_stub": {
+        "base_url": "",
+        "api_key_env": "LLM_API_KEY",
+        "live_ping_supported": False,
+    },
+}
+
+ALLOWED_PROVENANCE_MODES = {
+    "development_summary_log",
+    "api_proxy_llm_log",
+}
+
+PLACEHOLDER_VALUE = "<SET_BY_ENVIRONMENT>"
+ENV_VAR_NAME_RE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
+KEY_LIKE_RE = re.compile(r"(?:sk-[A-Za-z0-9_-]{12,}|[A-Za-z0-9_-]{32,})")
 
 EXIT_USAGE = 1
 EXIT_CONFIG_MISSING = 2
@@ -113,6 +143,21 @@ def validate_config_structure(data: dict[str, Any]) -> list[str]:
                 f"llm.{key} must be {type_name}, got {type(llm[key]).__name__}"
             )
 
+    provider = llm.get("provider")
+    if isinstance(provider, str) and provider not in ALLOWED_PROVIDER_PROFILES:
+        errors.append(f"llm.provider is not allowed: {provider!r}")
+
+    api_key_env = llm.get("api_key_env")
+    if isinstance(api_key_env, str) and not ENV_VAR_NAME_RE.fullmatch(api_key_env):
+        errors.append("llm.api_key_env must be an environment variable name")
+
+    provenance_mode = llm.get("provenance_mode")
+    if isinstance(provenance_mode, str) and provenance_mode not in ALLOWED_PROVENANCE_MODES:
+        errors.append(
+            "llm.provenance_mode must be 'development_summary_log' "
+            "or 'api_proxy_llm_log'"
+        )
+
     provenance = data.get("provenance")
     if not isinstance(provenance, dict):
         errors.append("Missing or invalid 'provenance' section (must be a mapping)")
@@ -127,14 +172,18 @@ def validate_config_structure(data: dict[str, Any]) -> list[str]:
                 f"got {type(provenance[key]).__name__}"
             )
 
-    if provenance.get("provenance_mode") not in (
-        "development_summary_log",
-        "api_proxy_llm_log",
-    ):
+    if provenance.get("provenance_mode") not in ALLOWED_PROVENANCE_MODES:
         errors.append(
             f"provenance.provenance_mode must be 'development_summary_log' "
             f"or 'api_proxy_llm_log', got {provenance.get('provenance_mode')!r}"
         )
+
+    if (
+        isinstance(provenance_mode, str)
+        and isinstance(provenance.get("provenance_mode"), str)
+        and provenance_mode != provenance.get("provenance_mode")
+    ):
+        errors.append("llm.provenance_mode must match provenance.provenance_mode")
 
     return errors
 
@@ -145,44 +194,15 @@ def check_no_hardcoded_secrets(data: dict[str, Any]) -> list[str]:
     Returns a list of warnings (empty = clean).
     """
     warnings: list[str] = []
-
-    llm = data.get("llm", {})
-    base_url = str(llm.get("base_url", ""))
-    model = str(llm.get("model", ""))
-
-    # Check for placeholder patterns
-    placeholder_markers = ("<SET_BY_ENVIRONMENT>", "<", "your_", "change_me", "TODO", "TBD")
-    for field_name, value in [("llm.base_url", base_url), ("llm.model", model)]:
-        value_str = str(value)
-        if not any(marker.lower() in value_str.lower() for marker in placeholder_markers):
-            pass  # non-placeholder values are fine as long as they aren't secrets
-
-    # Check for real API key patterns in the entire config
-    raw_yaml = json.dumps(data, default=str)
-    # For each llm key check if it looks like a real API key
-    api_key_env = str(llm.get("api_key_env", ""))
-    # Check env var names that might accidentally be set to real keys
-    # (the value of api_key_env should be an env var NAME, not a key itself)
-    if api_key_env.startswith("sk-") or api_key_env.startswith("sk-"):
-        warnings.append(
-            f"llm.api_key_env looks like an API key value, not an env var name: "
-            f"{api_key_env[:8]}..."
-        )
-
-    # Check if raw_yaml contains any real-looking API key patterns
-    # We look for patterns like sk-... that might appear as values
-    for pattern in SENSITIVE_VALUE_PATTERNS:
-        if pattern in raw_yaml:
-            # Find context around the match to check if it's a value or just
-            # the pattern appearing in docs/comments
-            idx = raw_yaml.index(pattern)
-            snippet = raw_yaml[max(0, idx - 20):idx + 30]
-            if "example" not in snippet.lower() and "placeholder" not in snippet.lower():
-                warnings.append(
-                    f"Config may contain a hardcoded secret matching pattern "
-                    f"'{pattern}' near: ...{snippet}..."
-                )
-
+    for path, value in _iter_leaf_values(data):
+        if not isinstance(value, str):
+            continue
+        if path.endswith(".api_key_env"):
+            if KEY_LIKE_RE.search(value) or not ENV_VAR_NAME_RE.fullmatch(value):
+                warnings.append(f"{path} must contain an env var name, not a secret value")
+            continue
+        if KEY_LIKE_RE.search(value):
+            warnings.append(f"{path} may contain a hardcoded secret-like value")
     return warnings
 
 
@@ -196,6 +216,38 @@ def check_env_var(env_var_name: str) -> dict[str, Any]:
     if value is None:
         return {"name": env_var_name, "present": False}
     return {"name": env_var_name, "present": True}
+
+
+def resolve_base_url(data: dict[str, Any]) -> str:
+    """Resolve base_url from explicit config or built-in provider defaults."""
+
+    llm = data.get("llm", {})
+    provider = str(llm.get("provider", ""))
+    configured = str(llm.get("base_url", "")).strip()
+    if configured and configured != PLACEHOLDER_VALUE:
+        return configured
+    profile = ALLOWED_PROVIDER_PROFILES.get(provider, {})
+    return str(profile.get("base_url", "")).strip()
+
+
+def provider_supports_live_ping(provider: str) -> bool:
+    profile = ALLOWED_PROVIDER_PROFILES.get(provider, {})
+    return bool(profile.get("live_ping_supported", False))
+
+
+def _iter_leaf_values(data: Any, path: str = "") -> list[tuple[str, Any]]:
+    if isinstance(data, dict):
+        values: list[tuple[str, Any]] = []
+        for key, value in data.items():
+            child_path = f"{path}.{key}" if path else str(key)
+            values.extend(_iter_leaf_values(value, child_path))
+        return values
+    if isinstance(data, list):
+        values = []
+        for index, value in enumerate(data):
+            values.extend(_iter_leaf_values(value, f"{path}[{index}]"))
+        return values
+    return [(path, data)]
 
 
 # ---------------------------------------------------------------------------
@@ -254,7 +306,7 @@ def perform_live_ping(
         latency_ms = round((time_module.perf_counter() - start) * 1000, 1)
         return {
             "success": False,
-            "error_summary": f"{type(exc).__name__}: {exc}",
+            "error_summary": f"{type(exc).__name__}: request failed before response",
             "latency_ms": latency_ms,
         }
 
@@ -281,8 +333,7 @@ def perform_live_ping(
             result["error_summary"] = f"HTTP {resp.status_code}: {err_type}"
         except Exception:
             result["error_summary"] = (
-                f"HTTP {resp.status_code} (response not JSON; "
-                f"{len(resp.text)} bytes)"
+                f"HTTP {resp.status_code} (response body omitted)"
             )
 
     return result
@@ -320,6 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     summary: dict[str, Any] = {
         "config_path": args.config,
         "live_ping_requested": args.allow_live_ping,
+        "live_ping_performed": False,
         "checks": {},
     }
 
@@ -350,7 +402,10 @@ def main(argv: list[str] | None = None) -> int:
 
     # 3. Check env var presence
     llm = data["llm"]
+    provider = str(llm["provider"])
     api_key_env = str(llm["api_key_env"])
+    summary["provider"] = provider
+    summary["provenance_mode"] = str(llm["provenance_mode"])
     env_check = check_env_var(api_key_env)
     summary["checks"]["env_var"] = env_check
 
@@ -366,9 +421,49 @@ def main(argv: list[str] | None = None) -> int:
 
     # 5. Live ping (only with --allow-live-ping)
     live_ping_result = None
+    config_allows_live_ping = bool(llm.get("allow_live_ping", False))
+    summary["checks"]["live_ping_gate"] = {
+        "cli_allows": bool(args.allow_live_ping),
+        "config_allows": config_allows_live_ping,
+        "performed": False,
+    }
     if args.allow_live_ping:
+        if not config_allows_live_ping:
+            summary["overall"] = "FAIL"
+            message = (
+                "Live ping blocked: --allow-live-ping was passed but "
+                "llm.allow_live_ping is false"
+            )
+            summary["checks"]["live_ping_gate"]["error"] = message
+            if not args.json_output:
+                print(f"[FAIL] {message}")
+            else:
+                print(json.dumps(summary, ensure_ascii=False, indent=2))
+            return EXIT_CONFIG_INVALID
+        if not provider_supports_live_ping(provider):
+            summary["overall"] = "FAIL"
+            message = f"Live ping is not supported for provider profile {provider!r}"
+            summary["checks"]["live_ping_gate"]["error"] = message
+            if not args.json_output:
+                print(f"[FAIL] {message}")
+            else:
+                print(json.dumps(summary, ensure_ascii=False, indent=2))
+            return EXIT_CONFIG_INVALID
+        resolved_base_url = resolve_base_url(data)
+        if not resolved_base_url:
+            summary["overall"] = "FAIL"
+            message = "Live ping requires an explicit base_url or provider default"
+            summary["checks"]["live_ping_gate"]["error"] = message
+            if not args.json_output:
+                print(f"[FAIL] {message}")
+            else:
+                print(json.dumps(summary, ensure_ascii=False, indent=2))
+            return EXIT_CONFIG_INVALID
+
+        summary["live_ping_performed"] = True
+        summary["checks"]["live_ping_gate"]["performed"] = True
         live_ping_result = perform_live_ping(
-            base_url=str(llm["base_url"]),
+            base_url=resolved_base_url,
             api_key_env=api_key_env,
             model=str(llm["model"]),
             timeout_seconds=float(llm["timeout_seconds"]),
@@ -390,15 +485,21 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print("=== LLM API Config Preflight ===")
         print(f"Config: {args.config}")
+        print(f"Provider: {provider}")
+        print(f"Provenance mode: {llm['provenance_mode']}")
         print(f"Config structure: PASS")
         print(f"Secret scan: {'PASS' if not secret_warnings else 'WARNINGS'}")
         for w in secret_warnings:
             print(f"  [WARN] {w}")
-        print(f"Env var '{api_key_env}': {'present' if env_check['present'] else 'NOT SET'}")
-        if env_check["present"]:
-            pass
+        print(f"Env var '{api_key_env}': {'present' if env_check['present'] else 'missing'}")
         if require_key:
             print(f"--require-key: {'OK' if env_check['present'] else 'FAIL'}")
+        print(
+            "Live ping gate: "
+            f"cli={'allowed' if args.allow_live_ping else 'blocked'}, "
+            f"config={'allowed' if config_allows_live_ping else 'blocked'}, "
+            f"performed={'yes' if summary['live_ping_performed'] else 'no'}"
+        )
         if live_ping_result is not None:
             status = "PASS" if live_ping_result["success"] else "FAIL"
             print(f"Live ping: {status}")

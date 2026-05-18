@@ -29,7 +29,7 @@ def test_safe_knowledge_base_sample_passes(tmp_path: Path) -> None:
     assert report.warnings == ()
 
 
-def test_task_specific_training_route_is_warning_in_ordinary_body(tmp_path: Path) -> None:
+def test_task_specific_training_route_is_error_in_ordinary_body(tmp_path: Path) -> None:
     kb_dir = make_kb(
         tmp_path,
         {
@@ -42,13 +42,13 @@ def test_task_specific_training_route_is_warning_in_ordinary_body(tmp_path: Path
     )
     report = audit_knowledge_base(kb_dir)
 
-    assert report.errors == ()
-    tokens = {finding.token for finding in report.warnings}
+    assert report.warnings == ()
+    tokens = {finding.token for finding in report.errors}
     assert "task1_best_strategy" in tokens
     assert "leaderboard_strategy" in tokens
 
 
-def test_sensitive_paths_are_warning_in_ordinary_body(tmp_path: Path) -> None:
+def test_sensitive_paths_are_error_in_ordinary_body(tmp_path: Path) -> None:
     kb_dir = make_kb(
         tmp_path,
         {
@@ -61,8 +61,8 @@ def test_sensitive_paths_are_warning_in_ordinary_body(tmp_path: Path) -> None:
     )
     report = audit_knowledge_base(kb_dir)
 
-    assert report.errors == ()
-    tokens = {finding.token for finding in report.warnings}
+    assert report.warnings == ()
+    tokens = {finding.token for finding in report.errors}
     assert "literature_pdfs/" in tokens
     assert ".pt" in tokens
 

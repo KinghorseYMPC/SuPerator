@@ -154,14 +154,14 @@ def audit_text(text: str, display_path: str) -> tuple[list[AuditFinding], list[A
                 continue
 
             finding = AuditFinding(
-                severity="warning",
+                severity="error",
                 path=display_path,
                 line=index,
                 rule=rule,
                 token=token,
                 excerpt=stripped[:160],
             )
-            warnings.append(finding)
+            errors.append(finding)
 
     return errors, warnings
 

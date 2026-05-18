@@ -95,6 +95,9 @@ python scripts/knowledge/validate_metadata_examples.py
 The validator checks required fields, compliance fields, classification field
 shape, and prohibited task-specific labels or fields.
 
+No network lookup is performed in this stage. A URL or arXiv ID is treated as
+user-supplied provenance metadata, not as permission to crawl or download.
+
 ## Literature Card Flow
 
 Use `scripts/knowledge/generate_literature_card.py` to turn metadata YAML into
@@ -115,6 +118,23 @@ and sources.
 
 Concept entries should link back to source papers or URLs. They should not be
 written as current-competition action instructions.
+
+## Ingestion Workflow Checklist
+
+For a conservative manual ingestion run:
+
+```bash
+python scripts/knowledge/create_literature_metadata.py --title "<paper title>" --url "<source URL>"
+python scripts/knowledge/validate_metadata_examples.py
+python scripts/knowledge/generate_literature_card.py knowledge_base/metadata_examples/<metadata>.yaml
+python scripts/knowledge/create_concept_entry.py --concept-id "<concept-id>" --title "<concept title>" --sources "<source URL>"
+python scripts/knowledge/validate_taxonomy_usage.py
+python scripts/knowledge/audit_kb_compliance.py
+```
+
+This workflow creates lightweight text drafts only. It must not download PDFs,
+create vector indexes, write cache files, or promote a preflight check into an
+LLM provenance log.
 
 ## Compliance Review Flow
 
