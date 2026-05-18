@@ -192,6 +192,54 @@ def _empty_metadata(strict: bool) -> dict[str, Any]:
     }
 
 
+def _check_placeholder_value(value: Any, path: str = "") -> list[str]:
+    """Recursively check a value for TODO/TBD/placeholder, skipping code content.
+
+    Returns a list of error messages for any matches found.
+    Skips:
+      - tool_calls[].arguments.content (code file content, which may contain TODO)
+    """
+    hits: list[str] = []
+    if isinstance(value, str):
+        if PLACEHOLDER_RE.search(value):
+            hits.append(f"Placeholder text at {path}: {value[:120]}")
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            if k == "content":
+                continue  # skip code content — TODO in code is normal
+            hits.extend(_check_placeholder_value(v, f"{path}.{k}"))
+    elif isinstance(value, list):
+        for i, item in enumerate(value):
+            hits.extend(_check_placeholder_value(item, f"{path}[{i}]"))
+    return hits
+
+
+def _check_placeholders_in_rows(rows: list[dict[str, Any]]) -> list[str]:
+    """Check rows for placeholder text, skipping embedded code content."""
+    hits: list[str] = []
+    for row_idx, row in enumerate(rows, start=1):
+        # Check response
+        resp = row.get("response")
+        if isinstance(resp, str) and PLACEHOLDER_RE.search(resp):
+            hits.append(f"Record {row_idx} response contains placeholder text")
+        # Check metadata
+        meta = row.get("metadata")
+        if isinstance(meta, dict):
+            hits.extend(_check_placeholder_value(meta, f"record{row_idx}.metadata"))
+        # Check tool_calls (skip arguments.content)
+        tc_list = row.get("tool_calls")
+        if isinstance(tc_list, list):
+            for tc_idx, tc in enumerate(tc_list):
+                if isinstance(tc, dict):
+                    name = tc.get("name", "")
+                    if isinstance(name, str) and PLACEHOLDER_RE.search(name):
+                        hits.append(f"Record {row_idx} tool_call[{tc_idx}].name contains placeholder text")
+                    args = tc.get("arguments", {})
+                    if isinstance(args, dict):
+                        hits.extend(_check_placeholder_value(args, f"record{row_idx}.tc{tc_idx}.arguments"))
+    return hits
+
+
 def _extract_tool_names(rows: list[dict[str, Any]]) -> list[str]:
     names: set[str] = set()
     for row in rows:
@@ -306,11 +354,14 @@ def validate_task_log(
         }
 
     text = _read_text(path)
-    if PLACEHOLDER_RE.search(text):
-        errors.append("Log contains placeholder text such as TODO/TBD/placeholder")
 
     if schema["format"] == "jsonl":
         rows, json_errors = _parse_jsonl(text)
+
+        # Structured placeholder check (skips code content in write_file tool_calls)
+        placeholder_hits = _check_placeholders_in_rows(rows)
+        if placeholder_hits:
+            errors.extend(placeholder_hits[:5])  # cap at 5 to avoid flooding
         is_official_sample_file = False
         try:
             is_official_sample_file = path.resolve() == sample_path.resolve()

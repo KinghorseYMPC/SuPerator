@@ -388,6 +388,16 @@ def test_a102_task2_quick_adapter_files_exist() -> None:
         assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
 
 
+def test_a105_code_log_consistency_files_exist() -> None:
+    for relative_path in [
+        "src/submission/code_log_consistency.py",
+        "docs/pdeagent_migration/code_log_consistency_migration.md",
+        "docs/pdeagent_migration/code_log_consistency_requirement.md",
+        "tests/test_code_log_consistency.py",
+    ]:
+        assert (ROOT / relative_path).is_file(), f"missing {relative_path}"
+
+
 def test_a104_methodology_pdf_files_exist() -> None:
     for relative_path in [
         "src/submission/methodology_pdf.py",

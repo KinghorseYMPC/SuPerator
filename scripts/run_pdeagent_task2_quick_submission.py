@@ -131,6 +131,15 @@ def main(argv: list[str] | None = None) -> int:
         summary["inference_time"] = parsed.get("inference_time")
 
     summary["methodology_pdf"] = "outputs/submission/submission/methodology.pdf"
+    try:
+        from src.submission.code_log_consistency import validate_code_log_consistency
+        clc = validate_code_log_consistency(
+            ROOT / "outputs/submission/submission/task2_logs.log",
+            ROOT / "outputs/submission/submission/code",
+        )
+        summary["code_log_consistency"] = "passed" if clc["passed"] else f"failed: {clc.get('missing_files', [])} {clc.get('mismatched_files', [])}"
+    except Exception as exc:
+        summary["code_log_consistency"] = f"check_error: {exc}"
     summary["zip_path"] = "outputs/submission/submission.zip"
     summary["finished_at"] = now()
 

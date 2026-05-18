@@ -130,6 +130,16 @@ def main(argv: list[str] | None = None) -> int:
         summary["max_initial_error"] = parsed.get("first10_max_error")
 
     summary["methodology_pdf"] = "outputs/submission/submission/methodology.pdf"
+    # Check code-log consistency if submission exists
+    try:
+        from src.submission.code_log_consistency import validate_code_log_consistency
+        clc = validate_code_log_consistency(
+            ROOT / "outputs/submission/submission/task1_logs.log",
+            ROOT / "outputs/submission/submission/code",
+        )
+        summary["code_log_consistency"] = "passed" if clc["passed"] else f"failed: {clc.get('missing_files', [])} {clc.get('mismatched_files', [])}"
+    except Exception as exc:
+        summary["code_log_consistency"] = f"check_error: {exc}"
     summary["zip_path"] = "outputs/submission/submission.zip"
     summary["finished_at"] = now()
 

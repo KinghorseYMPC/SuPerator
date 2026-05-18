@@ -181,3 +181,119 @@ def test_development_summary_log_passes_with_provenance_warning(tmp_path: Path) 
     assert result["passed"], result
     assert result["metadata"]["provenance_mode"] == "development_summary_log"
     assert any("may not prove full llm call provenance" in warning.lower() for warning in result["warnings"])
+
+
+class TestPlaceholderCheckSkipsCodeContent:
+    """Placeholder check must skip tool_calls[].arguments.content (code files)."""
+
+    def _make_log(self, tmp_path, rows):
+        log_path = tmp_path / "task1_logs.log"
+        _write_rows(log_path, rows)
+        return log_path
+
+    def _valid_base(self):
+        return {
+            "timestamp": datetime(2026, 5, 7, 1, 0, tzinfo=timezone.utc).isoformat(),
+            "elapsed_seconds": 0.1,
+        }
+
+    def test_todo_in_response_fails(self, tmp_path):
+        rec = {**self._valid_base(), "response": "Task plan: TODO fix this bug"}
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert not result["passed"]
+        assert any("placeholder" in e.lower() for e in result["errors"])
+
+    def test_todo_in_write_file_content_passes(self, tmp_path):
+        """write_file content with TODO must NOT trigger placeholder error."""
+        rec = {
+            **self._valid_base(),
+            "tool_calls": [{
+                "name": "write_file",
+                "arguments": {
+                    "path": "code/a.py",
+                    "content": "# TODO: improve this function\ndef foo():\n    pass\n",
+                },
+            }],
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert result["passed"], result
+
+    def test_placeholder_in_write_file_content_passes(self, tmp_path):
+        """write_file content with 'placeholder' must NOT trigger error."""
+        rec = {
+            **self._valid_base(),
+            "tool_calls": [{
+                "name": "write_file",
+                "arguments": {
+                    "path": "code/b.py",
+                    "content": "# This is a placeholder implementation\nx = 1\n",
+                },
+            }],
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert result["passed"], result
+
+    def test_tbd_in_normal_tool_args_fails(self, tmp_path):
+        """TBD in non-content argument should fail."""
+        rec = {
+            **self._valid_base(),
+            "tool_calls": [{
+                "name": "read_file",
+                "arguments": {"path": "TBD later.md"},
+            }],
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert not result["passed"], result
+
+    def test_placeholder_in_path_fails(self, tmp_path):
+        """write_file path with placeholder should fail."""
+        rec = {
+            **self._valid_base(),
+            "tool_calls": [{
+                "name": "write_file",
+                "arguments": {
+                    "path": "code/TODO module.py",
+                    "content": "x = 1\n",
+                },
+            }],
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert not result["passed"], result
+
+    def test_todo_in_metadata_fails(self, tmp_path):
+        rec = {
+            **self._valid_base(),
+            "response": "ok",
+            "metadata": {"task": "TODO task name"},
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert not result["passed"], result
+
+    def test_code_log_consistency_record_passes(self, tmp_path):
+        """A realistic code snapshot record with TODO in code passes."""
+        rec = {
+            "timestamp": datetime(2026, 5, 7, 1, 0, tzinfo=timezone.utc).isoformat(),
+            "elapsed_seconds": 0.6,
+            "metadata": {
+                "task": "task1",
+                "stage": "submission_code_snapshot",
+                "provenance_mode": "development_summary_log",
+                "code_log_consistency": True,
+            },
+            "tool_calls": [{
+                "name": "write_file",
+                "arguments": {
+                    "path": "code/src/submission/validate_task_logs.py",
+                    "content": "PLACEHOLDER_RE = re.compile(r\"\b(TODO|TBD|placeholder)\b\")\n",
+                },
+            }],
+        }
+        log = self._make_log(tmp_path, [rec])
+        result = validate_task_log(log, TASK1_SAMPLE, strict=True)
+        assert result["passed"], result

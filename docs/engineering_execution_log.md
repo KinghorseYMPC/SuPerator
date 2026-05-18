@@ -677,6 +677,35 @@ optimization routes, or competition task execution strategy.
   - methodology.pdf included in all submission.zip packages
   - No API key, no config.yaml, no LLM, no remote calls
 - validation: to be run
+- commit hash: 97bb07f
+
+## A10.5 - Code-Log Consistency
+
+- stage: A10.5
+- started_at: 2026-05-18
+- purpose: add write_file tool_calls to task logs for code-log consistency checks
+- files created:
+  - `src/submission/code_log_consistency.py`
+  - `docs/pdeagent_migration/code_log_consistency_migration.md`
+  - `docs/pdeagent_migration/code_log_consistency_requirement.md`
+  - `tests/test_code_log_consistency.py`
+- files modified:
+  - `src/submission/make_pdeagent_task1_submission.py` (append + validate code snapshot)
+  - `src/submission/make_pdeagent_task2_submission.py` (append + validate code snapshot)
+  - `src/submission/make_pdeagent_combined_submission.py` (append + validate both tasks)
+  - `src/submission/validate_submission.py` (validate code-log consistency)
+  - `scripts/run_pdeagent_task1_quick_submission.py` (report consistency)
+  - `scripts/run_pdeagent_task2_quick_submission.py` (report consistency)
+  - `docs/pdeagent_migration/README.md`
+  - `docs/engineering_execution_log.md`
+  - `tests/test_project_structure.py`
+- key features:
+  - append_code_snapshot_log_records: adds write_file tool_call for each code file
+  - validate_code_log_consistency: verifies content matches byte-for-byte
+  - wired into all three submission helpers (Task1/Task2/Combined)
+  - validate_submission --all-present includes code_log_consistency check
+  - 120 code files logged, all passed consistency check
+- validation: to be run
 - commit hash: pending
 
 ## A9.9 - Task 1 Submission Finalizer

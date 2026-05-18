@@ -35,14 +35,16 @@
 | [quick_submission_scripts.md](quick_submission_scripts.md) | A10.3 Quick Submission Scripts 文档 |
 | [methodology_pdf_migration.md](methodology_pdf_migration.md) | A10.4 Methodology PDF 迁移审查 |
 | [methodology_pdf_requirement.md](methodology_pdf_requirement.md) | A10.4 Methodology PDF 要求 |
+| [code_log_consistency_migration.md](code_log_consistency_migration.md) | A10.5 Code-Log Consistency 迁移审查 |
+| [code_log_consistency_requirement.md](code_log_consistency_requirement.md) | A10.5 Code-Log Consistency 要求 |
 
 ## 当前阶段状态
 
-**A10.4** — Methodology PDF Generation **（当前阶段）**
-- dependency-free methodology.pdf 生成（fpdf2 优先，raw PDF fallback）
-- 接入所有 submission helper（Task 1 / Task 2 / Combined）
-- validate_submission 和 package_submission 检查 methodology.pdf
-- submission.zip 包含 submission/methodology.pdf
+**A10.5** — Code-Log Consistency **（当前阶段）**
+- write_file tool_calls 追加到 task{N}_logs.log
+- content 与 code 文件逐字节一致
+- validate_submission 自动检查 code-log consistency
+- development_summary_log provenance warning 保留
 
 ## 核心原则
 

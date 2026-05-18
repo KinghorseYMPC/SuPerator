@@ -140,6 +140,20 @@ def validate_task_submission(
     _require(methodology_check["passed"], "; ".join(methodology_check["errors"]))
 
     code_validation = validate_code_bundle(code_dir, strict=strict)
+
+    # Code-log consistency check
+    from src.submission.code_log_consistency import validate_code_log_consistency
+    consistency_result = validate_code_log_consistency(log_path, code_dir)
+    if strict and not consistency_result["passed"]:
+        msgs = []
+        if consistency_result.get("missing_files"):
+            msgs.append(f"missing={consistency_result['missing_files']}")
+        if consistency_result.get("mismatched_files"):
+            msgs.append(f"mismatched={consistency_result['mismatched_files']}")
+        if consistency_result.get("errors"):
+            msgs.extend(consistency_result["errors"])
+        _require(False, "Code-log consistency check failed: " + "; ".join(msgs))
+
     _require(pred_path.is_file(), f"Missing prediction file: {pred_path}")
     _require(time_path.is_file(), f"Missing time CSV: {time_path}")
     _require(log_path.is_file(), f"Missing log file: {log_path}")
@@ -207,6 +221,7 @@ def validate_task_submission(
         "test_shape": test_shape,
         "max_initial_error": max_initial_error,
         "methodology_pdf": methodology_check,
+        "code_log_consistency": consistency_result,
         "train_time": train_time,
         "inference_time": inference_time,
         "log_validation": {

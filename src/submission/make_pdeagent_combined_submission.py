@@ -190,6 +190,24 @@ def create_pdeagent_combined_submission(
         tasks=["task1", "task2"],
     )
 
+    # Append code snapshot records for both task logs (code-log consistency)
+    from src.submission.code_log_consistency import (
+        append_code_snapshot_log_records,
+        validate_code_log_consistency,
+    )
+    for tid in (1, 2):
+        log_path = submission / f"task{tid}_logs.log"
+        if log_path.is_file():
+            append_code_snapshot_log_records(log_path, code_dir, task_id=tid)
+            check = validate_code_log_consistency(log_path, code_dir)
+            if not check["passed"]:
+                raise RuntimeError(
+                    f"Code-log consistency check failed for task{tid}: "
+                    + "; ".join(check.get("errors", []))
+                    + f" missing={check.get('missing_files', [])}"
+                    + f" mismatched={check.get('mismatched_files', [])}"
+                )
+
     # Validate
     validation_result = None
     if validate:
