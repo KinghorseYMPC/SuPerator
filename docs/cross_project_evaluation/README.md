@@ -32,6 +32,13 @@
 | [training_performance_gap_analysis.md](training_performance_gap_analysis.md) | SuPerator 77.87 vs pdeagent 200+ 的工程差距分析（不含调参建议） |
 | [updated_migration_recommendation.md](updated_migration_recommendation.md) | 更新后的迁移建议和 A11 子阶段路线 |
 
+### A11.2 — 训练配置静态迁移评估
+
+| 文档 | 内容 |
+|---|---|
+| [a11_2_pdeagent_train_config_static_eval.md](a11_2_pdeagent_train_config_static_eval.md) | pdeagent train.py / eval_checkpoint.py / utils.py 静态审查，已迁移/未迁移清单，迁移优先级 |
+| [a11_2_training_config_mapping.md](a11_2_training_config_mapping.md) | 逐字段训练配置映射表：pdeagent → SuPerator gap → proposed config key |
+
 ## Executive Summary
 
 ### 首次评估核心发现（A8, 2026-05-16）

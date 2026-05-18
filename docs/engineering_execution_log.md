@@ -853,4 +853,53 @@ optimization routes, or competition task execution strategy.
   - `python scripts/audit_pdeagent_import.py`: to be run
   - `python scripts/knowledge/audit_kb_compliance.py`: to be run
   - `pytest tests/test_llm_api_preflight.py tests/test_project_docs_publication.py tests/test_project_structure.py`: to be run
+- commit hash: b11dda3
+
+## A11.2 — pdeagent Training Config Static Migration Evaluation
+
+- stage: A11.2
+- started_at: 2026-05-18
+- purpose: static evaluation of pdeagent train.py, eval_checkpoint.py, dataset.py,
+  utils.py, and model.py against SuPerator adapters; identify migration gaps and
+  priorities for score-relevant training features.
+- files created:
+  - `docs/cross_project_evaluation/a11_2_pdeagent_train_config_static_eval.md`
+  - `docs/cross_project_evaluation/a11_2_training_config_mapping.md`
+  - `configs/pdeagent_task1_longer_train.example.yaml`
+  - `tests/test_a11_2_train_config_static_eval.py`
+- files modified:
+  - `docs/cross_project_evaluation/README.md` (A11.2 section)
+  - `docs/engineering_execution_log.md` (this entry)
+  - `AGENTS.md` (current stage updated to A11.2)
+- scope boundary:
+  - static analysis, documentation, config schema, and testing only
+  - no training runs
+  - no model inference
+  - no submission generation
+  - no Kaggle/SLURM/LLM API calls
+  - no modification to validate_task_logs.py or validate_submission.py
+- key findings:
+  - run_baseline.py not available in reference (excluded from import)
+  - train.py has 9 training features not yet in SuPerator (aux losses, scheduler,
+    scheduled sampling, score-based checkpoint selection, etc.)
+  - eval_checkpoint.py is a full standalone tool worth migrating
+  - dataset.py sliding window / random split pattern is partially implemented
+  - model.py FNOBlock1d residual differs from SuPerator adapter
+  - config gap: scheduler type, val_fraction, aux loss weights missing from schema
+  - most pdeagent advanced features are disabled by default (multi_step_weight=0.0,
+    use_physics_loss=False, augment_shift=False) — their benefit is unknown
+- recommended sub-stages:
+  - migrate-now: doc and config schema only (A11.2 — this stage)
+  - migrate-later: scheduler, early stopping, time-weighted MSE, spec/temp losses,
+    normalizer-in-checkpoint, score-based checkpoint selection (A11.3)
+  - reference-only: spectrum distance, AMP/compile
+  - do-not-migrate: run_baseline.py, pdeagent config.yaml, pack_submission.py
+- validation:
+  - `python scripts/check_text_encoding.py`: to be run
+  - `python scripts/pre_push_audit.py`: to be run
+  - `python scripts/validate_task_logs.py`: to be run
+  - `python scripts/validate_submission.py --all-present`: to be run
+  - `python scripts/audit_pdeagent_import.py`: to be run
+  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
+  - `pytest tests/test_a11_2_train_config_static_eval.py tests/test_cross_project_evaluation_docs.py tests/test_project_docs_publication.py tests/test_project_structure.py`: to be run
 - commit hash: pending

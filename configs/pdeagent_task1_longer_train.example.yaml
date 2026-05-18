@@ -1,0 +1,78 @@
+# =============================================================================
+# SuPerator pdeagent Task 1 longer-training example configuration
+# =============================================================================
+# This is an EXAMPLE config only. It documents the config schema for a longer
+# training run. It does NOT trigger training and does NOT reference real output
+# paths, checkpoint files, or private data paths.
+#
+# Fields are designed to be compatible with src/adapters/pdeagent/task1_training.py
+# (train_pdeagent_task1_baseline). Fields marked as (new) are proposed additions
+# from A11.2 static evaluation — they are NOT yet implemented in the training
+# adapter. See docs/cross_project_evaluation/a11_2_training_config_mapping.md
+# for the complete mapping.
+# =============================================================================
+
+project_name: SuPerator
+stage: A11_2_longer_train_example
+task: task1
+experiment_id: exp_longer_demo
+
+data:
+  # Path to Task 1 validation HDF5 (100 trajectories)
+  val_path: data_and_sample_submission/train_val_test_init/task1_val.hdf5
+  test_path: data_and_sample_submission/train_val_test_init/task1_test.hdf5
+  input_steps: 10
+  output_steps: 10
+  total_steps: 200
+  spatial_points: 256
+  train_samples: 80
+  dev_samples: 20
+  stride: 1
+  # (new in A11.2) Validation fraction for random_split
+  # val_fraction: 0.2
+  # (new in A11.2) Split method: "sequential" or "random"
+  # split_method: "random"
+
+model:
+  name: pdeagent_task1
+  input_steps: 10
+  output_steps: 10
+  # pdeagent reference uses modes=24, width=64, depth=4 (train.py defaults)
+  width: 64
+  modes: 24
+  depth: 4
+  padding: 0
+  dropout: 0.0
+  use_film: false
+  chunk_size: 10
+
+train:
+  seed: 42
+  device: auto
+  batch_size: 16            # pdeagent default
+  epochs: 220               # pdeagent default
+  learning_rate: 0.001      # 1e-3
+  weight_decay: 0.0001      # 1e-4 — pdeagent default (was 1e-6 in smoke)
+  grad_clip_norm: 1.0
+  max_train_batches_per_epoch: null  # null = use all batches
+  patience: 35              # early stopping patience
+  # (new in A11.2) LR scheduler type: "cosine", "step", or "none"
+  # scheduler: "cosine"
+  # (new in A11.2) Scheduler step size (for StepLR)
+  # scheduler_step: 50
+  # (new in A11.2) Scheduler gamma (for StepLR)
+  # scheduler_gamma: 0.5
+  # (new in A11.2) Best checkpoint selection metric: "dev_loss" or "rollout_score"
+  # checkpoint_metric: "rollout_score"
+  # (new in A11.2) Validation batch size (defaults to batch_size)
+  # val_batch_size: 64
+  # (new in A11.2) Auxiliary loss weights
+  # grad_weight: 0.05        # spectral gradient loss
+  # time_diff_weight: 0.02   # temporal difference loss
+  # multi_step_weight: 0.0   # multi-step rollout loss (0.0 = disabled)
+  # time_weight: 1.0         # late-frame emphasis (1.0 = no emphasis)
+
+outputs:
+  # Output paths are gitignored. Do NOT commit checkpoints or results.
+  checkpoint_dir: outputs/checkpoints
+  result_dir: outputs/pdeagent_task1

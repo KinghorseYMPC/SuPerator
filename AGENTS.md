@@ -12,11 +12,11 @@ and free of task execution strategy.
 
 ## Current Stage
 
-A11.1: LLM API / provenance preflight hardening. Building safe config,
-preflight script, tests, and analysis documentation for the LLM API call and
-provenance log infrastructure. No real API keys read or printed. No live LLM
-calls without explicit opt-in. No model training, no submission generation,
-no Kaggle/SLURM/remote calls.
+A11.2: pdeagent training config static migration evaluation. Static review of
+pdeagent train.py, eval_checkpoint.py, utils.py and comparison against SuPerator
+adapters. Mapping training config fields from pdeagent to SuPerator, identifying
+migrate-now / migrate-later / reference-only candidates. No training runs, no
+API calls, no submission generation.
 
 ## Required Reading Order
 
