@@ -1,0 +1,44 @@
+project_name: SuPerator
+stage: A10_2_pdeagent_task2_quick
+task: task2
+experiment_id: exp_a10_2_pdeagent_task2_quick
+
+data:
+  train_paths:
+    - data_and_sample_submission/train_val_test_init/task2_part0_train.h5
+    - data_and_sample_submission/train_val_test_init/task2_part1_train.h5
+    - data_and_sample_submission/train_val_test_init/task2_part2_train.h5
+  val_path: data_and_sample_submission/train_val_test_init/task2_val.h5
+  test_path: data_and_sample_submission/train_val_test_init/task2_test.h5
+  input_steps: 10
+  output_steps: 1
+  total_steps: 200
+  spatial_points: 256
+
+model:
+  name: pdeagent_task2
+  input_steps: 10
+  output_steps: 1
+  width: 32
+  modes: 16
+  depth: 4
+  padding: 8
+  dropout: 0.0
+  use_film: true
+  condition_source: provided_nu
+  inference_condition_source: estimated_nu
+  nu_dim: 1
+
+train:
+  seed: 42
+  device: auto
+  batch_size: 4
+  epochs: 1
+  learning_rate: 0.001
+  weight_decay: 0.000001
+  max_train_batches_per_epoch: 2
+  grad_clip_norm: 1.0
+
+outputs:
+  checkpoint_dir: outputs/checkpoints
+  result_dir: outputs/pdeagent_task2

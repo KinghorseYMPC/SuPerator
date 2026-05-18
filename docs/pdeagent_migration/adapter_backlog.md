@@ -83,28 +83,38 @@
 **目标**：pdeagent Task 1 quick train/predict 闭环（pdeagent conda 环境）
 **状态**：完成
 
-## A10.1 — Task 2 Adapter Smoke (IN PROGRESS 2026-05-18)
+## A10.1 — Task 2 Adapter Smoke ✅ (COMPLETED 2026-05-18)
 
 **优先级**：P1  
 **目标**：迁移 pdeagent Task 2 baseline adapter 结构（FiLM + NuEstimator1d），完成 shape smoke、配置、测试和文档，不做真实训练  
+**状态**：完成
+
+---
+
+## A10.2 — Task 2 Quick Adapter Workflow (IN PROGRESS 2026-05-18)
+
+**优先级**：P1  
+**目标**：完成 pdeagent Task 2 quick train/predict/submission smoke 闭环  
 **状态**：进行中
 
 **交付物**：
-- `src/adapters/pdeagent/model_adapter.py`（扩展：NuEstimator1d + PdeAgentTask2Model）
-- `src/adapters/pdeagent/task2_dataset_adapter.py`
-- `src/adapters/pdeagent/task2_inference_adapter.py`
-- `configs/pdeagent_task2_adapter_smoke.yaml`
-- `scripts/smoke_pdeagent_task2_adapter.py`
-- `docs/pdeagent_migration/task2_adapter.md`
-- Test files
+- `src/adapters/pdeagent/task2_training.py`
+- `configs/pdeagent_task2_adapter_quick.yaml`
+- `scripts/run_pdeagent_task2_adapter.py`
+- `scripts/parse_pdeagent_task2_run.py`
+- `src/submission/make_pdeagent_task2_submission.py`
+- `scripts/finalize_pdeagent_task2_submission.py`
+- `docs/pdeagent_migration/task2_quick_local_run.md`
+- `docs/pdeagent_migration/task2_submission_adapter.md`
+- Tests
 
 **验收标准**：
-- Task 2 模型不加载 Task 1 checkpoint
-- NuEstimator1d 从 (B, 10, 256) 推断 nu 值
-- 推理不使用测试 Nu
-- Smoke 脚本通过
+- Quick-cycle 训练/解析/dry-run 通过
+- Submission finalizer 生成 Task 2 文件（task2_pred.hdf5, task2_time.csv, task2_logs.log）
+- validate_task_submission(task_id=2) 通过
+- Task 1 数据和 checkpoint 隔离
 
-**依赖**：A9.5（模型/数据 adapter）  
+**依赖**：A10.1
 
 ---
 

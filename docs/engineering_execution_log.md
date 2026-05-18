@@ -562,7 +562,7 @@ optimization routes, or competition task execution strategy.
   - `python scripts/parse_pdeagent_task1_run.py --dry-run`: to be run
   - all validators: to be run
   - targeted pytest: to be run
-- commit hash: pending
+- commit hash: 6418030
 
 ## A10.1 - Task 2 Adapter Smoke
 
@@ -570,43 +570,48 @@ optimization routes, or competition task execution strategy.
 - started_at: 2026-05-18
 - purpose: migrate pdeagent Task 2 baseline adapter structure (FiLM + NuEstimator1d),
   complete shape smoke, config, tests, and documentation. No training.
+- status: completed
+- commit hash: 6418030
+
+## A10.2 - Task 2 Quick Adapter Workflow
+
+- stage: A10.2
+- started_at: 2026-05-18
+- purpose: complete pdeagent Task 2 quick train/predict/submission smoke workflow
 - files created:
-  - `src/adapters/pdeagent/task2_dataset_adapter.py`
-  - `src/adapters/pdeagent/task2_inference_adapter.py`
-  - `configs/pdeagent_task2_adapter_smoke.yaml`
-  - `scripts/smoke_pdeagent_task2_adapter.py`
-  - `docs/pdeagent_migration/task2_adapter.md`
-  - `tests/test_pdeagent_task2_model_adapter.py`
-  - `tests/test_pdeagent_task2_dataset_adapter.py`
-  - `tests/test_pdeagent_task2_inference_adapter.py`
-  - `tests/test_pdeagent_task2_smoke_script.py`
+  - `src/adapters/pdeagent/task2_training.py`
+  - `configs/pdeagent_task2_adapter_quick.yaml`
+  - `scripts/run_pdeagent_task2_adapter.py`
+  - `scripts/parse_pdeagent_task2_run.py`
+  - `src/submission/make_pdeagent_task2_submission.py`
+  - `scripts/finalize_pdeagent_task2_submission.py`
+  - `docs/pdeagent_migration/task2_quick_local_run.md`
+  - `docs/pdeagent_migration/task2_submission_adapter.md`
+  - `tests/test_pdeagent_task2_training_adapter.py`
+  - `tests/test_run_pdeagent_task2_adapter.py`
+  - `tests/test_parse_pdeagent_task2_run.py`
+  - `tests/test_finalize_pdeagent_task2_submission.py`
 - files modified:
-  - `src/adapters/pdeagent/model_adapter.py` (extended: NuEstimator1d, PdeAgentTask2Model, build_pdeagent_task2_model)
+  - `src/adapters/pdeagent/task2_inference_adapter.py` (inference_condition_source support)
   - `docs/pdeagent_migration/README.md`
   - `docs/pdeagent_migration/adapter_backlog.md`
   - `docs/engineering_execution_log.md`
+  - `tests/test_pdeagent_task2_inference_adapter.py`
   - `tests/test_project_structure.py`
 - scope boundary:
-  - no model training
-  - no real inference on test set
+  - quick/smoke training only
   - no Kaggle/SLURM/LLM API calls
   - no Task 1 checkpoint use
   - no Task 1 data use
-  - no submission generation
-- key constraints enforced:
-  - Task 2 training data provides Nu; test data does not
-  - Inference uses NuEstimator1d from initial conditions, not test Nu
-  - FiLM conditioning supports condition_source: "provided_nu" / "estimated_nu"
-  - Task 1 model interface intact
-- validation:
-  - `python scripts/smoke_pdeagent_task2_adapter.py`: to be run
-  - `python scripts/check_text_encoding.py`: to be run
-  - `python scripts/pre_push_audit.py`: to be run
-  - `python scripts/validate_task_logs.py`: to be run
-  - `python scripts/validate_submission.py`: to be run
-  - `python scripts/audit_pdeagent_import.py`: to be run
-  - `python scripts/knowledge/audit_kb_compliance.py`: to be run
-  - targeted pytest: to be run
+  - outputs written to git-ignored outputs/
+- key features:
+  - task2_training.py with FiLM + provided_nu training
+  - run_pdeagent_task2_adapter.py with --dry-run/--train/--predict/--quick-cycle
+  - parse_pdeagent_task2_run.py with quick_pass logic
+  - make_pdeagent_task2_submission.py + finalize for Task 2 submission
+  - checkpoint metadata: task=task2, uses_task1_checkpoint=false
+  - validation: validate_task_submission(task_id=2)
+- validation: to be run
 - commit hash: pending
 
 ## A9.9 - Task 1 Submission Finalizer

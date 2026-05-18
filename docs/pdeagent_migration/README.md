@@ -30,15 +30,16 @@
 | [task1_quick_local_run.md](task1_quick_local_run.md) | A9.8 Task 1 Quick Local Run Runbook |
 | [task1_submission_adapter.md](task1_submission_adapter.md) | A9.9 Task 1 Submission Adapter 文档 |
 | [task2_adapter.md](task2_adapter.md) | A10.1 Task 2 Adapter 文档 |
+| [task2_quick_local_run.md](task2_quick_local_run.md) | A10.2 Task 2 Quick Local Run Runbook |
+| [task2_submission_adapter.md](task2_submission_adapter.md) | A10.2 Task 2 Submission Adapter 文档 |
 
 ## 当前阶段状态
 
-**A10.1** — Task 2 Adapter Smoke **（当前阶段）**
-- Task 2 model adapter（FiLM + NuEstimator1d + PdeAgentTask2Model）
-- Task 2 dataset adapter（Nu-aware windowed HDF5）
-- Task 2 inference adapter（Nu-free test rollout）
-- Smoke 配置与脚本
-- 本阶段只做 adapter smoke，不训练
+**A10.2** — Task 2 Quick Adapter Workflow **（当前阶段）**
+- Task 2 quick training（FiLM + NuEstimator1d + provided_nu）
+- Task 2 quick inference（estimated_nu, no test Nu）
+- Task 2 submission finalizer（validate + package）
+- 本阶段允许 quick/smoke 训练，不进行完整训练
 
 ## 核心原则
 

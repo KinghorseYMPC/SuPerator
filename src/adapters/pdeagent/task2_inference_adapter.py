@@ -109,6 +109,8 @@ def predict_task2_from_checkpoint(
     )
 
     model_cfg = config["model"]
+    # Inference overrides: use inference_condition_source if present, else fall back
+    infer_cond = model_cfg.get("inference_condition_source", model_cfg.get("condition_source", "estimated_nu"))
     mconfig = PdeAgentBaselineConfig(
         input_steps=int(model_cfg.get("input_steps", 10)),
         output_steps=int(model_cfg.get("output_steps", 1)),
@@ -118,7 +120,7 @@ def predict_task2_from_checkpoint(
         dropout=float(model_cfg.get("dropout", 0.0)),
         chunk_size=int(model_cfg.get("output_steps", 1)),
         use_film=True,
-        condition_source=str(model_cfg.get("condition_source", "estimated_nu")),
+        condition_source=str(infer_cond),
         nu_dim=int(model_cfg.get("nu_dim", 1)),
     )
     device = config.get("train", {}).get("device", "cpu")
